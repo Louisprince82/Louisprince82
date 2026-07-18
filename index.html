@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legacy Alliance — Asia's Elite Marriage &amp; Family Alliance Agency</title>
+<meta name="description" content="Born in Singapore. Headquartered in Bangkok. Connecting the world's royal and elite families through strategic marriage, legacy and alliance.">
+<style>
+  :root{
+    --navy:#0a1128;
+    --navy-2:#101a3d;
+    --navy-3:#182452;
+    --gold:#c9a24b;
+    --gold-light:#e8ce8c;
+    --gold-dim:#8a6f33;
+    --ivory:#f5efe2;
+    --ivory-dim:#cfc6b0;
+    --serif:'Playfair Display','Didot','Bodoni MT',Georgia,'Times New Roman',serif;
+    --sans:'Avenir Next','Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--navy);color:var(--ivory);font-family:var(--sans);line-height:1.7;overflow-x:hidden}
+  h1,h2,h3,h4{font-family:var(--serif);font-weight:600;letter-spacing:.02em}
+  img{max-width:100%}
+  a{color:var(--gold-light);text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .eyebrow{display:inline-block;font-family:var(--sans);font-size:.72rem;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
+  .rule{width:70px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:26px auto}
+  .rule.left{margin:26px 0}
+  section{padding:110px 0;position:relative}
+  .section-title{font-size:clamp(1.9rem,4vw,2.9rem);color:var(--ivory);text-align:center}
+  .section-sub{max-width:720px;margin:18px auto 0;text-align:center;color:var(--ivory-dim);font-size:1.02rem}
+
+  /* subtle background pattern */
+  .pattern{background-image:
+    radial-gradient(circle at 25% 15%, rgba(201,162,75,.06) 0, transparent 45%),
+    radial-gradient(circle at 80% 85%, rgba(201,162,75,.05) 0, transparent 40%)}
+
+  /* ---------- NAV ---------- */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,17,40,.88);backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,162,75,.25)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:74px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .crest{width:44px;height:44px;border:1px solid var(--gold);transform:rotate(45deg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .crest span{transform:rotate(-45deg);font-family:var(--serif);color:var(--gold);font-size:1.15rem}
+  .brand-name{font-family:var(--serif);letter-spacing:.28em;font-size:.95rem;color:var(--ivory)}
+  .brand-name small{display:block;font-family:var(--sans);font-size:.55rem;letter-spacing:.34em;color:var(--gold);margin-top:2px}
+  .nav-links{display:flex;gap:30px;align-items:center}
+  .nav-links a{font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ivory-dim);transition:color .3s}
+  .nav-links a:hover{color:var(--gold-light)}
+  .btn{display:inline-block;padding:14px 34px;border:1px solid var(--gold);color:var(--gold-light);font-size:.74rem;letter-spacing:.28em;text-transform:uppercase;transition:all .35s;background:transparent;cursor:pointer;font-family:var(--sans)}
+  .btn:hover{background:var(--gold);color:var(--navy)}
+  .btn.solid{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);border:none;font-weight:600}
+  .btn.solid:hover{filter:brightness(1.1)}
+  .nav-links .btn{padding:10px 22px}
+  @media(max-width:900px){.nav-links a:not(.btn){display:none}}
+
+  /* ---------- HERO ---------- */
+  header{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;
+    background:
+      radial-gradient(ellipse at 50% 120%, rgba(201,162,75,.14) 0, transparent 55%),
+      radial-gradient(ellipse at 50% -20%, rgba(24,36,82,.9) 0, transparent 60%),
+      var(--navy);
+    padding:140px 24px 90px}
+  header::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,rgba(201,162,75,.03) 0 1px,transparent 1px 120px);pointer-events:none}
+  .hero-crest{width:92px;height:92px;border:1px solid var(--gold);transform:rotate(45deg);margin:0 auto 46px;display:flex;align-items:center;justify-content:center;position:relative}
+  .hero-crest::after{content:"";position:absolute;inset:7px;border:1px solid rgba(201,162,75,.4)}
+  .hero-crest span{transform:rotate(-45deg);font-family:var(--serif);color:var(--gold);font-size:2.2rem}
+  h1{font-size:clamp(2.4rem,6vw,4.6rem);line-height:1.15;color:var(--ivory);max-width:1000px;margin:0 auto}
+  h1 em{font-style:italic;color:var(--gold-light)}
+  .tagline{font-family:var(--serif);font-style:italic;font-size:clamp(1.1rem,2.4vw,1.55rem);color:var(--gold-light);margin-top:30px}
+  .hero-sub{color:var(--ivory-dim);letter-spacing:.3em;text-transform:uppercase;font-size:.72rem;margin-top:26px}
+  .hero-cta{margin-top:52px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+
+  /* ---------- STATS BAND ---------- */
+  .band{border-top:1px solid rgba(201,162,75,.25);border-bottom:1px solid rgba(201,162,75,.25);background:var(--navy-2);padding:44px 0}
+  .band .wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:34px;text-align:center}
+  .stat b{display:block;font-family:var(--serif);font-size:2rem;color:var(--gold-light)}
+  .stat span{font-size:.7rem;letter-spacing:.26em;text-transform:uppercase;color:var(--ivory-dim)}
+
+  /* ---------- VISION ---------- */
+  .vision-quote{font-family:var(--serif);font-size:clamp(1.3rem,2.8vw,1.9rem);font-style:italic;line-height:1.6;text-align:center;max-width:880px;margin:0 auto;color:var(--ivory)}
+  .vision-quote strong{color:var(--gold-light);font-weight:600}
+
+  /* ---------- PILLARS ---------- */
+  .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:26px;margin-top:64px}
+  .card{background:var(--navy-2);border:1px solid rgba(201,162,75,.22);padding:42px 32px;transition:transform .35s,border-color .35s;position:relative}
+  .card:hover{transform:translateY(-6px);border-color:var(--gold)}
+  .card .num{font-family:var(--serif);font-size:2.6rem;color:rgba(201,162,75,.35);line-height:1}
+  .card h3{font-size:1.2rem;color:var(--gold-light);margin:16px 0 14px}
+  .card p, .card li{color:var(--ivory-dim);font-size:.92rem}
+  .card ul{list-style:none;margin-top:8px}
+  .card li{padding-left:20px;position:relative;margin-bottom:8px}
+  .card li::before{content:"◆";position:absolute;left:0;color:var(--gold);font-size:.55rem;top:7px}
+
+  /* ---------- PROBLEM ---------- */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}
+  @media(max-width:860px){.split{grid-template-columns:1fr}}
+  .problem-list{list-style:none}
+  .problem-list li{padding:22px 0;border-bottom:1px solid rgba(201,162,75,.18);display:flex;gap:22px}
+  .problem-list b{font-family:var(--serif);color:var(--gold);font-size:1.5rem;min-width:44px}
+  .problem-list h4{color:var(--ivory);font-size:1.02rem;margin-bottom:4px}
+  .problem-list p{color:var(--ivory-dim);font-size:.9rem}
+
+  /* ---------- TIERS ---------- */
+  .tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px;margin-top:64px;align-items:stretch}
+  .tier{background:var(--navy-2);border:1px solid rgba(201,162,75,.25);padding:48px 36px;display:flex;flex-direction:column;position:relative}
+  .tier.featured{background:linear-gradient(160deg,var(--navy-3),var(--navy-2));border:1px solid var(--gold);box-shadow:0 30px 70px rgba(0,0,0,.45)}
+  .tier .badge{position:absolute;top:0;left:50%;transform:translate(-50%,-50%);background:var(--gold);color:var(--navy);font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;padding:7px 18px;font-weight:700;white-space:nowrap}
+  .tier h3{color:var(--gold-light);font-size:1.05rem;letter-spacing:.18em;text-transform:uppercase;font-family:var(--sans);font-weight:600}
+  .tier .t-name{font-family:var(--serif);font-size:1.7rem;color:var(--ivory);margin-top:10px}
+  .tier .price{font-family:var(--serif);font-size:2rem;color:var(--gold-light);margin:24px 0 4px}
+  .tier .price small{font-size:.85rem;color:var(--ivory-dim);font-family:var(--sans)}
+  .tier ul{list-style:none;margin:26px 0 34px;flex:1}
+  .tier li{padding:9px 0 9px 26px;position:relative;color:var(--ivory-dim);font-size:.9rem;border-bottom:1px solid rgba(255,255,255,.05)}
+  .tier li::before{content:"✦";position:absolute;left:0;color:var(--gold)}
+  .tier .btn{text-align:center}
+
+  /* ---------- NETWORK ---------- */
+  .cities{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:46px}
+  .city{border:1px solid rgba(201,162,75,.35);padding:12px 26px;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--ivory-dim);transition:all .3s}
+  .city:hover{border-color:var(--gold);color:var(--gold-light)}
+  .city.hq{background:var(--gold);color:var(--navy);border-color:var(--gold);font-weight:700}
+  .phase-label{text-align:center;margin-top:60px;font-size:.72rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold)}
+
+  /* ---------- MEDIA ---------- */
+  .media-panel{background:linear-gradient(160deg,var(--navy-3),var(--navy-2));border:1px solid rgba(201,162,75,.3);padding:70px 56px;display:grid;grid-template-columns:1.2fr 1fr;gap:60px;align-items:center}
+  @media(max-width:860px){.media-panel{grid-template-columns:1fr;padding:48px 30px}}
+  .media-panel h3{font-size:clamp(1.5rem,3vw,2.2rem);color:var(--ivory)}
+  .media-panel h3 em{color:var(--gold-light);font-style:italic}
+  .media-panel p{color:var(--ivory-dim);margin-top:18px}
+  .screen{aspect-ratio:16/10;border:1px solid var(--gold);background:
+    radial-gradient(circle at 50% 40%, rgba(201,162,75,.25) 0, transparent 60%),var(--navy);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+  .screen .play{width:64px;height:64px;border:1px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:1.3rem}
+  .screen small{letter-spacing:.3em;text-transform:uppercase;color:var(--gold-light);font-size:.62rem}
+
+  /* ---------- PARTNERS ---------- */
+  .partner-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:26px;margin-top:60px}
+
+  /* ---------- APPLY ---------- */
+  .apply-panel{max-width:760px;margin:60px auto 0;background:var(--navy-2);border:1px solid rgba(201,162,75,.3);padding:60px 56px}
+  @media(max-width:640px){.apply-panel{padding:40px 24px}}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:640px){.form-row{grid-template-columns:1fr}}
+  label{display:block;font-size:.68rem;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin:22px 0 8px}
+  input,select,textarea{width:100%;background:var(--navy);border:1px solid rgba(201,162,75,.35);color:var(--ivory);padding:14px 16px;font-family:var(--sans);font-size:.95rem;outline:none;transition:border-color .3s}
+  input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+  .form-note{font-size:.78rem;color:var(--ivory-dim);margin-top:24px;font-style:italic}
+  .apply-panel .btn{width:100%;margin-top:34px;padding:18px}
+  .confirm{display:none;text-align:center;padding:40px 0}
+  .confirm h3{color:var(--gold-light);font-size:1.6rem}
+  .confirm p{color:var(--ivory-dim);margin-top:14px}
+
+  /* ---------- FOOTER ---------- */
+  footer{border-top:1px solid rgba(201,162,75,.25);background:var(--navy-2);padding:70px 0 40px;text-align:center}
+  footer .brand{justify-content:center;margin-bottom:26px}
+  footer p{color:var(--ivory-dim);font-size:.8rem;max-width:640px;margin:0 auto}
+  .foot-links{display:flex;gap:28px;justify-content:center;margin:30px 0;flex-wrap:wrap}
+  .foot-links a{font-size:.68rem;letter-spacing:.24em;text-transform:uppercase;color:var(--ivory-dim)}
+  .foot-links a:hover{color:var(--gold-light)}
+  .legal{font-size:.68rem;color:rgba(207,198,176,.5);margin-top:26px}
+
+  /* reveal animation */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s ease}
+  .reveal.on{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <div class="brand">
+      <div class="crest"><span>L</span></div>
+      <div class="brand-name">LEGACY ALLIANCE<small>ELITE MARRIAGE &amp; FAMILY OFFICE</small></div>
+    </div>
+    <div class="nav-links">
+      <a href="#vision">Vision</a>
+      <a href="#pillars">Our Method</a>
+      <a href="#membership">Membership</a>
+      <a href="#network">Global Network</a>
+      <a href="#media">The Series</a>
+      <a href="app.html">Member App</a>
+      <a href="#apply" class="btn">Request Invitation</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div>
+    <div class="hero-crest"><span>L</span></div>
+    <div class="eyebrow">Born in Singapore &nbsp;·&nbsp; Headquartered in Bangkok &nbsp;·&nbsp; Serving the World's Elite</div>
+    <h1>Where Royal &amp; Elite Families<br><em>Unite Their Legacies</em></h1>
+    <p class="tagline">“Marriage is not luck — it is legacy.”</p>
+    <p class="hero-sub">Asia's premier elite marriage &amp; family alliance agency</p>
+    <div class="hero-cta">
+      <a href="#apply" class="btn solid">Request Private Invitation</a>
+      <a href="#pillars" class="btn">Discover Our Method</a>
+    </div>
+  </div>
+</header>
+
+<div class="band">
+  <div class="wrap">
+    <div class="stat"><b>6+</b><span>Countries · Phase One</span></div>
+    <div class="stat"><b>100%</b><span>Verified &amp; Confidential</span></div>
+    <div class="stat"><b>Top 5%</b><span>Of Families, By Invitation</span></div>
+    <div class="stat"><b>1</b><span>Mission: Multi-Generational Legacy</span></div>
+  </div>
+</div>
+
+<section id="vision" class="pattern">
+  <div class="wrap reveal">
+    <div style="text-align:center"><span class="eyebrow">Our Vision</span></div>
+    <p class="vision-quote">We are building the world's No.1 elite marriage agency for royal and affluent families — combining <strong>deep human screening</strong>, <strong>AI intelligence</strong>, and a <strong>powerful global network</strong> to create high-quality marriages, strategic alliances, and multi-generational wealth connections.</p>
+    <div class="rule"></div>
+    <p class="section-sub">We are not a dating app. We are a high-touch, confidential agency for the top families of Asia and the world — designing strategic marriages and alliances, never random matches.</p>
+  </div>
+</section>
+
+<section style="background:var(--navy-2)">
+  <div class="wrap split reveal">
+    <div>
+      <span class="eyebrow">The Problem We Solve</span>
+      <h2 style="font-size:clamp(1.7rem,3.4vw,2.5rem)">Wealth Without a Safe<br>Path to Marriage</h2>
+      <div class="rule left"></div>
+      <p style="color:var(--ivory-dim)">Affluent families hold money, status and power — yet have no safe channel to manage the most important decision of all. Dating apps are too casual. Ordinary agencies are too shallow. Family introductions are too random. One wrong marriage can destroy a business, an inheritance, a reputation.</p>
+    </div>
+    <ul class="problem-list">
+      <li><b>01</b><div><h4>No Time, No Safe Channel</h4><p>Leaders of business and state have no time to date — and no one they can trust.</p></div></li>
+      <li><b>02</b><div><h4>High Risk of Wrong Intentions</h4><p>Fake profiles, hidden debts, secret marriages. The wealthy are targets.</p></div></li>
+      <li><b>03</b><div><h4>No Professional Due Diligence</h4><p>No banker-grade advisory exists for the marriage decision — until now.</p></div></li>
+      <li><b>04</b><div><h4>Marriage Is Business &amp; Legacy</h4><p>Succession, shareholding, reputation, cross-border opportunity — all at stake.</p></div></li>
+    </ul>
+  </div>
+</section>
+
+<section id="pillars" class="pattern">
+  <div class="wrap reveal">
+    <div style="text-align:center"><span class="eyebrow">Our Method</span></div>
+    <h2 class="section-title">Four Pillars of the Alliance</h2>
+    <p class="section-sub">A banker-grade advisory process for the most important decision a family will ever make.</p>
+    <div class="grid-4">
+      <div class="card">
+        <div class="num">I</div>
+        <h3>Deep Profiling &amp; Verification</h3>
+        <ul>
+          <li>In-depth private interviews</li>
+          <li>AI personality &amp; lifestyle assessment</li>
+          <li>Family background &amp; reputation checks</li>
+          <li>Authenticity verification — no fraud, no hidden histories</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="num">II</div>
+        <h3>Strategic Matchmaking</h3>
+        <ul>
+          <li>Values, vision &amp; long-term goals</li>
+          <li>Financial habits &amp; lifestyle alignment</li>
+          <li>Religion, culture, language, country</li>
+          <li>Family-to-family compatibility — not just appearance</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="num">III</div>
+        <h3>Family &amp; Legal Structuring</h3>
+        <ul>
+          <li>Trusted lawyers &amp; family offices</li>
+          <li>Pre-nuptial &amp; estate advisory</li>
+          <li>Property &amp; investment structuring</li>
+          <li>Education &amp; relocation planning</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="num">IV</div>
+        <h3>Absolute Confidentiality</h3>
+        <ul>
+          <li>NDAs for every party</li>
+          <li>No public profiles — fully curated &amp; discreet</li>
+          <li>Strict ethical framework</li>
+          <li>Human judgement, elevated by AI</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="membership" style="background:var(--navy-2)">
+  <div class="wrap reveal">
+    <div style="text-align:center"><span class="eyebrow">Membership</span></div>
+    <h2 class="section-title">Invitation-Only Tiers</h2>
+    <p class="section-sub">Our fees reflect the depth of our research and the weight of your family's legacy. Every member is verified. Every introduction is curated.</p>
+    <div class="tiers">
+      <div class="tier">
+        <h3>Tier A</h3>
+        <div class="t-name">Consultation &amp; Deep Profiling</div>
+        <div class="price">S$10,000 – 15,000 <small>· engagement fee</small></div>
+        <ul>
+          <li>Professional video profile production</li>
+          <li>AI personality &amp; compatibility assessment</li>
+          <li>Multi-point character analysis</li>
+          <li>Family background overview</li>
+          <li>Lifestyle audit &amp; authenticity verification</li>
+        </ul>
+        <a class="btn" href="#apply">Begin Profiling</a>
+      </div>
+      <div class="tier featured">
+        <div class="badge">Most Selected</div>
+        <h3>Tier B</h3>
+        <div class="t-name">Elite Matchmaking</div>
+        <div class="price">S$30,000 – 50,000 <small>· per client</small></div>
+        <ul>
+          <li>Candidate pool across 6+ countries</li>
+          <li>Curated introductions — never mass matching</li>
+          <li>1–3 premium matches</li>
+          <li>Private interviews &amp; chaperoned meetings</li>
+          <li>Family-to-family alignment session</li>
+        </ul>
+        <a class="btn solid" href="#apply">Request Invitation</a>
+      </div>
+      <div class="tier">
+        <h3>Tier C</h3>
+        <div class="t-name">Royal Legacy · Ultra HNW</div>
+        <div class="price">S$80,000 – 150,000+ <small>· bespoke</small></div>
+        <ul>
+          <li>Private concierge &amp; confidential travel</li>
+          <li>20–30 page in-depth background reports</li>
+          <li>Family wealth compatibility review</li>
+          <li>Legal &amp; estate advisory via partners</li>
+          <li>Cross-border relocation &amp; residency planning</li>
+          <li>Multi-city introductions worldwide</li>
+        </ul>
+        <a class="btn" href="#apply">Speak With the Founder's Office</a>
+      </div>
+    </div>
+    <p class="section-sub" style="margin-top:44px;font-style:italic">Families invest millions in property and education. Investing in the right partner for your child — and your legacy — is the wisest investment of all.</p>
+  </div>
+</section>
+
+<section id="network" class="pattern">
+  <div class="wrap reveal">
+    <div style="text-align:center"><span class="eyebrow">Global Network</span></div>
+    <h2 class="section-title">The Bridge Between Elite Families, Worldwide</h2>
+    <p class="section-sub">Born in Singapore for trust and legal strength. Headquartered in Bangkok for reach and hospitality. Expanding to every capital where great families gather.</p>
+    <p class="phase-label">— Phase One · The Core Asia Elite Network —</p>
+    <div class="cities">
+      <span class="city hq">Bangkok · HQ</span>
+      <span class="city">Singapore · Founding Office</span>
+      <span class="city">Vietnam</span>
+      <span class="city">China</span>
+      <span class="city">Indonesia</span>
+      <span class="city">Hong Kong</span>
+    </div>
+    <p class="phase-label">— Phase Two · Global Expansion —</p>
+    <div class="cities">
+      <span class="city">Taiwan</span>
+      <span class="city">Malaysia</span>
+      <span class="city">Dubai</span>
+      <span class="city">London</span>
+      <span class="city">Europe</span>
+      <span class="city">United States</span>
+    </div>
+  </div>
+</section>
+
+<section id="media" style="background:var(--navy-2)">
+  <div class="wrap reveal">
+    <div class="media-panel">
+      <div>
+        <span class="eyebrow">The Series</span>
+        <h3>The World Will Watch:<br><em>“Asia Elite Marriage Stories”</em></h3>
+        <p>Our agency is also a global media house. Real (and discreetly anonymised) stories of elite courtship, family alliances and legendary weddings — produced as a premium episodic series for the world's biggest platforms.</p>
+        <p style="margin-top:14px;color:var(--gold-light);font-size:.85rem;letter-spacing:.14em">NETFLIX · DISNEY+ · iQIYI · YOUKU · TENCENT · TIKTOK · RED</p>
+        <p style="margin-top:18px">Luxury maisons — jewellery, jets, resorts, couture — partner with us to appear inside the most-watched love stories on earth.</p>
+      </div>
+      <div class="screen">
+        <div class="play">▶</div>
+        <small>Season One · Coming Soon</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="partners" class="pattern">
+  <div class="wrap reveal">
+    <div style="text-align:center"><span class="eyebrow">Partners &amp; Country Licensing</span></div>
+    <h2 class="section-title">One Brand. Every Nation.</h2>
+    <p class="section-sub">As the Alliance becomes famous, distinguished partners in each country may license the brand, system, training and AI process — with full local exclusivity.</p>
+    <div class="partner-grid">
+      <div class="card"><h3>Master Country License</h3><p>Exclusive national rights to operate under the Legacy Alliance brand, open branches, and serve your nation's leading families.</p></div>
+      <div class="card"><h3>The Elite Alliance Club</h3><p>Annual membership for families: private dinners, retreats, investment journeys and exclusive deal flow among Asia's most powerful circles.</p></div>
+      <div class="card"><h3>Luxury Maison Partnerships</h3><p>Jewellers, hotels, resorts, aviation and couture houses serving our members' weddings, celebrations and lifestyles.</p></div>
+      <div class="card"><h3>Founding Investor Circle</h3><p>A small group of strategic investors is invited to join at the very beginning — before we expand across Asia and before the world discovers us.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="apply" style="background:var(--navy-2)">
+  <div class="wrap reveal">
+    <div style="text-align:center"><span class="eyebrow">By Invitation Only</span></div>
+    <h2 class="section-title">Request Your Private Invitation</h2>
+    <p class="section-sub">Every application is reviewed personally and held in strict confidence. We accept only families who meet our standards of standing, sincerity and discretion.</p>
+    <div class="apply-panel">
+      <form id="applyForm">
+        <div class="form-row">
+          <div><label>Full Name</label><input required name="name" placeholder="Your full name"></div>
+          <div><label>Family / House Name</label><input name="family" placeholder="Family or house name"></div>
+        </div>
+        <div class="form-row">
+          <div><label>Country of Residence</label><input required name="country" placeholder="e.g. Singapore"></div>
+          <div><label>Contact (Email / WhatsApp)</label><input required name="contact" placeholder="How may we reach you?"></div>
+        </div>
+        <div class="form-row">
+          <div><label>Membership Interest</label>
+            <select name="tier">
+              <option>Tier A — Consultation &amp; Profiling</option>
+              <option selected>Tier B — Elite Matchmaking</option>
+              <option>Tier C — Royal Legacy (Ultra HNW)</option>
+              <option>Elite Alliance Club Membership</option>
+              <option>Country License / Partnership</option>
+              <option>Founding Investor Circle</option>
+            </select>
+          </div>
+          <div><label>Applying For</label>
+            <select name="for"><option>Myself</option><option>My Son / Daughter</option><option>A Family Member</option></select>
+          </div>
+        </div>
+        <label>A Word About Your Family &amp; What You Seek</label>
+        <textarea name="message" rows="4" placeholder="Shared in strictest confidence…"></textarea>
+        <p class="form-note">All submissions are protected under non-disclosure. No profile is ever public.</p>
+        <button type="submit" class="btn solid">Submit Confidential Request</button>
+      </form>
+      <div class="confirm" id="confirmBox">
+        <div class="hero-crest" style="width:64px;height:64px;margin-bottom:30px"><span style="font-size:1.5rem">L</span></div>
+        <h3>Your Request Has Been Received</h3>
+        <p>The Founder's Office will contact you privately within 48 hours.<br>Welcome to the beginning of your family's next legacy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand">
+      <div class="crest"><span>L</span></div>
+      <div class="brand-name" style="text-align:left">LEGACY ALLIANCE<small>ELITE MARRIAGE &amp; FAMILY OFFICE</small></div>
+    </div>
+    <p>Born in Singapore. Headquartered in Bangkok. Serving royal and elite families across Asia, the Middle East, Europe and the Americas.</p>
+    <div class="foot-links">
+      <a href="#vision">Vision</a>
+      <a href="#membership">Membership</a>
+      <a href="#network">Network</a>
+      <a href="#media">The Series</a>
+      <a href="app.html">Member App</a>
+      <a href="#apply">Invitation</a>
+    </div>
+    <p class="legal">© 2026 Legacy Alliance Pte. Ltd. · All introductions are best-effort and subject to our ethical framework — emotions cannot be guaranteed, but risk can be reduced. · Confidentiality assured under NDA.</p>
+  </div>
+</footer>
+
+<script>
+  // scroll reveal
+  const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('on'); }), { threshold: .12 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // application form (demo — connect to your CRM/backend later)
+  document.getElementById('applyForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    this.style.display = 'none';
+    document.getElementById('confirmBox').style.display = 'block';
+  });
+</script>
+</body>
+</html>

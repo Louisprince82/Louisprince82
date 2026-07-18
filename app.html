@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legacy Alliance — Member App</title>
+<meta name="description" content="The private member application of Legacy Alliance — Asia's elite marriage and family alliance agency.">
+<style>
+  :root{
+    --navy:#0a1128; --navy-2:#101a3d; --navy-3:#182452;
+    --gold:#c9a24b; --gold-light:#e8ce8c;
+    --ivory:#f5efe2; --ivory-dim:#cfc6b0;
+    --serif:'Playfair Display','Didot',Georgia,'Times New Roman',serif;
+    --sans:'Avenir Next','Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:radial-gradient(ellipse at 50% 0%, #1a2550 0, var(--navy) 60%);color:var(--ivory);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:34px 16px;line-height:1.6}
+  h1,h2,h3{font-family:var(--serif);font-weight:600}
+  a{color:var(--gold-light);text-decoration:none}
+
+  .page-head{text-align:center;margin-bottom:26px}
+  .page-head .eyebrow{font-size:.66rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold)}
+  .page-head h1{font-size:1.5rem;margin-top:6px}
+  .page-head a{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase}
+
+  /* phone frame */
+  .phone{width:390px;max-width:100%;background:var(--navy-2);border:1px solid rgba(201,162,75,.5);border-radius:38px;box-shadow:0 40px 90px rgba(0,0,0,.6);overflow:hidden;display:flex;flex-direction:column;height:760px;position:relative}
+  .notch{height:26px;display:flex;justify-content:center;align-items:flex-end}
+  .notch::after{content:"";width:120px;height:16px;background:var(--navy);border-radius:0 0 14px 14px}
+  .app-body{flex:1;overflow-y:auto;padding:18px 22px 90px;scrollbar-width:thin}
+
+  .screen{display:none}
+  .screen.active{display:block;animation:fade .45s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+  .crest{width:70px;height:70px;border:1px solid var(--gold);transform:rotate(45deg);margin:38px auto 30px;display:flex;align-items:center;justify-content:center;position:relative}
+  .crest::after{content:"";position:absolute;inset:6px;border:1px solid rgba(201,162,75,.4)}
+  .crest span{transform:rotate(-45deg);font-family:var(--serif);color:var(--gold);font-size:1.8rem}
+
+  .btn{display:block;width:100%;padding:15px;border:1px solid var(--gold);background:transparent;color:var(--gold-light);font-size:.72rem;letter-spacing:.26em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all .3s;text-align:center;margin-top:14px}
+  .btn:hover{background:var(--gold);color:var(--navy)}
+  .btn.solid{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);border:none;font-weight:700}
+  .btn.solid:hover{filter:brightness(1.08)}
+
+  label{display:block;font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin:16px 0 6px}
+  input,select{width:100%;background:var(--navy);border:1px solid rgba(201,162,75,.4);color:var(--ivory);padding:13px 14px;font-size:.92rem;outline:none;font-family:var(--sans)}
+  input:focus,select:focus{border-color:var(--gold)}
+
+  .muted{color:var(--ivory-dim);font-size:.82rem}
+  .center{text-align:center}
+
+  /* tiers on payment screen */
+  .tier-opt{border:1px solid rgba(201,162,75,.35);padding:16px 18px;margin-top:12px;cursor:pointer;transition:all .25s;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .tier-opt:hover{border-color:var(--gold)}
+  .tier-opt.sel{border-color:var(--gold);background:var(--navy-3)}
+  .tier-opt b{font-family:var(--serif);color:var(--ivory);font-size:.95rem;display:block}
+  .tier-opt small{color:var(--ivory-dim);font-size:.72rem}
+  .tier-opt .price{font-family:var(--serif);color:var(--gold-light);white-space:nowrap}
+
+  /* dashboard */
+  .member-card{background:linear-gradient(135deg,#1a2550,var(--navy-3));border:1px solid var(--gold);padding:22px;position:relative;overflow:hidden}
+  .member-card::after{content:"L";position:absolute;right:-10px;bottom:-30px;font-family:var(--serif);font-size:7rem;color:rgba(201,162,75,.12)}
+  .member-card .tag{font-size:.58rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+  .member-card h3{font-size:1.25rem;margin-top:6px}
+  .member-card .tier-line{color:var(--gold-light);font-size:.78rem;margin-top:8px;letter-spacing:.12em}
+  .member-card .status{display:inline-block;margin-top:12px;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;padding:5px 12px;border:1px solid var(--gold-light);color:var(--gold-light)}
+
+  .sec-title{font-size:.66rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin:26px 0 12px}
+
+  .match{border:1px solid rgba(201,162,75,.3);background:var(--navy);padding:16px;margin-bottom:12px;display:flex;gap:14px;align-items:center}
+  .avatar{width:52px;height:52px;border-radius:50%;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--serif);color:var(--gold-light);font-size:1.2rem;flex-shrink:0;background:var(--navy-3)}
+  .match h4{font-family:var(--serif);font-size:.98rem;color:var(--ivory)}
+  .match p{font-size:.72rem;color:var(--ivory-dim)}
+  .match .score{margin-left:auto;text-align:center;flex-shrink:0}
+  .match .score b{font-family:var(--serif);color:var(--gold-light);font-size:1.05rem;display:block}
+  .match .score span{font-size:.55rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ivory-dim)}
+
+  .svc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .svc button{background:var(--navy);border:1px solid rgba(201,162,75,.3);color:var(--ivory-dim);padding:16px 10px;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all .25s}
+  .svc button:hover{border-color:var(--gold);color:var(--gold-light)}
+
+  /* bottom nav */
+  .tabbar{position:absolute;bottom:0;left:0;right:0;background:rgba(10,17,40,.96);border-top:1px solid rgba(201,162,75,.4);display:none;justify-content:space-around;padding:14px 6px 22px}
+  .tabbar.show{display:flex}
+  .tabbar button{background:none;border:none;color:var(--ivory-dim);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);display:flex;flex-direction:column;gap:5px;align-items:center}
+  .tabbar button .ic{font-size:1rem}
+  .tabbar button.on{color:var(--gold-light)}
+
+  .toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);background:var(--gold);color:var(--navy);font-size:.7rem;letter-spacing:.14em;padding:11px 22px;opacity:0;transition:all .4s;pointer-events:none;white-space:nowrap;font-weight:600}
+  .toast.show{opacity:1;transform:translateX(-50%)}
+
+  .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(201,162,75,.5),transparent);margin:22px 0}
+  .receipt{border:1px dashed rgba(201,162,75,.5);padding:18px;margin-top:16px;font-size:.78rem;color:var(--ivory-dim)}
+  .receipt b{color:var(--gold-light)}
+  .note{font-size:.66rem;color:rgba(207,198,176,.55);margin-top:16px;font-style:italic;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <div class="eyebrow">Legacy Alliance</div>
+  <h1>The Member App</h1>
+  <a href="index.html">← Return to Main Site</a>
+</div>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="app-body">
+
+    <!-- SCREEN: WELCOME -->
+    <div class="screen active" id="s-welcome">
+      <div class="crest"><span>L</span></div>
+      <h2 class="center" style="font-size:1.4rem">Welcome, Distinguished Guest</h2>
+      <p class="muted center" style="margin-top:10px">The private application of the world's elite families.<br>Entry is by invitation and verification only.</p>
+      <div class="divider"></div>
+      <label>Full Name</label>
+      <input id="inName" placeholder="Your full name">
+      <label>Invitation Code</label>
+      <input placeholder="e.g. LA-ROYAL-2026 (any code for demo)">
+      <button class="btn solid" onclick="goVerify()">Enter the Alliance</button>
+      <p class="note">Demo application — verification, payment and matching are simulated for presentation.</p>
+    </div>
+
+    <!-- SCREEN: VERIFICATION -->
+    <div class="screen" id="s-verify">
+      <h2 style="font-size:1.25rem;margin-top:10px">Verification &amp; Membership</h2>
+      <p class="muted" style="margin-top:6px">Every member is screened. Select your membership tier — the annual fee confirms your standing and unlocks the Alliance.</p>
+      <div id="tierList">
+        <div class="tier-opt" data-t="Tier A · Profiling" data-p="S$12,000" onclick="pickTier(this)">
+          <div><b>Tier A — Deep Profiling</b><small>Interviews · AI assessment · verification</small></div>
+          <div class="price">S$12,000</div>
+        </div>
+        <div class="tier-opt sel" data-t="Tier B · Elite Matchmaking" data-p="S$40,000" onclick="pickTier(this)">
+          <div><b>Tier B — Elite Matchmaking</b><small>Curated introductions · 6+ countries</small></div>
+          <div class="price">S$40,000</div>
+        </div>
+        <div class="tier-opt" data-t="Tier C · Royal Legacy" data-p="S$120,000" onclick="pickTier(this)">
+          <div><b>Tier C — Royal Legacy</b><small>Ultra HNW · concierge · legal advisory</small></div>
+          <div class="price">S$120,000</div>
+        </div>
+        <div class="tier-opt" data-t="Alliance Club" data-p="S$15,000 / yr" onclick="pickTier(this)">
+          <div><b>Elite Alliance Club</b><small>Dinners · retreats · deal flow</small></div>
+          <div class="price">S$15,000/yr</div>
+        </div>
+      </div>
+      <button class="btn solid" onclick="goPay()">Proceed to Membership Fee</button>
+    </div>
+
+    <!-- SCREEN: PAYMENT -->
+    <div class="screen" id="s-pay">
+      <h2 style="font-size:1.25rem;margin-top:10px">Membership Fee</h2>
+      <p class="muted" style="margin-top:6px">Settled discreetly. Wire transfer, private banking and major cards accepted.</p>
+      <div class="receipt">
+        Member: <b id="rName">—</b><br>
+        Membership: <b id="rTier">—</b><br>
+        Fee Due: <b id="rPrice">—</b>
+      </div>
+      <label>Payment Method</label>
+      <select><option>Private Bank Wire</option><option>Corporate Card</option><option>Family Office Settlement</option></select>
+      <label>Card / Reference Number</label>
+      <input placeholder="•••• •••• •••• •••• (demo)">
+      <button class="btn solid" onclick="goPaid()">Confirm Payment</button>
+      <button class="btn" onclick="show('s-verify')">Back</button>
+      <p class="note">In production, connect Stripe / Adyen / private banking rails here.</p>
+    </div>
+
+    <!-- SCREEN: DASHBOARD -->
+    <div class="screen" id="s-dash">
+      <div class="member-card">
+        <div class="tag">Legacy Alliance · Verified Member</div>
+        <h3 id="dName">Member</h3>
+        <div class="tier-line" id="dTier">—</div>
+        <span class="status">✦ Fee Settled · Active</span>
+      </div>
+
+      <div class="sec-title">Curated Introductions</div>
+      <div class="match">
+        <div class="avatar">A</div>
+        <div><h4>Heiress · Finance Dynasty</h4><p>Singapore · 29 · Cambridge · Family office</p></div>
+        <div class="score"><b>96%</b><span>Alignment</span></div>
+      </div>
+      <div class="match">
+        <div class="avatar">R</div>
+        <div><h4>Second-Generation Chairman</h4><p>Bangkok · 33 · Hotelier family · INSEAD</p></div>
+        <div class="score"><b>93%</b><span>Alignment</span></div>
+      </div>
+      <div class="match">
+        <div class="avatar">M</div>
+        <div><h4>Royal Lineage · Philanthropist</h4><p>Jakarta · 27 · Arts patron · Trilingual</p></div>
+        <div class="score"><b>91%</b><span>Alignment</span></div>
+      </div>
+      <button class="btn" onclick="toast('Your matchmaker will arrange a private introduction')">Request Private Introduction</button>
+
+      <div class="sec-title">Concierge &amp; Family Office</div>
+      <div class="svc">
+        <button onclick="toast('Concierge notified — travel desk')">✈ Confidential Travel</button>
+        <button onclick="toast('Legal partner will contact you')">⚖ Legal &amp; Pre-Nuptial</button>
+        <button onclick="toast('Background report commissioned')">🛡 Background Report</button>
+        <button onclick="toast('Invitation sent — Alliance Gala')">👑 Alliance Events</button>
+      </div>
+
+      <div class="sec-title">The Series</div>
+      <div class="match" style="cursor:pointer" onclick="toast('Season One premieres soon')">
+        <div class="avatar">▶</div>
+        <div><h4>Asia Elite Marriage Stories</h4><p>Episode 1 · “The Two Houses of Singapore”</p></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tabbar" id="tabs">
+    <button class="on" onclick="toast('Home')"><span class="ic">◆</span>Home</button>
+    <button onclick="toast('Matches — curated weekly')"><span class="ic">✦</span>Matches</button>
+    <button onclick="toast('Secure messages — end-to-end private')"><span class="ic">✉</span>Messages</button>
+    <button onclick="toast('Concierge at your service, 24/7')"><span class="ic">👑</span>Concierge</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<p class="muted" style="margin-top:22px;font-size:.72rem;max-width:390px;text-align:center">Interactive demonstration of the Legacy Alliance member application. All profiles shown are fictional illustrations.</p>
+
+<script>
+  let member = { name: 'Member', tier: 'Tier B · Elite Matchmaking', price: 'S$40,000' };
+
+  function show(id){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelector('.app-body').scrollTop = 0;
+    document.getElementById('tabs').classList.toggle('show', id === 's-dash');
+  }
+  function goVerify(){
+    const n = document.getElementById('inName').value.trim();
+    if (n) member.name = n;
+    show('s-verify');
+  }
+  function pickTier(el){
+    document.querySelectorAll('.tier-opt').forEach(t => t.classList.remove('sel'));
+    el.classList.add('sel');
+    member.tier = el.dataset.t;
+    member.price = el.dataset.p;
+  }
+  function goPay(){
+    document.getElementById('rName').textContent = member.name;
+    document.getElementById('rTier').textContent = member.tier;
+    document.getElementById('rPrice').textContent = member.price;
+    show('s-pay');
+  }
+  function goPaid(){
+    document.getElementById('dName').textContent = member.name;
+    document.getElementById('dTier').textContent = member.tier;
+    show('s-dash');
+    toast('Welcome to the Alliance, ' + member.name);
+  }
+  let toastTimer;
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+</script>
+</body>
+</html>

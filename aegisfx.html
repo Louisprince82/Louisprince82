@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AegisFX AI — The World's Safest AI-Assisted Forex Trading Ecosystem</title>
+<meta name="description" content="AegisFX AI watches the global Forex market 24 hours a day and alerts you only when a high-quality opportunity is detected. Fewer trades. Better decisions. Risk-controlled by design.">
+<style>
+  :root{
+    --ink:#0b0f14; --ink-2:#111825; --ink-3:#182233;
+    --teal:#2dd4bf; --teal-dim:#14b8a6; --teal-glow:rgba(45,212,191,.16);
+    --gold:#f0c96a;
+    --text:#e8eef5; --muted:#93a4b8;
+    --red:#f87171; --green:#4ade80;
+    --line:rgba(45,212,191,.18);
+    --sans:'Inter','Segoe UI',Helvetica,Arial,sans-serif;
+    --mono:'SF Mono','Cascadia Code',Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--ink);color:var(--text);font-family:var(--sans);line-height:1.65;overflow-x:hidden}
+  h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em}
+  a{color:var(--teal);text-decoration:none}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 22px}
+  section{padding:76px 0}
+  .eyebrow{display:inline-block;font-size:.68rem;letter-spacing:.34em;text-transform:uppercase;color:var(--teal);margin-bottom:12px}
+  .sec-head{text-align:center;margin-bottom:44px}
+  .sec-head h2{font-size:clamp(1.6rem,3.4vw,2.3rem)}
+  .sec-head p{color:var(--muted);max-width:700px;margin:12px auto 0;font-size:.96rem}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(11,15,20,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:11px;color:var(--text)}
+  .shield{width:34px;height:34px;flex-shrink:0}
+  .brand b{font-size:1rem;letter-spacing:.06em}
+  .brand b span{color:var(--teal)}
+  .nav-links{display:flex;gap:20px;align-items:center}
+  .nav-links a{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .nav-links a:hover{color:var(--teal)}
+  @media(max-width:900px){.nav-links a:not(.keep){display:none}}
+  .btn{display:inline-block;padding:12px 26px;border:1px solid var(--teal);background:transparent;color:var(--teal);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all .3s;border-radius:6px}
+  .btn:hover{background:var(--teal-glow)}
+  .btn.solid{background:linear-gradient(135deg,var(--teal-dim),var(--teal));color:var(--ink);border:none;font-weight:700}
+  .btn.solid:hover{filter:brightness(1.1)}
+
+  header{padding:150px 22px 70px;text-align:center;background:
+    radial-gradient(ellipse at 50% -20%, rgba(20,184,166,.14) 0, transparent 55%),
+    radial-gradient(ellipse at 85% 110%, rgba(240,201,106,.06) 0, transparent 50%), var(--ink)}
+  header h1{font-size:clamp(2.1rem,5.2vw,3.6rem);line-height:1.15;max-width:900px;margin:0 auto}
+  header h1 em{font-style:normal;color:var(--teal)}
+  header .sub{color:var(--muted);margin:18px auto 0;max-width:640px;font-size:1.02rem}
+  .hero-cta{margin-top:34px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .hero-strip{margin:54px auto 0;max-width:860px;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+  .hs{background:var(--ink-2);border:1px solid var(--line);border-radius:10px;padding:18px 14px}
+  .hs b{display:block;font-size:1.4rem;color:var(--teal)}
+  .hs small{color:var(--muted);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase}
+
+  .principle{background:var(--ink-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);text-align:center;padding:56px 22px}
+  .principle p.big{font-size:clamp(1.2rem,2.6vw,1.7rem);font-weight:600;max-width:760px;margin:0 auto}
+  .principle p.big span{color:var(--teal)}
+  .no-list{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+  .no-list div{border:1px solid rgba(248,113,113,.35);color:var(--red);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;padding:9px 18px;border-radius:999px}
+
+  .grid{display:grid;gap:16px}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .g4{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .card{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:26px 22px;transition:transform .3s,border-color .3s}
+  .card:hover{transform:translateY(-4px);border-color:var(--teal)}
+  .card .ic{font-size:1.5rem;margin-bottom:12px}
+  .card h3{font-size:1.02rem;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:.88rem}
+
+  .factor-cloud{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:900px;margin:0 auto}
+  .factor{background:var(--ink-3);border:1px solid var(--line);color:var(--text);font-size:.78rem;padding:9px 16px;border-radius:999px}
+  .factor b{color:var(--teal);font-weight:600}
+
+  .score-tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;max-width:1000px;margin:0 auto}
+  .tier{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:28px 22px;text-align:center}
+  .tier .num{font-family:var(--mono);font-size:2.2rem;font-weight:700}
+  .tier .stars{color:var(--gold);letter-spacing:.15em;margin:6px 0}
+  .tier h4{font-size:.92rem}
+  .tier p{color:var(--muted);font-size:.8rem;margin-top:6px}
+  .tier.elite{border-color:var(--teal);box-shadow:0 0 40px var(--teal-glow)}
+  .tier.elite .num{color:var(--teal)}
+  .tier.none{opacity:.75}
+  .tier.none .num{color:var(--red)}
+  .tier.none .stars{color:var(--muted)}
+
+  .pairs{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:820px;margin:0 auto}
+  .pair{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--ink-2);padding:10px 18px;border-radius:8px;color:var(--text)}
+
+  .notif-stack{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .notif{background:var(--ink-2);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:10px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start}
+  .notif.warn{border-left-color:var(--gold)}
+  .notif .ni{font-size:1.2rem}
+  .notif b{display:block;font-size:.9rem}
+  .notif small{color:var(--muted);font-size:.78rem}
+
+  .risk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;max-width:1000px;margin:0 auto}
+  .risk-item{background:var(--ink-2);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;gap:12px;align-items:center}
+  .risk-item .ri{color:var(--teal);font-size:1.1rem}
+  .risk-item span{font-size:.88rem}
+
+  .agents{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  .agent{background:var(--ink-2);border:1px solid var(--line);border-radius:10px;padding:20px 18px;text-align:center}
+  .agent .ai{font-size:1.4rem}
+  .agent h4{font-size:.84rem;margin-top:8px;letter-spacing:.04em}
+  .agent p{color:var(--muted);font-size:.74rem;margin-top:4px}
+
+  .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+  .plan{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:30px 24px;text-align:center;display:flex;flex-direction:column}
+  .plan.hot{border-color:var(--teal);box-shadow:0 0 40px var(--teal-glow)}
+  .plan h3{font-size:1.05rem;letter-spacing:.1em;text-transform:uppercase}
+  .plan .tag{font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-top:4px}
+  .plan ul{list-style:none;margin:18px 0 24px;text-align:left;flex:1}
+  .plan li{font-size:.82rem;color:var(--muted);padding:7px 0;border-bottom:1px dashed rgba(147,164,184,.15)}
+  .plan li::before{content:"✓ ";color:var(--teal)}
+
+  footer{border-top:1px solid var(--line);padding:44px 22px;text-align:center;color:var(--muted);font-size:.78rem}
+  footer .disc{max-width:780px;margin:14px auto 0;font-size:.72rem;line-height:1.7;color:#6b7c91}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-inner">
+  <a class="brand" href="#top">
+    <svg class="shield" viewBox="0 0 34 34" fill="none"><path d="M17 2 30 7v9c0 8-5.4 13.8-13 16C9.4 29.8 4 24 4 16V7l13-5z" stroke="#2dd4bf" stroke-width="2" fill="rgba(45,212,191,.08)"/><path d="M10 18l4 4 10-10" stroke="#2dd4bf" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <b>AEGIS<span>FX</span> AI</b>
+  </a>
+  <div class="nav-links">
+    <a href="#engine">Engine</a><a href="#scoring">Scoring</a><a href="#risk">Risk</a><a href="#agents">AI Agents</a><a href="#plans">Plans</a>
+    <a class="btn solid keep" href="aegisfx-app.html">Launch App Demo</a>
+  </div>
+</div></nav>
+
+<header id="top">
+  <span class="eyebrow">AI-Assisted Forex Decision Support</span>
+  <h1>The AI watches the market <em>24 hours a day</em>.<br>You trade only when the odds are favorable.</h1>
+  <p class="sub">AegisFX AI is not another broker and not a signal-spam service. It is a disciplined decision-support ecosystem: the AI scans the entire market, scores every opportunity, and alerts you only when quality conditions are met. Fewer trades. Better decisions.</p>
+  <div class="hero-cta">
+    <a class="btn solid" href="aegisfx-app.html">Try the Live App Demo</a>
+    <a class="btn" href="#philosophy">Our Philosophy</a>
+  </div>
+  <div class="hero-strip">
+    <div class="hs"><b>24/7</b><small>Market Scanning</small></div>
+    <div class="hs"><b>70+</b><small>Minimum Alert Score</small></div>
+    <div class="hs"><b>10</b><small>Specialist AI Agents</small></div>
+    <div class="hs"><b>15–30 min</b><small>Daily Time Needed</small></div>
+  </div>
+</header>
+
+<div class="principle" id="philosophy">
+  <span class="eyebrow">Core Principle</span>
+  <p class="big">The best traders often make <span>fewer, higher-quality trades</span>. AegisFX is built for professionals, business owners, and retirees with only minutes per day — not for screen addiction.</p>
+  <div class="no-list">
+    <div>No Gambling</div><div>No Overtrading</div><div>No Revenge Trading</div><div>No Guaranteed-Profit Promises</div>
+  </div>
+</div>
+
+<section id="engine">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">The Research Engine</span>
+      <h2>One engine. Every factor that moves the market.</h2>
+      <p>The AegisFX research engine fuses technical, fundamental, and behavioral signals into a single quality score for every setup it finds.</p>
+    </div>
+    <div class="factor-cloud">
+      <span class="factor"><b>Price action</b></span><span class="factor"><b>Market structure</b></span>
+      <span class="factor">Supply &amp; demand zones</span><span class="factor">Liquidity</span>
+      <span class="factor">Trend strength</span><span class="factor">Volatility</span>
+      <span class="factor">Cross-currency correlations</span><span class="factor">Economic calendar</span>
+      <span class="factor">Interest-rate decisions</span><span class="factor">Central-bank announcements</span>
+      <span class="factor">News sentiment</span><span class="factor">Historical trade outcomes</span>
+      <span class="factor">Time-of-day behavior</span><span class="factor">Session behavior (Asia · London · NY)</span>
+      <span class="factor">Multi-timeframe analysis</span><span class="factor">Risk/reward scenarios</span>
+    </div>
+  </div>
+</section>
+
+<section id="scoring" style="background:var(--ink-2)">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Opportunity Scoring</span>
+      <h2>Every setup earns an AI Confidence Score</h2>
+      <p>Below 70, nothing happens: no alert, no trade, no noise. The engine's silence is a feature.</p>
+    </div>
+    <div class="score-tiers">
+      <div class="tier elite"><div class="num">92<small style="font-size:.9rem;color:var(--muted)">/100</small></div><div class="stars">★★★★★</div><h4>Elite Opportunity</h4><p>Multiple agents in strong agreement; clean structure, favorable session, no red-flag news.</p></div>
+      <div class="tier"><div class="num">85<small style="font-size:.9rem;color:var(--muted)">/100</small></div><div class="stars">★★★★</div><h4>Strong Opportunity</h4><p>High-quality setup with minor caveats clearly disclosed by the AI coach.</p></div>
+      <div class="tier"><div class="num">76<small style="font-size:.9rem;color:var(--muted)">/100</small></div><div class="stars">★★★</div><h4>Moderate Opportunity</h4><p>Acceptable edge; smaller suggested position size and tighter risk guidance.</p></div>
+      <div class="tier none"><div class="num">&lt;70</div><div class="stars">—</div><h4>No Alert. No Trade.</h4><p>The engine keeps scanning. You keep your capital and your evening.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Market Coverage</span>
+      <h2>The AI searches every instrument, so you don't have to</h2>
+    </div>
+    <div class="pairs">
+      <span class="pair">EUR/USD</span><span class="pair">GBP/USD</span><span class="pair">USD/JPY</span>
+      <span class="pair">XAU/USD</span><span class="pair">AUD/USD</span><span class="pair">USD/CAD</span>
+      <span class="pair">GBP/JPY</span><span class="pair">NAS100</span><span class="pair">US30</span>
+      <span class="pair">GER40</span><span class="pair">OIL</span><span class="pair">SILVER</span>
+      <span class="pair">CRYPTO (optional)</span>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--ink-2)">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Intelligent Notifications</span>
+      <h2>Alerts that reduce screen time, not multiply it</h2>
+    </div>
+    <div class="notif-stack">
+      <div class="notif"><div class="ni">📈</div><div><b>High-probability EUR/USD setup detected.</b><small>Score 91/100 · London session · Tap to review entry, stop and target.</small></div></div>
+      <div class="notif"><div class="ni">🥇</div><div><b>Gold approaching key support zone.</b><small>Watching 2,312–2,318 demand zone on the 4-hour chart.</small></div></div>
+      <div class="notif"><div class="ni">🔄</div><div><b>Potential bullish reversal forming.</b><small>GBP/JPY sweeping liquidity below Asian low; awaiting confirmation.</small></div></div>
+      <div class="notif warn"><div class="ni">⚠️</div><div><b>Risk currently elevated due to major news.</b><small>FOMC decision in 40 minutes. Waiting is recommended — no alerts will fire.</small></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="risk">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Risk Management First</span>
+      <h2>Every trade ships with its own seatbelt</h2>
+      <p>One-tap trading shows BUY, SELL, or SKIP — and before you confirm, the platform computes everything below from your own risk settings.</p>
+    </div>
+    <div class="risk-grid">
+      <div class="risk-item"><span class="ri">◉</span><span>Suggested stop-loss &amp; take-profit on every setup</span></div>
+      <div class="risk-item"><span class="ri">◉</span><span>Position sizing from your chosen risk %</span></div>
+      <div class="risk-item"><span class="ri">◉</span><span>Risk/reward ratio &amp; expected reward shown up-front</span></div>
+      <div class="risk-item"><span class="ri">◉</span><span>Maximum drawdown estimate per trade</span></div>
+      <div class="risk-item"><span class="ri">◉</span><span>Daily, weekly &amp; monthly loss limits</span></div>
+      <div class="risk-item"><span class="ri">◉</span><span>Automatic trading lock when your limits are hit</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="agents" style="background:var(--ink-2)">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">The Agent Council</span>
+      <h2>Ten specialist AI agents. One final score.</h2>
+      <p>Each agent analyzes its own domain and votes into the final confidence score before any alert reaches you.</p>
+    </div>
+    <div class="agents">
+      <div class="agent"><div class="ai">🔬</div><h4>Market Research</h4><p>Structure, zones &amp; liquidity</p></div>
+      <div class="agent"><div class="ai">🌍</div><h4>Macro News</h4><p>Rates, CB policy, geopolitics</p></div>
+      <div class="agent"><div class="ai">📐</div><h4>Technical Analysis</h4><p>Multi-timeframe confluence</p></div>
+      <div class="agent"><div class="ai">🛡️</div><h4>Risk Management</h4><p>Sizing, limits &amp; drawdown</p></div>
+      <div class="agent"><div class="ai">💼</div><h4>Portfolio Management</h4><p>Exposure &amp; correlation</p></div>
+      <div class="agent"><div class="ai">📅</div><h4>Economic Calendar</h4><p>Event risk windows</p></div>
+      <div class="agent"><div class="ai">💬</div><h4>Sentiment Analysis</h4><p>News &amp; positioning tone</p></div>
+      <div class="agent"><div class="ai">🧪</div><h4>Strategy Testing</h4><p>Backtests &amp; forward stats</p></div>
+      <div class="agent"><div class="ai">🔎</div><h4>Trade Review</h4><p>Learns from every outcome</p></div>
+      <div class="agent"><div class="ai">🎓</div><h4>Education Coach</h4><p>Explains the "why" to you</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Ecosystem</span>
+      <h2>Broker-agnostic by design</h2>
+    </div>
+    <div class="grid g3">
+      <div class="card"><div class="ic">🔌</div><h3>Integrations</h3><p>MetaTrader 4 &amp; 5, TradingView, cTrader, Interactive Brokers (where supported), and broker APIs — subject to each broker's capabilities.</p></div>
+      <div class="card"><div class="ic">📓</div><h3>Automatic Trading Journal</h3><p>Entry, exit, P/L, reason for trade, AI confidence, market conditions, and optional emotional notes — with performance statistics over time.</p></div>
+      <div class="card"><div class="ic">🎓</div><h3>Educational AI Coach</h3><p>Explains why the AI found each opportunity, which factors raised confidence, what risks remain — and why it advised waiting when it did.</p></div>
+      <div class="card"><div class="ic">🧠</div><h3>Learning Engine</h3><p>Continuously improves from winning and losing trades, market conditions, volatility, sessions and strategy performance — while you keep the final decision.</p></div>
+      <div class="card"><div class="ic">🔐</div><h3>Security</h3><p>Multi-factor authentication, end-to-end encryption, secure cloud infrastructure, role-based access, audit logs, and data-privacy compliance.</p></div>
+      <div class="card"><div class="ic">📵</div><h3>Less Screen Time</h3><p>Push notifications only above the quality threshold. The AI does the watching; you spend 15–30 minutes a day deciding.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="plans" style="background:var(--ink-2)">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Business Model</span>
+      <h2>Subscription tiers</h2>
+      <p>Pricing to be finalized. Higher tiers unlock more markets, deeper analytics, portfolio tools and API access.</p>
+    </div>
+    <div class="plans">
+      <div class="plan"><h3>Starter</h3><div class="tag">For the disciplined beginner</div>
+        <ul><li>Major FX pairs scanned 24/7</li><li>AI alerts (score ≥ 70)</li><li>Risk calculator &amp; loss limits</li><li>Automatic trading journal</li></ul>
+        <a class="btn" href="aegisfx-app.html">Preview</a></div>
+      <div class="plan hot"><h3>Professional</h3><div class="tag">Most popular</div>
+        <ul><li>All Starter features</li><li>Gold, indices &amp; oil coverage</li><li>Full agent-score breakdowns</li><li>AI coach explanations</li><li>MT4/MT5 &amp; TradingView links</li></ul>
+        <a class="btn solid" href="aegisfx-app.html">Preview</a></div>
+      <div class="plan"><h3>Elite</h3><div class="tag">For serious traders</div>
+        <ul><li>All Professional features</li><li>Portfolio &amp; correlation tools</li><li>Strategy testing agent</li><li>Priority elite-only alerts</li></ul>
+        <a class="btn" href="aegisfx-app.html">Preview</a></div>
+      <div class="plan"><h3>Institutional</h3><div class="tag">Funds &amp; prop firms</div>
+        <ul><li>All Elite features</li><li>API access</li><li>Multi-seat &amp; role-based access</li><li>Dedicated infrastructure</li></ul>
+        <a class="btn" href="aegisfx-app.html">Preview</a></div>
+    </div>
+  </div>
+</section>
+
+<section style="text-align:center">
+  <div class="wrap">
+    <span class="eyebrow">Long-Term Mission</span>
+    <h2 style="font-size:clamp(1.5rem,3vw,2.1rem);max-width:820px;margin:0 auto">Success is not the number of trades placed — it is disciplined decision-making, sound risk management, and long-term consistency.</h2>
+    <div class="hero-cta"><a class="btn solid" href="aegisfx-app.html">Launch the App Demo</a></div>
+  </div>
+</section>
+
+<footer>
+  <b style="color:var(--text)">AEGISFX AI</b> — AI-powered decision support for thoughtful trading.
+  <p class="disc">Risk disclosure: Trading foreign exchange, CFDs and other leveraged products carries a high level of risk and may not be suitable for all investors. You could lose more than your initial investment. AegisFX AI is a decision-support and educational tool; it does not provide financial advice, does not guarantee profits, and cannot eliminate risk. Past performance — including AI model performance — is not indicative of future results. All content on this page is a product concept demonstration; market data shown in the app demo is simulated.</p>
+</footer>
+
+</body>
+</html>

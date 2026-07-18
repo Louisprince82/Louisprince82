@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AegisFX AI — App Demo (Simulated)</title>
+<meta name="description" content="Interactive demo of the AegisFX AI trading app: AI-scored opportunities, one-tap trading, risk limits with trading lock, automatic journal and AI coach. All data simulated.">
+<style>
+  :root{
+    --ink:#0b0f14; --ink-2:#111825; --ink-3:#182233; --ink-4:#1f2c42;
+    --teal:#2dd4bf; --teal-dim:#14b8a6; --teal-glow:rgba(45,212,191,.16);
+    --gold:#f0c96a; --text:#e8eef5; --muted:#93a4b8;
+    --red:#f87171; --green:#4ade80; --line:rgba(45,212,191,.18);
+    --sans:'Inter','Segoe UI',Helvetica,Arial,sans-serif;
+    --mono:'SF Mono','Cascadia Code',Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--ink);color:var(--text);font-family:var(--sans);line-height:1.5;min-height:100vh}
+  h1,h2,h3,h4{font-weight:700}
+  a{color:var(--teal);text-decoration:none}
+  button{font-family:var(--sans);cursor:pointer}
+
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(11,15,20,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px;height:60px;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:.95rem;letter-spacing:.05em;color:var(--text)}
+  .brand svg{width:28px;height:28px}
+  .brand span{color:var(--teal)}
+  .top-status{display:flex;align-items:center;gap:16px;font-size:.72rem;color:var(--muted)}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;animation:blink 1.6s infinite}
+  @keyframes blink{50%{opacity:.35}}
+  .balance-chip{background:var(--ink-3);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-family:var(--mono);font-size:.8rem}
+  .balance-chip b{color:var(--teal)}
+  @media(max-width:640px){.top-status .hide-sm{display:none}}
+
+  .lockbar{display:none;background:rgba(248,113,113,.12);border-bottom:1px solid rgba(248,113,113,.4);color:var(--red);text-align:center;padding:10px 16px;font-size:.82rem}
+  .lockbar.on{display:block}
+
+  .tabs{display:flex;gap:4px;padding:12px 14px 0;max-width:1100px;margin:0 auto;overflow-x:auto}
+  .tab{background:none;border:none;color:var(--muted);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;padding:10px 16px;border-bottom:2px solid transparent;white-space:nowrap}
+  .tab.on{color:var(--teal);border-bottom-color:var(--teal)}
+  .view{display:none;max-width:1100px;margin:0 auto;padding:20px 14px 80px}
+  .view.on{display:block}
+  .view-head{margin-bottom:16px}
+  .view-head h2{font-size:1.15rem}
+  .view-head p{color:var(--muted);font-size:.82rem;margin-top:2px}
+
+  /* Opportunities */
+  .opps{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(330px,1fr))}
+  .opp{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px;animation:rise .5s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .opp.elite{border-color:var(--teal);box-shadow:0 0 34px var(--teal-glow)}
+  .opp-top{display:flex;justify-content:space-between;align-items:flex-start}
+  .opp-top .sym{font-family:var(--mono);font-size:1.15rem;font-weight:700}
+  .opp-top .dir{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:999px;margin-left:8px;vertical-align:middle}
+  .dir.long{background:rgba(74,222,128,.14);color:var(--green);border:1px solid rgba(74,222,128,.4)}
+  .dir.short{background:rgba(248,113,113,.14);color:var(--red);border:1px solid rgba(248,113,113,.4)}
+  .score-badge{text-align:right}
+  .score-badge .n{font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--teal)}
+  .score-badge .n small{color:var(--muted);font-size:.75rem}
+  .score-badge .stars{color:var(--gold);font-size:.75rem;letter-spacing:.1em}
+  .score-badge .lbl{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .opp-nums{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .onum{background:var(--ink-3);border-radius:8px;padding:8px 10px}
+  .onum small{display:block;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .onum b{font-family:var(--mono);font-size:.85rem;font-weight:600}
+  .onum b.sl{color:var(--red)} .onum b.tp{color:var(--green)}
+  .opp-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:.68rem;color:var(--muted)}
+  .opp-meta span{background:var(--ink-3);padding:4px 10px;border-radius:999px}
+  .why{font-size:.8rem;color:var(--muted);border-left:2px solid var(--teal);padding-left:10px}
+  .why b{color:var(--text);font-weight:600}
+  .agents-mini{display:none;flex-direction:column;gap:6px}
+  .agents-mini.open{display:flex}
+  .am-row{display:flex;align-items:center;gap:8px;font-size:.68rem}
+  .am-row .nm{width:110px;color:var(--muted);flex-shrink:0}
+  .am-bar{flex:1;height:6px;background:var(--ink-4);border-radius:3px;overflow:hidden}
+  .am-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal-dim),var(--teal));border-radius:3px}
+  .am-row .v{font-family:var(--mono);width:26px;text-align:right;color:var(--text)}
+  .toggle-agents{background:none;border:none;color:var(--teal);font-size:.7rem;text-align:left;padding:0}
+  .opp-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:2px}
+  .act{border:none;border-radius:9px;padding:12px 0;font-size:.78rem;font-weight:700;letter-spacing:.1em;transition:filter .2s}
+  .act:hover{filter:brightness(1.15)}
+  .act.buy{background:linear-gradient(135deg,#15803d,#22c55e);color:#04120a}
+  .act.sell{background:linear-gradient(135deg,#b91c1c,#f87171);color:#180505}
+  .act.skip{background:var(--ink-4);color:var(--muted)}
+  .act:disabled{opacity:.35;filter:none;cursor:not-allowed}
+  .empty{background:var(--ink-2);border:1px dashed var(--line);border-radius:14px;padding:40px 24px;text-align:center;color:var(--muted)}
+  .empty b{color:var(--text);display:block;margin-bottom:6px}
+
+  /* Scanner */
+  .scan-table{width:100%;border-collapse:collapse;background:var(--ink-2);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .scan-table th{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:left;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .scan-table td{padding:11px 14px;font-size:.82rem;border-bottom:1px solid rgba(147,164,184,.08)}
+  .scan-table tr:last-child td{border-bottom:none}
+  .scan-table .sym{font-family:var(--mono);font-weight:600}
+  .scan-table .px{font-family:var(--mono)}
+  .up{color:var(--green)} .down{color:var(--red)}
+  .mini-score{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:2px 8px;border-radius:999px;background:var(--ink-4);color:var(--muted)}
+  .mini-score.hot{background:var(--teal-glow);color:var(--teal)}
+  .table-wrap{overflow-x:auto}
+
+  /* Risk */
+  .risk-cols{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .panel{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .panel h3{font-size:.95rem;margin-bottom:14px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .field input{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:10px 12px;font-family:var(--mono);font-size:.9rem;outline:none}
+  .field input:focus{border-color:var(--teal)}
+  .limit-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed rgba(147,164,184,.15);font-size:.82rem}
+  .limit-row:last-child{border-bottom:none}
+  .limit-row .bar{width:46%;height:8px;background:var(--ink-4);border-radius:4px;overflow:hidden}
+  .limit-row .bar i{display:block;height:100%;background:var(--green);border-radius:4px;transition:width .4s,background .4s}
+  .limit-row .bar i.warn{background:var(--gold)} .limit-row .bar i.max{background:var(--red)}
+  .limit-row .val{font-family:var(--mono);font-size:.74rem;color:var(--muted)}
+  .save-note{font-size:.72rem;color:var(--muted);margin-top:6px}
+  .btn{padding:11px 22px;border:1px solid var(--teal);background:transparent;color:var(--teal);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;border-radius:8px;transition:all .25s}
+  .btn:hover{background:var(--teal-glow)}
+  .btn.solid{background:linear-gradient(135deg,var(--teal-dim),var(--teal));color:var(--ink);border:none;font-weight:700}
+
+  /* Journal */
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px}
+  .stat{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+  .stat b{display:block;font-family:var(--mono);font-size:1.25rem}
+  .stat small{color:var(--muted);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase}
+  .jr{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+  .jr-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  .jr-top .sym{font-family:var(--mono);font-weight:700}
+  .jr .pl{font-family:var(--mono);font-weight:700}
+  .jr .pending{color:var(--gold);font-size:.74rem}
+  .jr-detail{display:flex;gap:14px;flex-wrap:wrap;font-size:.7rem;color:var(--muted);margin-top:8px}
+  .jr-note{margin-top:10px;display:flex;gap:8px}
+  .jr-note input{flex:1;background:var(--ink);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:8px 10px;font-size:.78rem;outline:none}
+  .jr-note .saved{font-size:.72rem;color:var(--muted);font-style:italic}
+
+  /* Coach */
+  .coach-msg{background:var(--ink-2);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:12px;padding:16px 18px;margin-bottom:12px;font-size:.85rem}
+  .coach-msg b{color:var(--teal)}
+  .coach-msg small{display:block;color:var(--muted);font-size:.68rem;margin-top:6px}
+
+  /* Toasts */
+  .toasts{position:fixed;top:70px;right:14px;z-index:200;display:flex;flex-direction:column;gap:10px;max-width:340px}
+  .toast{background:var(--ink-3);border:1px solid var(--teal);border-radius:12px;padding:14px 16px;font-size:.8rem;box-shadow:0 10px 30px rgba(0,0,0,.5);animation:slidein .4s ease}
+  .toast.warn{border-color:var(--gold)}
+  .toast.bad{border-color:var(--red)}
+  .toast b{display:block;font-size:.82rem}
+  .toast small{color:var(--muted)}
+  @keyframes slidein{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+
+  /* Modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(4,7,10,.75);backdrop-filter:blur(4px);z-index:300;display:none;align-items:center;justify-content:center;padding:16px}
+  .modal-bg.on{display:flex}
+  .modal{background:var(--ink-2);border:1px solid var(--teal);border-radius:16px;max-width:440px;width:100%;padding:26px;max-height:90vh;overflow-y:auto}
+  .modal h3{font-size:1.05rem;margin-bottom:4px}
+  .modal .sub{color:var(--muted);font-size:.78rem;margin-bottom:16px}
+  .m-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .m-item{background:var(--ink-3);border-radius:10px;padding:10px 12px}
+  .m-item small{display:block;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .m-item b{font-family:var(--mono);font-size:.92rem}
+  .m-actions{display:flex;gap:10px}
+  .m-actions .act{flex:1;padding:13px 0}
+  .disc{font-size:.66rem;color:#6b7c91;margin-top:14px;line-height:1.5}
+
+  footer{position:fixed;bottom:0;left:0;right:0;background:rgba(11,15,20,.94);border-top:1px solid var(--line);text-align:center;padding:8px;font-size:.62rem;color:#6b7c91;z-index:40}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="aegisfx.html">
+    <svg viewBox="0 0 34 34" fill="none"><path d="M17 2 30 7v9c0 8-5.4 13.8-13 16C9.4 29.8 4 24 4 16V7l13-5z" stroke="#2dd4bf" stroke-width="2" fill="rgba(45,212,191,.08)"/><path d="M10 18l4 4 10-10" stroke="#2dd4bf" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    AEGIS<span>FX</span>&nbsp;AI
+  </a>
+  <div class="top-status">
+    <span class="hide-sm"><span class="dot"></span>AI scanning 13 instruments</span>
+    <span class="hide-sm" id="sessionLabel">—</span>
+    <span class="balance-chip">Balance <b id="balTop">$10,000.00</b></span>
+  </div>
+</div>
+
+<div class="lockbar" id="lockbar">🔒 <b>Trading locked.</b> <span id="lockReason"></span> Discipline preserved — the lock releases automatically next period.</div>
+
+<div class="tabs">
+  <button class="tab on" data-v="opps">⚡ Opportunities</button>
+  <button class="tab" data-v="scanner">📡 Scanner</button>
+  <button class="tab" data-v="risk">🛡️ Risk</button>
+  <button class="tab" data-v="journal">📓 Journal</button>
+  <button class="tab" data-v="coach">🎓 AI Coach</button>
+</div>
+
+<!-- OPPORTUNITIES -->
+<div class="view on" id="v-opps">
+  <div class="view-head">
+    <h2>AI-Detected Opportunities</h2>
+    <p>Only setups scoring 70+ appear here. Everything else is filtered out — no alert, no trade.</p>
+  </div>
+  <div class="opps" id="oppList"></div>
+  <div class="empty" id="oppEmpty" style="display:none">
+    <b>No qualifying opportunities right now.</b>
+    The AI is still scanning. Silence is a feature — protecting your capital by not trading is also a decision.
+  </div>
+</div>
+
+<!-- SCANNER -->
+<div class="view" id="v-scanner">
+  <div class="view-head">
+    <h2>Live Market Scanner <small style="color:var(--muted);font-weight:400">(simulated feed)</small></h2>
+    <p>The engine continuously scores all instruments. Scores below 70 never generate alerts.</p>
+  </div>
+  <div class="table-wrap">
+  <table class="scan-table">
+    <thead><tr><th>Instrument</th><th>Price</th><th>Δ Today</th><th>Trend</th><th>Volatility</th><th>AI Score</th></tr></thead>
+    <tbody id="scanBody"></tbody>
+  </table>
+  </div>
+</div>
+
+<!-- RISK -->
+<div class="view" id="v-risk">
+  <div class="view-head">
+    <h2>Risk Management</h2>
+    <p>Your rules, enforced automatically. When a loss limit is hit, trading locks until the period resets.</p>
+  </div>
+  <div class="risk-cols">
+    <div class="panel">
+      <h3>Account &amp; Sizing</h3>
+      <div class="field"><label>Account balance (USD)</label><input type="number" id="inBalance" value="10000" min="100" step="100"></div>
+      <div class="field"><label>Risk per trade (%)</label><input type="number" id="inRisk" value="1" min="0.1" max="5" step="0.1"></div>
+      <p class="save-note">Position size is computed per trade from these values and the setup's stop distance.</p>
+    </div>
+    <div class="panel">
+      <h3>Loss Limits &amp; Trading Lock</h3>
+      <div class="field"><label>Daily loss limit (%)</label><input type="number" id="inDaily" value="3" min="0.5" max="20" step="0.5"></div>
+      <div class="field"><label>Weekly loss limit (%)</label><input type="number" id="inWeekly" value="6" min="1" max="30" step="0.5"></div>
+      <div class="field"><label>Monthly loss limit (%)</label><input type="number" id="inMonthly" value="10" min="2" max="50" step="0.5"></div>
+      <button class="btn solid" id="saveRisk" style="width:100%">Save Risk Settings</button>
+    </div>
+    <div class="panel">
+      <h3>Limit Usage</h3>
+      <div class="limit-row"><span>Daily</span><div class="bar"><i id="barD" style="width:0%"></i></div><span class="val" id="valD">$0 / $300</span></div>
+      <div class="limit-row"><span>Weekly</span><div class="bar"><i id="barW" style="width:0%"></i></div><span class="val" id="valW">$0 / $600</span></div>
+      <div class="limit-row"><span>Monthly</span><div class="bar"><i id="barM" style="width:0%"></i></div><span class="val" id="valM">$0 / $1,000</span></div>
+      <p class="save-note" id="lockNote">Trading is <b style="color:var(--green)">unlocked</b>. Limits are measured on realized losses.</p>
+    </div>
+  </div>
+</div>
+
+<!-- JOURNAL -->
+<div class="view" id="v-journal">
+  <div class="view-head">
+    <h2>Trading Journal</h2>
+    <p>Every trade is recorded automatically — entry, exit, P/L, the AI's reasoning, and your own notes.</p>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><b id="stTrades">0</b><small>Trades</small></div>
+    <div class="stat"><b id="stWin">—</b><small>Win rate</small></div>
+    <div class="stat"><b id="stRR">—</b><small>Avg R:R taken</small></div>
+    <div class="stat"><b id="stPL">$0.00</b><small>Net P/L</small></div>
+    <div class="stat"><b id="stSkip">0</b><small>Setups skipped</small></div>
+  </div>
+  <div id="journalList"><div class="empty"><b>No trades yet.</b>When you act on an opportunity, it is journaled here automatically.</div></div>
+</div>
+
+<!-- COACH -->
+<div class="view" id="v-coach">
+  <div class="view-head">
+    <h2>Educational AI Coach</h2>
+    <p>The coach explains the "why" behind every alert and every silence — so you learn instead of blindly following.</p>
+  </div>
+  <div id="coachList">
+    <div class="coach-msg"><b>Welcome.</b> I narrate the engine's thinking here: why an opportunity fired, which factors raised confidence, what risks remain, and why waiting was advised when nothing qualified. Check back after alerts arrive.
+    <small>Tip: skipping a setup you don't understand is always a valid professional decision.</small></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="mTitle">Confirm Trade</h3>
+    <div class="sub" id="mSub"></div>
+    <div class="m-grid" id="mGrid"></div>
+    <div class="m-actions">
+      <button class="act skip" id="mCancel">Cancel</button>
+      <button class="act buy" id="mConfirm">Confirm</button>
+    </div>
+    <p class="disc">Demo only — simulated market data and outcomes. Real trading involves substantial risk of loss. This is decision support, not financial advice.</p>
+  </div>
+</div>
+
+<footer>AegisFX AI concept demo · All prices, scores and outcomes are simulated · Not financial advice · Trading leveraged products involves substantial risk of loss</footer>
+
+<script>
+/* =========================================================
+   AegisFX AI — App Demo (fully simulated, self-contained)
+   ========================================================= */
+
+// ---------- State ----------
+const S = {
+  balance: 10000,
+  riskPct: 1,
+  limits: { daily: 3, weekly: 6, monthly: 10 },   // % of balance
+  losses: { daily: 0, weekly: 0, monthly: 0 },    // realized $ losses
+  locked: false,
+  lockReason: '',
+  opps: [],          // active opportunities
+  journal: [],       // trades (open + closed)
+  skips: 0,
+  oppSeq: 0
+};
+
+const INSTRUMENTS = [
+  { sym:'EUR/USD', px:1.0873, dec:4, pip:0.0001, pipVal:10 },
+  { sym:'GBP/USD', px:1.2718, dec:4, pip:0.0001, pipVal:10 },
+  { sym:'USD/JPY', px:156.42, dec:2, pip:0.01,   pipVal:6.4 },
+  { sym:'XAU/USD', px:2318.6, dec:1, pip:0.1,    pipVal:10 },
+  { sym:'AUD/USD', px:0.6642, dec:4, pip:0.0001, pipVal:10 },
+  { sym:'USD/CAD', px:1.3705, dec:4, pip:0.0001, pipVal:7.3 },
+  { sym:'GBP/JPY', px:198.93, dec:2, pip:0.01,   pipVal:6.4 },
+  { sym:'NAS100',  px:19842,  dec:0, pip:1,      pipVal:1 },
+  { sym:'US30',    px:39120,  dec:0, pip:1,      pipVal:1 },
+  { sym:'GER40',   px:18310,  dec:0, pip:1,      pipVal:1 },
+  { sym:'OIL',     px:81.44,  dec:2, pip:0.01,   pipVal:10 },
+  { sym:'SILVER',  px:29.32,  dec:2, pip:0.01,   pipVal:50 },
+  { sym:'BTC/USD', px:64380,  dec:0, pip:1,      pipVal:1 }
+];
+INSTRUMENTS.forEach(i => { i.open = i.px; i.vol = 0.3 + Math.random()*0.7; i.trend = Math.random()*2-1; i.score = 30 + Math.round(Math.random()*35); });
+
+const AGENTS = ['Market Research','Macro News','Technical','Risk Mgmt','Portfolio','Econ Calendar','Sentiment','Strategy Test','Trade Review','Education'];
+
+const REASONS = [
+  { dir:'long',  why:'<b>Bullish structure shift</b> after a liquidity sweep of the prior session low; demand zone held on the 4-hour, and momentum is aligned across timeframes.' },
+  { dir:'long',  why:'Price is retesting a <b>4-hour demand zone</b> with falling volatility and supportive risk sentiment; London session participation confirms interest.' },
+  { dir:'short', why:'<b>Supply zone rejection</b> at a key weekly level with divergence on momentum; correlated pairs confirm broad currency weakness.' },
+  { dir:'short', why:'A <b>failed breakout</b> above the range high swept liquidity and reversed; the engine expects a rotation back through the range.' },
+  { dir:'long',  why:'<b>Trend continuation</b>: pullback to the rising 4-hour structure with a clean higher-low; news calendar is quiet for the next 6 hours.' },
+  { dir:'short', why:'Post-news <b>mean reversion</b>: the spike exceeded two standard deviations of normal session range and is losing momentum.' }
+];
+
+// ---------- Helpers ----------
+const $ = id => document.getElementById(id);
+const fmt$ = v => (v<0?'-':'') + '$' + Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtPx = (v,dec) => v.toLocaleString('en-US',{minimumFractionDigits:dec, maximumFractionDigits:dec});
+function stars(sc){ return sc>=90?'★★★★★':sc>=80?'★★★★':'★★★'; }
+function label(sc){ return sc>=90?'Elite':sc>=80?'Strong':'Moderate'; }
+function session(){
+  const h = new Date().getUTCHours();
+  if(h>=7 && h<12) return '🇬🇧 London Session';
+  if(h>=12 && h<16) return '🇬🇧🇺🇸 London–NY Overlap';
+  if(h>=16 && h<21) return '🇺🇸 New York Session';
+  return '🌏 Asian Session';
+}
+function toast(title, body, cls){
+  const t = document.createElement('div');
+  t.className = 'toast' + (cls?' '+cls:'');
+  t.innerHTML = '<b>'+title+'</b><small>'+body+'</small>';
+  $('toasts').appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .5s'; setTimeout(()=>t.remove(),500); }, 6500);
+}
+function coach(msg, tip){
+  const d = document.createElement('div');
+  d.className = 'coach-msg';
+  d.innerHTML = msg + (tip?'<small>'+tip+'</small>':'');
+  $('coachList').prepend(d);
+}
+
+// ---------- Opportunity generation ----------
+function genAgentScores(target){
+  // 10 agent scores that average near the target confidence
+  const arr = AGENTS.map(()=> Math.max(40, Math.min(99, Math.round(target + (Math.random()*18-9)))));
+  return arr;
+}
+function spawnOpp(force){
+  if(S.opps.length >= 3 && !force) return;
+  const inst = INSTRUMENTS[Math.floor(Math.random()*INSTRUMENTS.length)];
+  if(S.opps.some(o=>o.sym===inst.sym)) return;
+  const r = REASONS[Math.floor(Math.random()*REASONS.length)];
+  const score = 70 + Math.round(Math.random()*29);           // only >=70 ever alerts
+  const rr = +(1.5 + Math.random()*1.8).toFixed(1);          // 1.5–3.3 R
+  const slPips = Math.round((inst.sym.includes('/US')||inst.sym.includes('USD/')||inst.sym==='AUD/USD'?18:inst.dec===0?60:35) * (0.7+Math.random()*0.8));
+  const dir = r.dir;
+  const entry = inst.px;
+  const sl = dir==='long' ? entry - slPips*inst.pip : entry + slPips*inst.pip;
+  const tp = dir==='long' ? entry + slPips*inst.pip*rr : entry - slPips*inst.pip*rr;
+  const opp = {
+    id: ++S.oppSeq, sym: inst.sym, inst, dir, score, rr, slPips,
+    entry, sl, tp, why: r.why,
+    agents: genAgentScores(score),
+    ts: Date.now(), ttl: 90000 + Math.random()*60000
+  };
+  S.opps.push(opp);
+  inst.score = score;
+  toast('⚡ ' + label(score) + ' opportunity: ' + opp.sym,
+        (dir==='long'?'Bullish':'Bearish') + ' setup · Score ' + score + '/100 · R:R 1:' + rr, '');
+  coach('<b>' + opp.sym + ' alert fired (' + score + '/100).</b> ' + opp.why +
+        ' Confidence was lifted mainly by ' + AGENTS[opp.agents.indexOf(Math.max(...opp.agents))] +
+        ' (' + Math.max(...opp.agents) + '/100). Remaining risk: the ' +
+        AGENTS[opp.agents.indexOf(Math.min(...opp.agents))] + ' agent scored lowest (' + Math.min(...opp.agents) + '/100) — size accordingly.',
+        'Suggested risk on this trade: ' + S.riskPct + '% of balance (' + fmt$(S.balance*S.riskPct/100) + ').');
+  renderOpps();
+}
+function expireOpps(){
+  const now = Date.now();
+  const before = S.opps.length;
+  S.opps = S.opps.filter(o => {
+    if(now - o.ts > o.ttl){
+      coach('<b>' + o.sym + ' opportunity expired.</b> Price moved away from the suggested entry zone, so the edge degraded. The engine withdrew the alert rather than chase — chasing entries is how good setups become bad trades.');
+      return false;
+    }
+    return true;
+  });
+  if(S.opps.length !== before) renderOpps();
+}
+
+// ---------- Position sizing ----------
+function positionFor(opp){
+  const riskUsd = S.balance * S.riskPct / 100;
+  const lots = riskUsd / (opp.slPips * opp.inst.pipVal);
+  return { riskUsd, lots: Math.max(0.01, Math.round(lots*100)/100 ) };
+}
+
+// ---------- Rendering ----------
+function renderOpps(){
+  const box = $('oppList');
+  box.innerHTML = '';
+  $('oppEmpty').style.display = S.opps.length ? 'none' : 'block';
+  S.opps.forEach(o=>{
+    const pos = positionFor(o);
+    const el = document.createElement('div');
+    el.className = 'opp' + (o.score>=90?' elite':'');
+    el.innerHTML = `
+      <div class="opp-top">
+        <div><span class="sym">${o.sym}</span><span class="dir ${o.dir}">${o.dir==='long'?'▲ Bullish':'▼ Bearish'}</span></div>
+        <div class="score-badge"><div class="n">${o.score}<small>/100</small></div><div class="stars">${stars(o.score)}</div><div class="lbl">${label(o.score)}</div></div>
+      </div>
+      <div class="opp-nums">
+        <div class="onum"><small>Entry zone</small><b>${fmtPx(o.entry,o.inst.dec)}</b></div>
+        <div class="onum"><small>Stop-loss</small><b class="sl">${fmtPx(o.sl,o.inst.dec)}</b></div>
+        <div class="onum"><small>Take-profit</small><b class="tp">${fmtPx(o.tp,o.inst.dec)}</b></div>
+      </div>
+      <div class="opp-meta">
+        <span>R:R 1:${o.rr}</span><span>Risk ${S.riskPct}% (${fmt$(pos.riskUsd)})</span>
+        <span>Size ${pos.lots.toFixed(2)} lots</span><span>Max DD est. ${fmt$(pos.riskUsd*1.15)}</span>
+      </div>
+      <div class="why">${o.why}</div>
+      <button class="toggle-agents" data-id="${o.id}">▸ Agent council breakdown</button>
+      <div class="agents-mini" id="ag-${o.id}">
+        ${AGENTS.map((a,i)=>`<div class="am-row"><span class="nm">${a}</span><div class="am-bar"><i style="width:${o.agents[i]}%"></i></div><span class="v">${o.agents[i]}</span></div>`).join('')}
+      </div>
+      <div class="opp-actions">
+        <button class="act buy"  data-act="buy"  data-id="${o.id}" ${S.locked?'disabled':''}>BUY</button>
+        <button class="act sell" data-act="sell" data-id="${o.id}" ${S.locked?'disabled':''}>SELL</button>
+        <button class="act skip" data-act="skip" data-id="${o.id}">SKIP</button>
+      </div>`;
+    box.appendChild(el);
+  });
+}
+function renderScanner(){
+  $('scanBody').innerHTML = INSTRUMENTS.map(i=>{
+    const chg = (i.px - i.open) / i.open * 100;
+    const hot = i.score >= 70 && S.opps.some(o=>o.sym===i.sym);
+    return `<tr>
+      <td class="sym">${i.sym}</td>
+      <td class="px">${fmtPx(i.px,i.dec)}</td>
+      <td class="px ${chg>=0?'up':'down'}">${chg>=0?'+':''}${chg.toFixed(2)}%</td>
+      <td>${i.trend>0.25?'<span class="up">Up</span>':i.trend<-0.25?'<span class="down">Down</span>':'<span style="color:var(--muted)">Range</span>'}</td>
+      <td>${i.vol>0.75?'High':i.vol>0.45?'Normal':'Low'}</td>
+      <td><span class="mini-score ${hot?'hot':''}">${hot?i.score+' ⚡':'&lt; 70'}</span></td>
+    </tr>`;
+  }).join('');
+}
+function renderRisk(){
+  const cap = p => S.balance * S.limits[p] / 100;
+  [['daily','D'],['weekly','W'],['monthly','M']].forEach(([p,k])=>{
+    const c = cap(p), u = S.losses[p], pct = Math.min(100, u/c*100);
+    const bar = $('bar'+k);
+    bar.style.width = pct + '%';
+    bar.className = pct>=100?'max':pct>=70?'warn':'';
+    $('val'+k).textContent = fmt$(u).replace('.00','') + ' / ' + fmt$(c).replace('.00','');
+  });
+  $('lockNote').innerHTML = S.locked
+    ? 'Trading is <b style="color:var(--red)">locked</b> — ' + S.lockReason
+    : 'Trading is <b style="color:var(--green)">unlocked</b>. Limits are measured on realized losses.';
+  $('lockbar').className = 'lockbar' + (S.locked?' on':'');
+  $('lockReason').textContent = S.lockReason;
+}
+function renderJournal(){
+  const closed = S.journal.filter(t=>t.status==='closed');
+  const wins = closed.filter(t=>t.pl>0);
+  $('stTrades').textContent = S.journal.length;
+  $('stWin').textContent = closed.length ? Math.round(wins.length/closed.length*100)+'%' : '—';
+  $('stRR').textContent = S.journal.length ? '1:' + (S.journal.reduce((a,t)=>a+t.rr,0)/S.journal.length).toFixed(1) : '—';
+  const pl = closed.reduce((a,t)=>a+t.pl,0);
+  $('stPL').textContent = fmt$(pl);
+  $('stPL').style.color = pl>0?'var(--green)':pl<0?'var(--red)':'var(--text)';
+  $('stSkip').textContent = S.skips;
+  const box = $('journalList');
+  if(!S.journal.length){ box.innerHTML = '<div class="empty"><b>No trades yet.</b>When you act on an opportunity, it is journaled here automatically.</div>'; return; }
+  box.innerHTML = '';
+  [...S.journal].reverse().forEach(t=>{
+    const d = document.createElement('div');
+    d.className = 'jr';
+    d.innerHTML = `
+      <div class="jr-top">
+        <div><span class="sym">${t.sym}</span> <span class="dir ${t.dir}" style="font-size:.62rem;padding:3px 8px;border-radius:999px">${t.side.toUpperCase()}</span></div>
+        ${t.status==='open' ? '<span class="pending">● Open — awaiting outcome…</span>'
+          : `<span class="pl" style="color:${t.pl>=0?'var(--green)':'var(--red)'}">${t.pl>=0?'+':''}${fmt$(t.pl)}</span>`}
+      </div>
+      <div class="jr-detail">
+        <span>Entry ${fmtPx(t.entry,t.dec)}</span>
+        ${t.status==='closed'?`<span>Exit ${fmtPx(t.exit,t.dec)}</span>`:''}
+        <span>AI ${t.score}/100</span><span>R:R 1:${t.rr}</span><span>Risk ${fmt$(t.riskUsd)}</span>
+        <span>${t.when}</span><span>${t.session}</span>
+      </div>
+      <div class="jr-detail" style="margin-top:4px"><span style="background:none;padding:0">Reason: ${t.reasonPlain}</span></div>
+      ${t.note ? `<div class="jr-note"><span class="saved">📝 “${t.note}”</span></div>`
+               : `<div class="jr-note"><input placeholder="Optional emotional note — how did this trade feel?" data-note="${t.id}"><button class="btn" data-savenote="${t.id}">Save</button></div>`}`;
+    box.appendChild(d);
+  });
+}
+function renderAll(){ renderOpps(); renderScanner(); renderRisk(); renderJournal(); $('balTop').textContent = fmt$(S.balance); }
+
+// ---------- Trading ----------
+let pendingAction = null;
+function openConfirm(opp, side){
+  const pos = positionFor(opp);
+  const withDir = side === (opp.dir==='long'?'buy':'sell');
+  pendingAction = { opp, side, pos };
+  $('mTitle').textContent = side.toUpperCase() + ' ' + opp.sym;
+  $('mSub').innerHTML = withDir
+    ? 'Aligned with the AI\'s ' + (opp.dir==='long'?'bullish':'bearish') + ' read (' + opp.score + '/100).'
+    : '⚠️ This is <b style="color:var(--gold)">against</b> the AI\'s ' + (opp.dir==='long'?'bullish':'bearish') + ' read. Confidence does not apply to counter-trades.';
+  $('mGrid').innerHTML = `
+    <div class="m-item"><small>AI confidence</small><b>${opp.score}/100 ${stars(opp.score)}</b></div>
+    <div class="m-item"><small>Risk / reward</small><b>1 : ${opp.rr}</b></div>
+    <div class="m-item"><small>Entry zone</small><b>${fmtPx(opp.entry,opp.inst.dec)}</b></div>
+    <div class="m-item"><small>Stop-loss</small><b style="color:var(--red)">${fmtPx(opp.sl,opp.inst.dec)}</b></div>
+    <div class="m-item"><small>Take-profit</small><b style="color:var(--green)">${fmtPx(opp.tp,opp.inst.dec)}</b></div>
+    <div class="m-item"><small>Position size</small><b>${pos.lots.toFixed(2)} lots</b></div>
+    <div class="m-item"><small>Risk (${S.riskPct}%)</small><b>${fmt$(pos.riskUsd)}</b></div>
+    <div class="m-item"><small>Expected reward</small><b style="color:var(--green)">${fmt$(pos.riskUsd*opp.rr)}</b></div>`;
+  $('mConfirm').className = 'act ' + (side==='buy'?'buy':'sell');
+  $('mConfirm').textContent = 'Confirm ' + side.toUpperCase();
+  $('modalBg').classList.add('on');
+}
+function confirmTrade(){
+  const { opp, side, pos } = pendingAction;
+  $('modalBg').classList.remove('on');
+  const withDir = side === (opp.dir==='long'?'buy':'sell');
+  const trade = {
+    id: 'T'+Date.now(), sym: opp.sym, side, dir: opp.dir, entry: opp.entry, dec: opp.inst.dec,
+    sl: opp.sl, tp: opp.tp, rr: opp.rr, score: opp.score, riskUsd: pos.riskUsd, lots: pos.lots,
+    status:'open', pl: 0, exit: null, note: '',
+    when: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),
+    session: session().replace(/^[^\s]+\s/,''),
+    reasonPlain: opp.why.replace(/<[^>]+>/g,''), withDir
+  };
+  S.journal.push(trade);
+  S.opps = S.opps.filter(o=>o.id!==opp.id);
+  toast('✅ Trade placed: ' + side.toUpperCase() + ' ' + opp.sym, pos.lots.toFixed(2) + ' lots · risking ' + fmt$(pos.riskUsd), '');
+  coach('<b>Trade journaled: ' + side.toUpperCase() + ' ' + opp.sym + '.</b> Risk was capped at ' + S.riskPct + '% (' + fmt$(pos.riskUsd) + ') with the stop at ' + fmtPx(opp.sl,opp.inst.dec) + '. Whatever the outcome, this was a process-correct decision: defined risk, defined target, positive expectancy.', withDir?null:'Note: you traded against the AI read — the journal will tag this for your review.');
+  renderAll();
+  // Simulate outcome after a delay; win probability scales with score (only when trading WITH the AI read)
+  const winP = withDir ? (0.38 + (opp.score-70)/29*0.27) : 0.30;
+  setTimeout(()=> settleTrade(trade, Math.random() < winP), 12000 + Math.random()*18000);
+}
+function settleTrade(t, win){
+  t.status = 'closed';
+  if(win){ t.pl = +(t.riskUsd * t.rr).toFixed(2); t.exit = t.tp; }
+  else   { t.pl = -t.riskUsd; t.exit = t.sl; }
+  if(t.pl >= 0){
+    S.balance += t.pl;
+    toast('🎯 ' + t.sym + ' hit take-profit', '+' + fmt$(t.pl) + ' banked at 1:' + t.rr + ' R:R', '');
+    coach('<b>' + t.sym + ' closed at target (+' + fmt$(t.pl) + ').</b> The learning engine logged the conditions — session, volatility, structure — that made this work, strengthening similar future setups.');
+  } else {
+    S.balance += t.pl;
+    ['daily','weekly','monthly'].forEach(p => S.losses[p] += -t.pl);
+    toast('🛑 ' + t.sym + ' stopped out', fmt$(t.pl) + ' — risk contained exactly as planned', 'bad');
+    coach('<b>' + t.sym + ' hit its stop (' + fmt$(t.pl) + ').</b> This is the system working: the loss was pre-defined and survivable. The learning engine records the miss to refine future scoring. No revenge trade — the next alert must qualify on its own merits.');
+    checkLimits();
+  }
+  renderAll();
+}
+function checkLimits(){
+  const over = p => S.losses[p] >= S.balance * S.limits[p] / 100;
+  if(over('daily'))       lock('Daily loss limit of ' + S.limits.daily + '% reached.');
+  else if(over('weekly')) lock('Weekly loss limit of ' + S.limits.weekly + '% reached.');
+  else if(over('monthly'))lock('Monthly loss limit of ' + S.limits.monthly + '% reached.');
+}
+function lock(reason){
+  if(S.locked) return;
+  S.locked = true; S.lockReason = reason;
+  toast('🔒 Trading locked', reason + ' Capital preservation engaged.', 'warn');
+  coach('<b>Trading lock engaged.</b> ' + reason + ' This is the platform\'s most important feature: it removes the option of revenge trading when judgment is most compromised. Review the journal, not the charts.');
+  renderAll();
+}
+
+// ---------- Events ----------
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', ()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');
+  $('v-'+t.dataset.v).classList.add('on');
+}));
+document.addEventListener('click', e=>{
+  const b = e.target.closest('button');
+  if(!b) return;
+  if(b.dataset.act){
+    const opp = S.opps.find(o=>o.id==b.dataset.id);
+    if(!opp) return;
+    if(b.dataset.act==='skip'){
+      S.skips++;
+      S.opps = S.opps.filter(o=>o.id!==opp.id);
+      toast('⏭️ Skipped ' + opp.sym, 'Passing on a setup is always a valid decision.', '');
+      coach('<b>You skipped ' + opp.sym + ' (' + opp.score + '/100).</b> Good discipline is knowing that no single opportunity matters. The engine keeps scanning; another qualifying setup will come.');
+      renderAll();
+    } else {
+      if(S.locked){ toast('🔒 Trading is locked', S.lockReason, 'warn'); return; }
+      openConfirm(opp, b.dataset.act);
+    }
+  }
+  if(b.classList.contains('toggle-agents')){
+    const ag = $('ag-'+b.dataset.id);
+    ag.classList.toggle('open');
+    b.textContent = (ag.classList.contains('open')?'▾':'▸') + ' Agent council breakdown';
+  }
+  if(b.dataset.savenote !== undefined){
+    const input = document.querySelector('input[data-note="'+b.dataset.savenote+'"]');
+    const t = S.journal.find(x=>x.id===b.dataset.savenote);
+    if(t && input && input.value.trim()){ t.note = input.value.trim(); renderJournal(); }
+  }
+});
+$('mCancel').addEventListener('click', ()=> $('modalBg').classList.remove('on'));
+$('modalBg').addEventListener('click', e=>{ if(e.target===$('modalBg')) $('modalBg').classList.remove('on'); });
+$('mConfirm').addEventListener('click', confirmTrade);
+$('saveRisk').addEventListener('click', ()=>{
+  S.balance = Math.max(100, +$('inBalance').value || 10000);
+  S.riskPct = Math.min(5, Math.max(0.1, +$('inRisk').value || 1));
+  S.limits.daily = +$('inDaily').value || 3;
+  S.limits.weekly = +$('inWeekly').value || 6;
+  S.limits.monthly = +$('inMonthly').value || 10;
+  toast('✅ Risk settings saved', 'Risk ' + S.riskPct + '% per trade · daily limit ' + S.limits.daily + '%', '');
+  coach('<b>Risk settings updated.</b> You now risk ' + S.riskPct + '% (' + fmt$(S.balance*S.riskPct/100) + ') per trade with a ' + S.limits.daily + '% daily loss lock. Professional risk-per-trade is typically 0.5–2%.');
+  renderAll();
+});
+
+// ---------- Price simulation ----------
+function tick(){
+  INSTRUMENTS.forEach(i=>{
+    const drift = i.trend * 0.00006 + (Math.random()-0.5) * 0.0009 * i.vol;
+    i.px = +(i.px * (1 + drift)).toFixed(i.dec===0?0:i.dec);
+    if(Math.random()<0.02) i.trend = Math.max(-1, Math.min(1, i.trend + (Math.random()-0.5)*0.6));
+    if(Math.random()<0.02) i.vol = 0.3 + Math.random()*0.7;
+    if(!S.opps.some(o=>o.sym===i.sym)) i.score = 30 + Math.round(Math.random()*35);
+  });
+  renderScanner();
+}
+
+// ---------- Boot ----------
+$('sessionLabel').textContent = session();
+setInterval(()=> $('sessionLabel').textContent = session(), 60000);
+renderAll();
+spawnOpp(true);
+setTimeout(()=>spawnOpp(true), 4000);
+setInterval(()=>{ if(Math.random()<0.35) spawnOpp(); }, 15000);
+setInterval(expireOpps, 5000);
+setInterval(tick, 1800);
+setTimeout(()=> coach('<b>Why so few alerts?</b> The engine scanned all 13 instruments and rejected everything scoring below 70. Most of the market, most of the time, offers no edge — and the platform will never invent one to keep you busy.'), 8000);
+</script>
+</body>
+</html>

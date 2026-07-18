@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alliance Intelligence — AI Command Center | Legacy Alliance</title>
+<title>Founder Command Center — Legacy Alliance</title>
 <meta name="description" content="The voice-controlled AI command center of Legacy Alliance — member intelligence, AI matchmaking with reasoning, elite privileges, legal guides and a private concierge.">
 <style>
   :root{
@@ -138,6 +138,29 @@
   .chat-input input{flex:1;background:transparent;border:none;color:var(--ivory);padding:18px 20px;font-size:.92rem;outline:none;font-family:var(--sans)}
   .chat-input button{background:var(--gold);border:none;color:var(--navy);padding:0 28px;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;cursor:pointer}
 
+  /* founder gate */
+  .gate{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%, #16214d 0, var(--navy) 70%);z-index:1000;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}
+  .gate-inner{max-width:420px}
+  .gate .crest-big{width:86px;height:86px;border:1px solid var(--gold);transform:rotate(45deg);margin:0 auto 36px;display:flex;align-items:center;justify-content:center;position:relative}
+  .gate .crest-big::after{content:"";position:absolute;inset:7px;border:1px solid rgba(201,162,75,.4)}
+  .gate .crest-big span{transform:rotate(-45deg);font-family:var(--serif);color:var(--gold);font-size:2rem}
+  .gate h2{font-size:1.5rem}
+  .gate p{color:var(--ivory-dim);font-size:.86rem;margin-top:12px}
+  .gate input{margin-top:26px;text-align:center;letter-spacing:.8em;font-size:1.4rem;padding:16px}
+  .gate .err{color:#e08c8c;font-size:.78rem;margin-top:12px;display:none}
+  .gate .note{margin-top:22px}
+  /* verification research */
+  .verify-panel{max-width:880px;margin:0 auto;background:var(--navy-2);border:1px solid rgba(201,162,75,.3);padding:40px}
+  @media(max-width:640px){.verify-panel{padding:24px 16px}}
+  .upload-zone{border:1px dashed rgba(201,162,75,.5);padding:28px;text-align:center;color:var(--ivory-dim);font-size:.85rem;cursor:pointer;transition:all .3s}
+  .upload-zone:hover{border-color:var(--gold);color:var(--gold-light)}
+  .upload-zone .big{font-size:1.7rem;display:block;margin-bottom:8px}
+  .dossier{display:none;margin-top:26px;border:1px solid rgba(201,162,75,.35);background:var(--navy);padding:26px}
+  .dossier h4{color:var(--gold-light);font-size:.7rem;letter-spacing:.26em;text-transform:uppercase;margin-bottom:14px}
+  .dossier li{list-style:none;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.85rem;color:var(--ivory-dim)}
+  .dossier li b{color:var(--gold-light)}
+  .prog{height:3px;background:var(--navy-3);margin-top:20px;display:none}
+  .prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-light));transition:width 2.2s ease}
   footer{border-top:1px solid rgba(201,162,75,.25);background:var(--navy-2);padding:44px 0;text-align:center}
   footer p{color:var(--ivory-dim);font-size:.74rem;max-width:720px;margin:0 auto}
   .note{font-size:.68rem;color:rgba(207,198,176,.55);font-style:italic;text-align:center;margin-top:18px}
@@ -145,11 +168,24 @@
 </head>
 <body>
 
+<div class="gate" id="gate">
+  <div class="gate-inner">
+    <div class="crest-big"><span>L</span></div>
+    <div class="eyebrow">Restricted · Founder Access Only</div>
+    <h2>The Founder's Command Center</h2>
+    <p>This chamber holds the member database, the match engine and every family's secrets. Members can never enter. Enter your Founder access code.</p>
+    <input id="gateCode" type="password" maxlength="6" placeholder="•••" onkeydown="if(event.key==='Enter')tryGate()">
+    <button class="btn solid" style="width:100%;margin-top:18px;padding:16px" onclick="tryGate()">Unlock</button>
+    <div class="err" id="gateErr">Incorrect code. This attempt has been noted.</div>
+    <p class="note">Demonstration lock (code: 505). In production this becomes real authentication — passkeys, two-factor and audit logs.</p>
+  </div>
+</div>
+
 <nav>
   <div class="wrap nav-inner">
     <div class="brand">
       <div class="crest"><span>L</span></div>
-      <div class="brand-name">ALLIANCE INTELLIGENCE<small>AI COMMAND CENTER</small></div>
+      <div class="brand-name">FOUNDER COMMAND CENTER<small>FOUNDER &amp; AUTHORIZED STAFF ONLY</small></div>
     </div>
     <div class="nav-links">
       <a href="#wealth">Member Intelligence</a>
@@ -164,9 +200,9 @@
 </nav>
 
 <header>
-  <div class="eyebrow">Legacy Alliance · Artificial Intelligence Division</div>
-  <h1>Speak, and the Alliance <em>Answers</em></h1>
-  <p class="sub">Your entire platform is voice-commanded. Ask for members by country or wealth. Ask for a match — and the AI explains why. Ask for a jet, a lawyer, or the marriage laws of any nation.</p>
+  <div class="eyebrow">Legacy Alliance · Founder's Private Intelligence</div>
+  <h1>Speak, Founder — the Alliance <em>Obeys</em></h1>
+  <p class="sub">This room exists for one person: you. No member can enter, search, or see another member — only you command the database, run the match engine, and decide which families shall meet. Members see nothing until you personally send them a veiled proposal.</p>
 
   <div class="mic-zone">
     <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎙</button>
@@ -228,6 +264,33 @@
         <button class="btn solid" onclick="doMatch()">⚡ Run AI Match Analysis</button>
       </div>
       <div id="matchResults"><p class="note" style="margin-top:26px">Select a member and run the analysis — or simply say: “Find a match for Wei Chen”.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VERIFICATION RESEARCH ================= -->
+<section id="verify">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Verification &amp; Research Desk</span>
+      <h2>Upload an IC — the AI Builds the Dossier</h2>
+      <p>When a family applies, upload their identity scan. The AI research assistant compiles the background dossier — identity, business registries, reputation, red flags — for your eyes only.</p>
+    </div>
+    <div class="verify-panel">
+      <div class="upload-zone" onclick="runDossier()"><span class="big">🪪</span>Upload IC / Passport Scan — Begin AI Background Research</div>
+      <div class="prog" id="dossierProg"><i id="dossierBar"></i></div>
+      <div class="dossier" id="dossier">
+        <h4>Confidential Dossier — Founder's Eyes Only</h4>
+        <ul>
+          <li><b>Identity:</b> Document authentic · biometrics consistent · no duplicate identity found</li>
+          <li><b>Civil status:</b> Single · no prior or concurrent marriage located in searched registries</li>
+          <li><b>Family business:</b> 3 active corporate entities traced · principal holding est. US$400M–600M</li>
+          <li><b>Reputation:</b> Press &amp; social scan clean · philanthropic record verified</li>
+          <li><b>Financial conduct:</b> No bankruptcy, litigation or sanctions hits in searched sources</li>
+          <li><b>Red flags:</b> None detected — recommend proceeding to personal interview</li>
+        </ul>
+        <p class="note" style="text-align:left">Simulated demonstration. In production, this connects to identity-verification and screening providers, and research is performed with the applicant's written consent and under applicable privacy law.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -407,6 +470,7 @@ function matchByName(name){
         <div class="score-ring"><b>${x.r.score}%</b><span>Alliance Score</span></div>
       </div>
       <div class="why"><b>Why the AI recommends this union</b>${x.r.reasons.map(r => `<p style="margin-bottom:8px">◆ ${r}</p>`).join('')}</div>
+      <button class="btn solid" style="margin-top:14px" onclick="sendProposal('${m.name}','${x.c.name}')">✉ Send Veiled Proposal to ${m.name.split(' ')[0]}</button>
     </div>`).join('');
   document.getElementById('match').scrollIntoView({behavior:'smooth'});
   const best = ranked[0];
@@ -568,6 +632,31 @@ function sendChat(){
   const v = inp.value.trim(); if (!v) return;
   inp.value = ''; addChat(v, 'me');
   setTimeout(() => { const a = conciergeAnswer(v); addChat(a, 'ai'); speak(a); }, 600);
+}
+
+/* ==================== FOUNDER GATE & PROPOSALS ==================== */
+function tryGate(){
+  const v = document.getElementById('gateCode').value.trim();
+  if (v === '505') {
+    sessionStorage.setItem('la_founder','1');
+    document.getElementById('gate').style.display = 'none';
+    speak('Welcome back, Founder. The Alliance is at your command.');
+  } else {
+    document.getElementById('gateErr').style.display = 'block';
+    document.getElementById('gateCode').value = '';
+  }
+}
+if (sessionStorage.getItem('la_founder') === '1') document.getElementById('gate').style.display = 'none';
+function sendProposal(target, candidate){
+  agentReply(`A veiled proposal has been prepared for ${target}: the candidate ${candidate} will be presented by character only — no name, no face, no net worth — until both families consent. It now awaits your final word before delivery to the member portal.`);
+}
+function runDossier(){
+  const prog = document.getElementById('dossierProg'), bar = document.getElementById('dossierBar');
+  document.getElementById('dossier').style.display = 'none';
+  prog.style.display = 'block'; bar.style.width = '0';
+  setTimeout(() => bar.style.width = '100%', 60);
+  setTimeout(() => { prog.style.display = 'none'; document.getElementById('dossier').style.display = 'block';
+    speak('Background research complete. No red flags detected. The dossier is ready for your review, Founder.'); }, 2400);
 }
 
 /* ==================== INIT ==================== */

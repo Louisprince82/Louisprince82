@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Member Portal — Legacy Alliance</title>
+<meta name="description" content="The private member portal of Legacy Alliance. Maintain your confidential profile and receive proposals personally curated by the Founder.">
+<style>
+  :root{
+    --navy:#0a1128; --navy-2:#101a3d; --navy-3:#182452;
+    --gold:#c9a24b; --gold-light:#e8ce8c; --gold-dim:#8a6f33;
+    --ivory:#f5efe2; --ivory-dim:#cfc6b0;
+    --serif:'Playfair Display','Didot',Georgia,'Times New Roman',serif;
+    --sans:'Avenir Next','Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--navy);color:var(--ivory);font-family:var(--sans);line-height:1.65}
+  h1,h2,h3,h4{font-family:var(--serif);font-weight:600}
+  a{color:var(--gold-light);text-decoration:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  .eyebrow{display:inline-block;font-size:.66rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  section{padding:64px 0}
+  .sec-head{text-align:center;margin-bottom:38px}
+  .sec-head h2{font-size:clamp(1.5rem,3.2vw,2.2rem)}
+  .sec-head p{color:var(--ivory-dim);max-width:640px;margin:12px auto 0;font-size:.92rem}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,17,40,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,162,75,.25)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .crest{width:38px;height:38px;border:1px solid var(--gold);transform:rotate(45deg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .crest span{transform:rotate(-45deg);font-family:var(--serif);color:var(--gold);font-size:1rem}
+  .brand-name{font-family:var(--serif);letter-spacing:.22em;font-size:.82rem}
+  .brand-name small{display:block;font-size:.5rem;letter-spacing:.3em;color:var(--gold);font-family:var(--sans)}
+  .nav-links{display:flex;gap:20px;align-items:center}
+  .nav-links a{font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ivory-dim)}
+  .nav-links a:hover{color:var(--gold-light)}
+  @media(max-width:820px){.nav-links a:not(.keep){display:none}}
+
+  header{padding:140px 22px 50px;text-align:center;background:
+    radial-gradient(ellipse at 50% -10%, rgba(24,36,82,.95) 0, transparent 60%),
+    radial-gradient(ellipse at 50% 130%, rgba(201,162,75,.1) 0, transparent 55%), var(--navy)}
+  header h1{font-size:clamp(1.8rem,4.4vw,3rem)}
+  header h1 em{font-style:italic;color:var(--gold-light)}
+  header .sub{color:var(--ivory-dim);margin-top:14px;max-width:660px;margin-left:auto;margin-right:auto;font-size:.94rem}
+
+  .privacy-pledge{max-width:860px;margin:36px auto 0;background:var(--navy-2);border:1px solid var(--gold);padding:28px 34px;text-align:left;display:flex;gap:22px;align-items:flex-start}
+  .privacy-pledge .ic{font-size:1.8rem}
+  .privacy-pledge h4{color:var(--gold-light);font-size:1rem;letter-spacing:.08em}
+  .privacy-pledge p{color:var(--ivory-dim);font-size:.86rem;margin-top:6px}
+  .privacy-pledge b{color:var(--gold-light)}
+
+  .btn{display:inline-block;padding:13px 28px;border:1px solid var(--gold);background:transparent;color:var(--gold-light);font-size:.68rem;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all .3s;text-align:center}
+  .btn:hover{background:var(--gold);color:var(--navy)}
+  .btn.solid{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);border:none;font-weight:700}
+
+  label{display:block;font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin:18px 0 7px}
+  input,select,textarea{width:100%;background:var(--navy);border:1px solid rgba(201,162,75,.35);color:var(--ivory);padding:13px 15px;font-size:.92rem;outline:none;font-family:var(--sans)}
+  input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:640px){.form-row{grid-template-columns:1fr}}
+  .panel{background:var(--navy-2);border:1px solid rgba(201,162,75,.3);padding:44px 40px}
+  @media(max-width:640px){.panel{padding:30px 20px}}
+
+  .upload-zone{border:1px dashed rgba(201,162,75,.5);padding:30px;text-align:center;color:var(--ivory-dim);font-size:.84rem;cursor:pointer;transition:all .3s;margin-top:8px}
+  .upload-zone:hover{border-color:var(--gold);color:var(--gold-light)}
+  .upload-zone .big{font-size:1.6rem;display:block;margin-bottom:8px}
+  .doc-list{margin-top:14px;font-size:.8rem;color:var(--ivory-dim)}
+  .doc-list li{list-style:none;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+  .doc-list li::before{content:"🔒 ";}
+
+  /* proposals */
+  .proposal{background:var(--navy-2);border:1px solid rgba(201,162,75,.3);padding:34px;margin-bottom:22px;display:grid;grid-template-columns:150px 1fr;gap:28px;align-items:start}
+  @media(max-width:640px){.proposal{grid-template-columns:1fr}}
+  .veil{width:150px;height:180px;border:1px solid var(--gold);background:
+    radial-gradient(circle at 50% 35%, rgba(201,162,75,.28) 0, transparent 55%), var(--navy-3);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden}
+  .veil .q{font-family:var(--serif);font-size:3rem;color:rgba(232,206,140,.5)}
+  .veil small{font-size:.54rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);text-align:center;padding:0 10px}
+  .veil.revealed{background:var(--navy-3)}
+  .veil.revealed .q{color:var(--gold-light)}
+  .proposal h4{font-size:1.15rem;color:var(--gold-light)}
+  .proposal .from{font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+  .proposal p{font-size:.88rem;color:var(--ivory-dim);margin-top:10px}
+  .traits{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .trait{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;border:1px solid rgba(201,162,75,.4);color:var(--gold-light);padding:4px 10px}
+  .p-actions{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+  .p-status{margin-top:14px;font-size:.8rem;color:#7fd4a0;display:none}
+
+  /* law accordion */
+  .law-item{border:1px solid rgba(201,162,75,.3);margin-bottom:10px;background:var(--navy-2)}
+  .law-item button{width:100%;background:none;border:none;color:var(--ivory);font-family:var(--serif);font-size:.98rem;padding:17px 22px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+  .law-item button span{color:var(--gold)}
+  .law-body{display:none;padding:0 22px 18px;color:var(--ivory-dim);font-size:.86rem}
+  .law-item.open .law-body{display:block}
+  .law-body li{margin:7px 0 7px 18px}
+
+  .priv-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+  .priv{background:var(--navy-2);border:1px solid rgba(201,162,75,.25);padding:20px 14px;text-align:center;transition:all .3s}
+  .priv:hover{border-color:var(--gold)}
+  .priv .ic{font-size:1.4rem}
+  .priv h4{font-size:.8rem;margin-top:8px;color:var(--gold-light)}
+  .priv small{font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ivory-dim)}
+
+  footer{border-top:1px solid rgba(201,162,75,.25);background:var(--navy-2);padding:40px 0;text-align:center}
+  footer p{color:var(--ivory-dim);font-size:.72rem;max-width:700px;margin:0 auto}
+  .note{font-size:.68rem;color:rgba(207,198,176,.55);font-style:italic;text-align:center;margin-top:16px}
+  .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:var(--gold);color:var(--navy);font-size:.72rem;letter-spacing:.12em;padding:12px 24px;opacity:0;transition:all .4s;pointer-events:none;font-weight:600;z-index:300}
+  .toast.show{opacity:1;transform:translateX(-50%)}
+
+  /* floating AI agent */
+  .agent-fab{position:fixed;right:24px;bottom:24px;width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);border:none;font-size:1.5rem;cursor:pointer;z-index:200;box-shadow:0 12px 34px rgba(0,0,0,.5);transition:transform .25s}
+  .agent-fab:hover{transform:scale(1.08)}
+  .agent-box{position:fixed;right:24px;bottom:100px;width:340px;max-width:calc(100vw - 48px);background:var(--navy-2);border:1px solid var(--gold);z-index:200;display:none;flex-direction:column;box-shadow:0 26px 70px rgba(0,0,0,.6)}
+  .agent-box.open{display:flex}
+  .agent-head{padding:14px 18px;border-bottom:1px solid rgba(201,162,75,.3);font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);display:flex;justify-content:space-between;align-items:center}
+  .agent-head button{background:none;border:none;color:var(--ivory-dim);cursor:pointer;font-size:1rem}
+  .agent-log{height:250px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+  .amsg{max-width:85%;padding:10px 14px;font-size:.8rem;line-height:1.5}
+  .amsg.ai{background:var(--navy-3);border:1px solid rgba(201,162,75,.3);align-self:flex-start}
+  .amsg.me{background:var(--gold);color:var(--navy);align-self:flex-end;font-weight:500}
+  .agent-in{display:flex;border-top:1px solid rgba(201,162,75,.3)}
+  .agent-in input{flex:1;background:transparent;border:none;color:var(--ivory);padding:13px 14px;font-size:.84rem;outline:none;font-family:var(--sans)}
+  .agent-in button{background:none;border:none;color:var(--gold);padding:0 14px;cursor:pointer;font-size:1.05rem}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <div class="brand">
+      <div class="crest"><span>L</span></div>
+      <div class="brand-name">LEGACY ALLIANCE<small>PRIVATE MEMBER PORTAL</small></div>
+    </div>
+    <div class="nav-links">
+      <a href="#profile">My Profile</a>
+      <a href="#documents">My Documents</a>
+      <a href="#proposals">Proposals</a>
+      <a href="#privileges">Privileges</a>
+      <a href="#law">Marriage Guides</a>
+      <a href="index.html" class="keep">← Main Site</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="eyebrow">Private &amp; Confidential · Members Only</div>
+  <h1>Welcome to Your <em>Private Chamber</em></h1>
+  <p class="sub">Here you maintain your confidential profile and receive proposals — each one selected, verified and presented personally by the Founder.</p>
+  <div class="privacy-pledge">
+    <div class="ic">🛡</div>
+    <div>
+      <h4>The Alliance Privacy Pledge</h4>
+      <p><b>No member can ever see, search, or browse another member.</b> There is no directory. There are no public profiles. Every introduction is made personally by the Founder, one family at a time — and your name, face and net worth are revealed <b>only with your explicit consent</b>, after both families have agreed. Everything is protected under NDA.</p>
+    </div>
+  </div>
+</header>
+
+<!-- ============ MY PROFILE ============ -->
+<section id="profile">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">My Profile</span>
+      <h2>Maintain Your Own Story</h2>
+      <p>Update your details at any time. Only the Founder and staff the Founder personally authorizes can ever view this. Nothing here is visible to other members.</p>
+    </div>
+    <div class="panel">
+      <div class="form-row">
+        <div><label>Full Name</label><input id="pfName" placeholder="Your full name"></div>
+        <div><label>Family / House Name</label><input id="pfFamily" placeholder="Family or house name"></div>
+      </div>
+      <div class="form-row">
+        <div><label>Country</label><select id="pfCountry"><option>Singapore</option><option>China</option><option>Thailand</option><option>Vietnam</option><option>Indonesia</option><option>Hong Kong</option><option>Japan</option><option>Other</option></select></div>
+        <div><label>Languages</label><input id="pfLangs" placeholder="e.g. English, Mandarin, Thai"></div>
+      </div>
+      <div class="form-row">
+        <div><label>Family Business / Industry</label><input id="pfBiz" placeholder="e.g. Private banking, property, technology"></div>
+        <div><label>Net Worth Range (Confidential)</label><select id="pfWorth"><option>Prefer to discuss privately</option><option>US$10M – 100M</option><option>US$100M – 500M</option><option>US$500M – 1B</option><option>US$1B+</option></select></div>
+      </div>
+      <label>About Myself &amp; What My Family Seeks</label>
+      <textarea id="pfAbout" rows="4" placeholder="Your values, education, vision, and what kind of family alliance you seek…"></textarea>
+      <div class="form-row">
+        <div><label>Willing to Reveal Photo</label><select id="pfPhoto"><option>Only after I approve a specific proposal</option><option>To the Founder only</option><option>Never — describe me only</option></select></div>
+        <div><label>Willing to Reveal Net Worth</label><select id="pfReveal"><option>Never — Founder negotiates on my behalf</option><option>Range only, after mutual interest</option><option>Only after both families agree</option></select></div>
+      </div>
+      <button class="btn solid" style="width:100%;margin-top:28px;padding:16px" onclick="saveProfile()">Save My Confidential Profile</button>
+      <p class="note">Saved privately on this device for the demonstration. In production this is stored encrypted, visible only to the Founder.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DOCUMENTS ============ -->
+<section id="documents" style="background:var(--navy-2)">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">My Documents</span>
+      <h2>Verification Vault</h2>
+      <p>Upload your identity, photos and supporting documents for the Founder's verification team. The AI research assistant prepares your background dossier — for the Founder's eyes only.</p>
+    </div>
+    <div class="panel" style="background:var(--navy)">
+      <div class="upload-zone" onclick="fakeUpload('Identity document (IC / Passport)')"><span class="big">🪪</span>Upload IC / Passport Scan</div>
+      <div class="upload-zone" onclick="fakeUpload('Private portrait photographs')"><span class="big">📷</span>Upload Private Portraits (never shown without your consent)</div>
+      <div class="upload-zone" onclick="fakeUpload('Supporting documents')"><span class="big">📁</span>Upload Supporting Documents (education, business, references)</div>
+      <ul class="doc-list" id="docList"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROPOSALS ============ -->
+<section id="proposals">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Proposals From the Founder</span>
+      <h2>When the Founder Finds Your Match</h2>
+      <p>You will receive a proposal here — character first, identity veiled. Only when <b style="color:var(--gold-light)">both</b> families say yes does the Founder personally arrange the meeting and reveal further details, step by step, with consent at every step.</p>
+    </div>
+
+    <div class="proposal">
+      <div class="veil" id="veil1"><div class="q">?</div><small>Identity veiled until mutual consent</small></div>
+      <div>
+        <div class="from">Personally proposed by the Founder · Proposal Nº 1</div>
+        <h4>A Gentleman of a Distinguished Banking House</h4>
+        <div class="traits"><span class="trait">Age 31–34</span><span class="trait">East Asia</span><span class="trait">UHNW Family</span><span class="trait">Speaks Mandarin &amp; English</span><span class="trait">Oxford Educated</span></div>
+        <p>“I have met this gentleman and his family personally. His character is disciplined and generous; his family's values align remarkably with yours — faith in education, long-term stewardship, and discretion. I believe this is a union of true equals. Their business would complement your family's for generations. — <em style="color:var(--gold-light)">The Founder</em>”</p>
+        <div class="p-actions">
+          <button class="btn solid" onclick="acceptProposal(1)">Yes — I Wish to Proceed</button>
+          <button class="btn" onclick="declineProposal(1)">Respectfully Decline</button>
+        </div>
+        <p class="p-status" id="pstatus1"></p>
+      </div>
+    </div>
+
+    <div class="proposal">
+      <div class="veil" id="veil2"><div class="q">?</div><small>Identity veiled until mutual consent</small></div>
+      <div>
+        <div class="from">Personally proposed by the Founder · Proposal Nº 2</div>
+        <h4>A Lady of a Noble Hospitality Dynasty</h4>
+        <div class="traits"><span class="trait">Age 27–29</span><span class="trait">Southeast Asia</span><span class="trait">Noble Lineage</span><span class="trait">Trilingual</span><span class="trait">Patron of the Arts</span></div>
+        <p>“Her family is of noble descent, custodians of a legendary hospitality empire. She is graceful, highly educated, and devoted to family. Your families' interests would join two nations together. I present her to you before any other family. — <em style="color:var(--gold-light)">The Founder</em>”</p>
+        <div class="p-actions">
+          <button class="btn solid" onclick="acceptProposal(2)">Yes — I Wish to Proceed</button>
+          <button class="btn" onclick="declineProposal(2)">Respectfully Decline</button>
+        </div>
+        <p class="p-status" id="pstatus2"></p>
+      </div>
+    </div>
+    <p class="note">Demonstration proposals. In production, proposals are composed and sent by the Founder from the Command Center, and both parties' consent is recorded at every stage.</p>
+  </div>
+</section>
+
+<!-- ============ PRIVILEGES ============ -->
+<section id="privileges" style="background:var(--navy-2)">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Member Privileges</span>
+      <h2>The Best of Everything, at Member Terms</h2>
+    </div>
+    <div class="priv-strip">
+      <div class="priv"><div class="ic">✈</div><h4>Private Aviation</h4><small>Member Rates</small></div>
+      <div class="priv"><div class="ic">🛥</div><h4>Yachts</h4><small>Priority Fleet</small></div>
+      <div class="priv"><div class="ic">🏨</div><h4>Palace Hotels</h4><small>Private Wings</small></div>
+      <div class="priv"><div class="ic">💎</div><h4>High Jewellery</h4><small>Salon Access</small></div>
+      <div class="priv"><div class="ic">🚗</div><h4>Motorcars</h4><small>First Allocation</small></div>
+      <div class="priv"><div class="ic">⚖</div><h4>Legal Counsel</h4><small>Retained Partners</small></div>
+      <div class="priv"><div class="ic">👰</div><h4>Weddings</h4><small>Alliance Curated</small></div>
+      <div class="priv"><div class="ic">🎓</div><h4>Education</h4><small>Elite Admissions</small></div>
+    </div>
+    <p class="note">Ask the AI agent (gold button, bottom right) to arrange anything — it is at your service on every page.</p>
+  </div>
+</section>
+
+<!-- ============ MARRIAGE GUIDES ============ -->
+<section id="law">
+  <div class="wrap" style="max-width:840px">
+    <div class="sec-head">
+      <span class="eyebrow">Cross-Border Marriage Guides</span>
+      <h2>Know Your Rights in Every Nation</h2>
+      <p>Open to every member. For anything further, the AI agent or our retained legal partners will assist you confidentially.</p>
+    </div>
+    <div id="lawList"></div>
+    <p class="note">General demonstrations, not legal advice. Members are connected to licensed counsel in each jurisdiction.</p>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Legacy Alliance · Private Member Portal · No member directory exists. No member may view another member. All matching is performed personally by the Founder. Protected under NDA.</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============ FLOATING AI AGENT ============ -->
+<button class="agent-fab" onclick="toggleAgent()" title="Your AI Agent">🎙</button>
+<div class="agent-box" id="agentBox">
+  <div class="agent-head">Your Private AI Agent <button onclick="toggleAgent()">✕</button></div>
+  <div class="agent-log" id="agentLog">
+    <div class="amsg ai">At your service. I can update your profile, explain marriage law, arrange travel or jewellery viewings, or pass a message to the Founder. I cannot show you other members — only the Founder holds that power.</div>
+  </div>
+  <div class="agent-in">
+    <input id="agentIn" placeholder="Speak or type your request…" onkeydown="if(event.key==='Enter')agentSend()">
+    <button onclick="agentVoice()" title="Speak">🎙</button>
+    <button onclick="agentSend()" title="Send">➤</button>
+  </div>
+</div>
+
+<script>
+/* ---------- profile persistence (demo) ---------- */
+const FIELDS = ['pfName','pfFamily','pfCountry','pfLangs','pfBiz','pfWorth','pfAbout','pfPhoto','pfReveal'];
+FIELDS.forEach(id => { const v = localStorage.getItem('la_' + id); if (v) document.getElementById(id).value = v; });
+function saveProfile(){
+  FIELDS.forEach(id => localStorage.setItem('la_' + id, document.getElementById(id).value));
+  toast('Profile saved — visible only to the Founder');
+}
+function fakeUpload(what){
+  const li = document.createElement('li');
+  const d = new Date();
+  li.textContent = what + ' — received securely, ' + d.toLocaleDateString();
+  document.getElementById('docList').appendChild(li);
+  toast('Received in the Verification Vault');
+}
+/* ---------- proposals ---------- */
+function acceptProposal(n){
+  const s = document.getElementById('pstatus' + n);
+  s.style.display = 'block';
+  s.textContent = '✓ Your consent is recorded. The Founder will now speak with the other family — if they also agree, the Founder will contact you personally to arrange the introduction and reveal details step by step.';
+  const v = document.getElementById('veil' + n);
+  v.classList.add('revealed');
+  v.querySelector('small').textContent = 'Awaiting the other family’s consent';
+  toast('The Founder has been notified');
+}
+function declineProposal(n){
+  const s = document.getElementById('pstatus' + n);
+  s.style.display = 'block'; s.style.color = 'var(--ivory-dim)';
+  s.textContent = 'Declined with grace. The other family will never know your identity. The Founder will continue the search.';
+  toast('Declined — your privacy remains sealed');
+}
+let toastTimer;
+function toast(m){
+  const t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+/* ---------- marriage guides ---------- */
+const LAWS = [
+  {c:'China', flag:'🇨🇳', pts:['Register at the Civil Affairs Bureau; foreigners marrying a Chinese citizen register where the Chinese partner’s hukou is held.','Foreigners need a passport and a notarised, legalised certificate of no impediment / single status.','Legal age: 22 for men, 20 for women; both must appear in person.','China does not recognise dual nationality — plan residency, property and children’s citizenship early.','Prenuptial agreements are recognised under the Civil Code when written and voluntary.']},
+  {c:'Singapore', flag:'🇸🇬', pts:['Register with the Registry of Marriages; file notice 21 days to 3 months before the ceremony.','Minimum age 21 without parental consent; presence in Singapore required before solemnisation.','Preferred venue for prenuptial and trust structures thanks to strong rule of law.','Foreign spouses may apply for Long-Term Visit Pass or PR sponsorship.']},
+  {c:'Thailand', flag:'🇹🇭', pts:['Register at any District Office (Amphur); ceremonies alone are not legally binding.','Foreigners need an embassy affirmation of freedom to marry, translated and legalised.','Foreigners generally cannot own land — marital property planning is essential.','Prenuptial agreements must be registered together with the marriage.']},
+  {c:'Vietnam', flag:'🇻🇳', pts:['Foreign-element marriages register with the provincial Department of Justice; single-status and health documents required.','Legal age: 20 for men, 18 for women; processing takes several weeks.','Property regime agreements before marriage are recognised under the 2014 Law on Marriage and Family.']},
+  {c:'Indonesia', flag:'🇮🇩', pts:['Marriages register through religious ceremony (KUA for Muslims, civil registry otherwise); interfaith planning needs early advice.','Foreigners provide an embassy Certificate of No Impediment plus legalised documents.','Mixed couples commonly sign pre/postnuptial agreements so the Indonesian spouse retains land rights.']}
+];
+document.getElementById('lawList').innerHTML = LAWS.map(l => `
+  <div class="law-item"><button onclick="this.parentElement.classList.toggle('open')">${l.flag} Marrying in ${l.c} <span>+</span></button>
+  <div class="law-body"><ul>${l.pts.map(p => `<li>${p}</li>`).join('')}</ul></div></div>`).join('');
+/* ---------- floating agent ---------- */
+function toggleAgent(){ document.getElementById('agentBox').classList.toggle('open'); }
+function agentAdd(t, who){
+  const log = document.getElementById('agentLog');
+  const d = document.createElement('div');
+  d.className = 'amsg ' + who; d.textContent = t;
+  log.appendChild(d); log.scrollTop = log.scrollHeight;
+}
+function agentAnswer(q){
+  const l = q.toLowerCase();
+  let a;
+  if (/see|search|browse|other member|who else|list|show me member/.test(l)) a = 'For your protection, no member may ever view or search another member. Only the Founder performs matching. I have passed your interest to the Founder’s office.';
+  else if (/profile|update|change/.test(l)) a = 'Of course — your profile section is just above. Update anything and press Save; only the Founder will see it.';
+  else if (/law|legal|marri|prenup|visa/.test(l)) a = 'The marriage guides for China, Singapore, Thailand, Vietnam and Indonesia are in the Marriage Guides section. Shall I also connect you with retained counsel?';
+  else if (/jet|plane|fly|yacht|boat|hotel|diamond|jewel|car|wedding|book|arrange/.test(l)) a = 'Consider it done — your request is with the concierge desk at member-rate priority. A dedicated attaché will confirm privately.';
+  else if (/founder|message|propose|match/.test(l)) a = 'Your message has been sealed and delivered to the Founder personally. All matching decisions rest with the Founder alone.';
+  else a = 'It shall be handled discreetly. In the production platform I connect to Claude or ChatGPT to research anything in any language — always under the Alliance privacy pledge.';
+  setTimeout(() => { agentAdd(a, 'ai'); try{ const u = new SpeechSynthesisUtterance(a); u.rate = 1; speechSynthesis.speak(u);}catch(e){} }, 500);
+}
+function agentSend(){
+  const i = document.getElementById('agentIn');
+  const v = i.value.trim(); if (!v) return;
+  i.value = ''; agentAdd(v, 'me'); agentAnswer(v);
+}
+function agentVoice(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { agentAdd('Voice needs Google Chrome — please type instead.', 'ai'); return; }
+  const r = new SR(); r.lang = 'en-US';
+  r.onresult = e => { const t = e.results[0][0].transcript; agentAdd(t, 'me'); agentAnswer(t); };
+  r.start();
+}
+</script>
+</body>
+</html>

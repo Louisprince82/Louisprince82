@@ -180,7 +180,7 @@
       <a href="#membership">Membership</a>
       <a href="#network">Global Network</a>
       <a href="#media">The Series</a>
-      <a href="ai.html">AI Intelligence</a>
+      <a href="member.html">Member Portal</a>
       <a href="app.html">Member App</a>
       <a href="#apply" class="btn">Request Invitation</a>
     </div>
@@ -191,13 +191,14 @@
   <div>
     <div class="hero-crest"><span>L</span></div>
     <div class="eyebrow">Born in Singapore &nbsp;·&nbsp; Headquartered in Bangkok &nbsp;·&nbsp; Serving the World's Elite</div>
-    <h1>Where Royal &amp; Elite Families<br><em>Unite Their Legacies</em></h1>
-    <p class="tagline">“Marriage is not luck — it is legacy.”</p>
+    <h1>Where Royalty Meets Elite,<br><em>Legacy Meets Legacy</em></h1>
+    <p class="tagline">“It is not a marriage — it is a legacy, passed down again and again.”</p>
     <p class="hero-sub">Asia's premier elite marriage &amp; family alliance agency</p>
     <div class="hero-cta">
       <a href="#apply" class="btn solid">Request Private Invitation</a>
-      <a href="ai.html" class="btn">🎙 Enter the AI Command Center</a>
+      <a href="member.html" class="btn">Enter the Member Portal</a>
     </div>
+    <p class="hero-sub" style="margin-top:34px;letter-spacing:.14em;text-transform:none;font-size:.78rem;color:var(--ivory-dim)">No member directory. No public profiles. Every introduction is made personally by the Founder — under NDA, with your consent at every step.</p>
   </div>
 </header>
 
@@ -452,15 +453,59 @@
       <a href="#membership">Membership</a>
       <a href="#network">Network</a>
       <a href="#media">The Series</a>
-      <a href="ai.html">AI Intelligence</a>
+      <a href="member.html">Member Portal</a>
       <a href="app.html">Member App</a>
       <a href="#apply">Invitation</a>
     </div>
-    <p class="legal">© 2026 Legacy Alliance Pte. Ltd. · All introductions are best-effort and subject to our ethical framework — emotions cannot be guaranteed, but risk can be reduced. · Confidentiality assured under NDA.</p>
+    <p class="legal">© 2026 Legacy Alliance Pte. Ltd. · All introductions are best-effort and subject to our ethical framework — emotions cannot be guaranteed, but risk can be reduced. · Confidentiality assured under NDA. · <a href="ai.html" style="color:rgba(207,198,176,.5)">Founder Access</a></p>
   </div>
 </footer>
 
+<button class="agent-fab" onclick="toggleAgent()" title="Ask the Alliance AI Agent" style="position:fixed;right:24px;bottom:24px;width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);border:none;font-size:1.5rem;cursor:pointer;z-index:200;box-shadow:0 12px 34px rgba(0,0,0,.5)">🎙</button>
+<div id="agentBox" style="position:fixed;right:24px;bottom:100px;width:340px;max-width:calc(100vw - 48px);background:var(--navy-2);border:1px solid var(--gold);z-index:200;display:none;flex-direction:column;box-shadow:0 26px 70px rgba(0,0,0,.6)">
+  <div style="padding:14px 18px;border-bottom:1px solid rgba(201,162,75,.3);font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);display:flex;justify-content:space-between;align-items:center">Alliance AI Agent <button onclick="toggleAgent()" style="background:none;border:none;color:var(--ivory-dim);cursor:pointer;font-size:1rem">✕</button></div>
+  <div id="agentLog" style="height:240px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px">
+    <div style="max-width:85%;padding:10px 14px;font-size:.8rem;line-height:1.5;background:var(--navy-3);border:1px solid rgba(201,162,75,.3);align-self:flex-start">Welcome to Legacy Alliance. I can explain our memberships, our privacy pledge, or take your request for an invitation. How may I serve your family?</div>
+  </div>
+  <div style="display:flex;border-top:1px solid rgba(201,162,75,.3)">
+    <input id="agentIn" placeholder="Speak or type…" onkeydown="if(event.key==='Enter')agentSend()" style="flex:1;background:transparent;border:none;color:var(--ivory);padding:13px 14px;font-size:.84rem;outline:none;font-family:var(--sans)">
+    <button onclick="agentVoice()" style="background:none;border:none;color:var(--gold);padding:0 12px;cursor:pointer;font-size:1.05rem">🎙</button>
+    <button onclick="agentSend()" style="background:none;border:none;color:var(--gold);padding:0 14px;cursor:pointer;font-size:1.05rem">➤</button>
+  </div>
+</div>
+
 <script>
+  // floating AI agent
+  function toggleAgent(){ const b = document.getElementById('agentBox'); b.style.display = b.style.display === 'flex' ? 'none' : 'flex'; }
+  function agentAdd(t, me){
+    const log = document.getElementById('agentLog');
+    const d = document.createElement('div');
+    d.style.cssText = 'max-width:85%;padding:10px 14px;font-size:.8rem;line-height:1.5;' + (me
+      ? 'background:var(--gold);color:var(--navy);align-self:flex-end;font-weight:500'
+      : 'background:var(--navy-3);border:1px solid rgba(201,162,75,.3);align-self:flex-start');
+    d.textContent = t; log.appendChild(d); log.scrollTop = log.scrollHeight;
+  }
+  function agentAnswer(q){
+    const l = q.toLowerCase(); let a;
+    if (/price|fee|cost|tier|member/.test(l)) a = 'Our tiers: Tier A profiling from S$10,000, Tier B elite matchmaking from S$30,000, and the Royal Legacy tier from S$80,000. Every membership begins with a private invitation — shall I take your request?';
+    if (!a && /privacy|secret|see|search|profile|directory/.test(l)) a = 'No member can ever see or search another member. There is no directory. Every introduction is made personally by the Founder, veiled until both families consent, and protected under NDA.';
+    if (!a && /apply|invite|invitation|join|sign/.test(l)) a = 'Wonderful. The invitation form is at the end of this page — your request goes directly and confidentially to the Founder’s office.';
+    if (!a && /founder|match|how.*work/.test(l)) a = 'All matching is performed personally by the Founder, supported by AI intelligence — never by an app, never in public. You will only ever receive a proposal chosen for your family alone.';
+    if (!a) a = 'It shall be handled discreetly. In production I connect to Claude or ChatGPT to answer anything, in any language, under the Alliance privacy pledge.';
+    setTimeout(() => { agentAdd(a, false); try{ const u = new SpeechSynthesisUtterance(a); u.rate = 1; speechSynthesis.speak(u);}catch(e){} }, 500);
+  }
+  function agentSend(){
+    const i = document.getElementById('agentIn'); const v = i.value.trim(); if (!v) return;
+    i.value = ''; agentAdd(v, true); agentAnswer(v);
+  }
+  function agentVoice(){
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { agentAdd('Voice needs Google Chrome — please type instead.', false); return; }
+    const r = new SR(); r.lang = 'en-US';
+    r.onresult = e => { const t = e.results[0][0].transcript; agentAdd(t, true); agentAnswer(t); };
+    r.start();
+  }
+
   // scroll reveal
   const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('on'); }), { threshold: .12 });
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));

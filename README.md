@@ -12,7 +12,8 @@ headquartered in Bangkok, expanding worldwide.
 |---|---|
 | `index.html` | The flagship website — vision, four service pillars, membership tiers (A/B/C), global network, media series, country licensing, and a confidential invitation-request form. |
 | `app.html` | An interactive **member app** demonstration (phone-frame UI) — invitation entry, tier selection, membership-fee payment flow, and a member dashboard with curated matches, concierge services and events. |
-| `ai.html` | **Alliance Intelligence — the AI Command Center.** Voice-controlled (Web Speech API): speak commands like "show billionaires in China" or "find a match for Wei Chen". Includes the five-country wealth dashboard, member database with UHNW/royal/dynasty filters, AI match engine with written reasoning, elite privileges marketplace, cross-border marriage-law guides, and an AI concierge chat (connect Claude/ChatGPT/Grok in production). |
+| `ai.html` | **Founder Command Center** (access code `505` — demo lock). Founder-only: voice-commanded member database (by country/wealth/standing), AI match engine with written reasoning and "Send Veiled Proposal", IC-scan AI verification dossier, legal guides and concierge. Members can never enter or see this. |
+| `member.html` | **Private Member Portal.** Members maintain their own confidential profile, upload documents to the verification vault, and receive veiled proposals from the Founder (accept/decline with consent recording). No member can see, search, or browse any other member — matching power belongs to the Founder alone. Includes floating AI agent, marriage-law guides and member privileges. |
 
 Everything is a single self-contained file per page — no build step, no
 dependencies. Open `index.html` in any browser, or host on GitHub Pages,

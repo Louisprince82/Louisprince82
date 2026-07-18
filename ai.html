@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alliance Intelligence — AI Command Center | Legacy Alliance</title>
+<meta name="description" content="The voice-controlled AI command center of Legacy Alliance — member intelligence, AI matchmaking with reasoning, elite privileges, legal guides and a private concierge.">
+<style>
+  :root{
+    --navy:#0a1128; --navy-2:#101a3d; --navy-3:#182452;
+    --gold:#c9a24b; --gold-light:#e8ce8c; --gold-dim:#8a6f33;
+    --ivory:#f5efe2; --ivory-dim:#cfc6b0;
+    --green:#7fd4a0; --serif:'Playfair Display','Didot',Georgia,'Times New Roman',serif;
+    --sans:'Avenir Next','Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--navy);color:var(--ivory);font-family:var(--sans);line-height:1.65;overflow-x:hidden}
+  h1,h2,h3,h4{font-family:var(--serif);font-weight:600}
+  a{color:var(--gold-light);text-decoration:none}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 22px}
+  .eyebrow{display:inline-block;font-size:.68rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+  section{padding:70px 0}
+  .sec-head{text-align:center;margin-bottom:40px}
+  .sec-head h2{font-size:clamp(1.6rem,3.4vw,2.4rem)}
+  .sec-head p{color:var(--ivory-dim);max-width:680px;margin:12px auto 0;font-size:.95rem}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,17,40,.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,162,75,.25)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .crest{width:38px;height:38px;border:1px solid var(--gold);transform:rotate(45deg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .crest span{transform:rotate(-45deg);font-family:var(--serif);color:var(--gold);font-size:1rem}
+  .brand-name{font-family:var(--serif);letter-spacing:.24em;font-size:.85rem}
+  .brand-name small{display:block;font-size:.5rem;letter-spacing:.3em;color:var(--gold);font-family:var(--sans)}
+  .nav-links{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+  .nav-links a{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ivory-dim)}
+  .nav-links a:hover{color:var(--gold-light)}
+  @media(max-width:940px){.nav-links a:not(.keep){display:none}}
+
+  /* ---- VOICE HERO ---- */
+  header{padding:150px 22px 60px;text-align:center;background:
+    radial-gradient(ellipse at 50% -10%, rgba(24,36,82,.95) 0, transparent 60%),
+    radial-gradient(ellipse at 50% 120%, rgba(201,162,75,.12) 0, transparent 55%), var(--navy)}
+  header h1{font-size:clamp(2rem,5vw,3.4rem)}
+  header h1 em{font-style:italic;color:var(--gold-light)}
+  header .sub{color:var(--ivory-dim);margin-top:14px;max-width:640px;margin-left:auto;margin-right:auto;font-size:.95rem}
+
+  .mic-zone{margin:44px auto 0;max-width:760px}
+  .mic-btn{width:120px;height:120px;border-radius:50%;border:1px solid var(--gold);background:radial-gradient(circle at 35% 30%, #1d2a5e, var(--navy-2));color:var(--gold-light);font-size:2.4rem;cursor:pointer;transition:all .3s;position:relative;margin:0 auto;display:flex;align-items:center;justify-content:center}
+  .mic-btn:hover{box-shadow:0 0 60px rgba(201,162,75,.35)}
+  .mic-btn.listening{background:radial-gradient(circle at 35% 30%, var(--gold), var(--gold-dim));color:var(--navy);animation:pulse 1.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(201,162,75,.5)}70%{box-shadow:0 0 0 34px rgba(201,162,75,0)}100%{box-shadow:0 0 0 0 rgba(201,162,75,0)}}
+  .mic-label{margin-top:16px;font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+  .voice-panel{margin-top:26px;background:var(--navy-2);border:1px solid rgba(201,162,75,.3);padding:22px 26px;text-align:left;min-height:88px}
+  .voice-panel .you{color:var(--ivory-dim);font-size:.85rem}
+  .voice-panel .you b{color:var(--gold-light);letter-spacing:.14em;font-weight:600;font-size:.66rem;text-transform:uppercase;margin-right:8px}
+  .voice-panel .agent{margin-top:10px;font-size:.92rem}
+  .voice-panel .agent b{color:var(--gold);letter-spacing:.14em;font-weight:600;font-size:.66rem;text-transform:uppercase;margin-right:8px}
+  .chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:22px}
+  .chip{border:1px solid rgba(201,162,75,.4);background:transparent;color:var(--ivory-dim);font-size:.68rem;letter-spacing:.12em;padding:9px 16px;cursor:pointer;font-family:var(--sans);transition:all .25s}
+  .chip:hover{border-color:var(--gold);color:var(--gold-light)}
+  .type-row{display:flex;gap:10px;margin-top:18px}
+  .type-row input{flex:1;background:var(--navy);border:1px solid rgba(201,162,75,.35);color:var(--ivory);padding:13px 16px;font-size:.92rem;outline:none;font-family:var(--sans)}
+  .type-row input:focus{border-color:var(--gold)}
+  .btn{padding:12px 26px;border:1px solid var(--gold);background:transparent;color:var(--gold-light);font-size:.68rem;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;font-family:var(--sans);transition:all .3s}
+  .btn:hover{background:var(--gold);color:var(--navy)}
+  .btn.solid{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);border:none;font-weight:700}
+
+  /* ---- WEALTH DASHBOARD ---- */
+  .country-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px}
+  .country-card{background:var(--navy-2);border:1px solid rgba(201,162,75,.25);padding:24px 20px;cursor:pointer;transition:all .3s;text-align:center}
+  .country-card:hover,.country-card.on{border-color:var(--gold);transform:translateY(-4px)}
+  .country-card .flag{font-size:1.6rem}
+  .country-card h4{font-size:.95rem;margin-top:8px;letter-spacing:.08em}
+  .country-card .wealth{font-family:var(--serif);color:var(--gold-light);font-size:1.35rem;margin-top:8px}
+  .country-card small{display:block;color:var(--ivory-dim);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;margin-top:4px}
+
+  .filters{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:34px 0 26px}
+  .fbtn{border:1px solid rgba(201,162,75,.35);background:transparent;color:var(--ivory-dim);font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;padding:10px 18px;cursor:pointer;font-family:var(--sans);transition:all .25s}
+  .fbtn.on,.fbtn:hover{border-color:var(--gold);color:var(--navy);background:var(--gold)}
+
+  .members{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+  .member{background:var(--navy-2);border:1px solid rgba(201,162,75,.22);padding:22px;transition:all .3s;position:relative}
+  .member:hover{border-color:var(--gold)}
+  .member .top{display:flex;gap:14px;align-items:center}
+  .avatar{width:52px;height:52px;border-radius:50%;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--serif);color:var(--gold-light);font-size:1.15rem;flex-shrink:0;background:var(--navy-3)}
+  .member h4{font-size:1.02rem}
+  .member .meta{font-size:.7rem;color:var(--ivory-dim);letter-spacing:.06em}
+  .tagrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+  .tag{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;border:1px solid rgba(201,162,75,.4);color:var(--gold-light);padding:4px 9px}
+  .tag.uhnw{background:var(--gold);color:var(--navy);border-color:var(--gold);font-weight:700}
+  .member .biz{font-size:.78rem;color:var(--ivory-dim);margin-top:10px;font-style:italic}
+  .member .btn{width:100%;margin-top:14px;padding:10px;text-align:center}
+
+  /* ---- MATCH ENGINE ---- */
+  .match-panel{background:linear-gradient(160deg,var(--navy-3),var(--navy-2));border:1px solid var(--gold);padding:40px;max-width:960px;margin:0 auto}
+  @media(max-width:640px){.match-panel{padding:24px 16px}}
+  .match-head{display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+  .match-head select{background:var(--navy);border:1px solid rgba(201,162,75,.4);color:var(--ivory);padding:13px 16px;font-size:.9rem;font-family:var(--sans);min-width:260px}
+  #matchResults{margin-top:30px}
+  .mrow{border:1px solid rgba(201,162,75,.3);background:var(--navy);padding:22px;margin-bottom:16px}
+  .mrow .rline{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  .score-ring{margin-left:auto;text-align:center}
+  .score-ring b{font-family:var(--serif);font-size:1.5rem;color:var(--gold-light);display:block}
+  .score-ring span{font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ivory-dim)}
+  .why{margin-top:14px;border-top:1px solid rgba(201,162,75,.2);padding-top:14px;font-size:.88rem;color:var(--ivory-dim)}
+  .why b{color:var(--gold);font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;display:block;margin-bottom:8px}
+  .why em{color:var(--gold-light)}
+
+  /* ---- PRIVILEGES ---- */
+  .priv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+  .priv{background:var(--navy-2);border:1px solid rgba(201,162,75,.25);padding:26px 22px;transition:all .3s}
+  .priv:hover{border-color:var(--gold);transform:translateY(-4px)}
+  .priv .ic{font-size:1.6rem}
+  .priv h4{margin-top:10px;font-size:1rem;color:var(--gold-light)}
+  .priv p{font-size:.78rem;color:var(--ivory-dim);margin-top:6px}
+  .priv .perk{display:inline-block;margin-top:12px;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;border:1px solid var(--gold);color:var(--gold-light);padding:5px 10px}
+
+  /* ---- LEGAL GUIDES ---- */
+  .law{max-width:880px;margin:0 auto}
+  .law-item{border:1px solid rgba(201,162,75,.3);margin-bottom:12px;background:var(--navy-2)}
+  .law-item button{width:100%;background:none;border:none;color:var(--ivory);font-family:var(--serif);font-size:1.05rem;padding:20px 24px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+  .law-item button span{color:var(--gold);transition:transform .3s}
+  .law-item.open button span{transform:rotate(45deg)}
+  .law-body{display:none;padding:0 24px 22px;color:var(--ivory-dim);font-size:.88rem}
+  .law-item.open .law-body{display:block}
+  .law-body li{margin:8px 0 8px 18px}
+  .law-body .ask{margin-top:14px}
+
+  /* ---- CONCIERGE CHAT ---- */
+  .chat{max-width:760px;margin:0 auto;background:var(--navy-2);border:1px solid rgba(201,162,75,.35);display:flex;flex-direction:column;height:480px}
+  .chat-log{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:14px}
+  .msg{max-width:82%;padding:13px 18px;font-size:.88rem;line-height:1.55}
+  .msg.ai{background:var(--navy-3);border:1px solid rgba(201,162,75,.3);align-self:flex-start}
+  .msg.me{background:var(--gold);color:var(--navy);align-self:flex-end;font-weight:500}
+  .msg.ai b{color:var(--gold-light)}
+  .chat-input{display:flex;border-top:1px solid rgba(201,162,75,.3)}
+  .chat-input input{flex:1;background:transparent;border:none;color:var(--ivory);padding:18px 20px;font-size:.92rem;outline:none;font-family:var(--sans)}
+  .chat-input button{background:var(--gold);border:none;color:var(--navy);padding:0 28px;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;cursor:pointer}
+
+  footer{border-top:1px solid rgba(201,162,75,.25);background:var(--navy-2);padding:44px 0;text-align:center}
+  footer p{color:var(--ivory-dim);font-size:.74rem;max-width:720px;margin:0 auto}
+  .note{font-size:.68rem;color:rgba(207,198,176,.55);font-style:italic;text-align:center;margin-top:18px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <div class="brand">
+      <div class="crest"><span>L</span></div>
+      <div class="brand-name">ALLIANCE INTELLIGENCE<small>AI COMMAND CENTER</small></div>
+    </div>
+    <div class="nav-links">
+      <a href="#wealth">Member Intelligence</a>
+      <a href="#match">Match Engine</a>
+      <a href="#privileges">Privileges</a>
+      <a href="#law">Legal Guides</a>
+      <a href="#concierge">Concierge</a>
+      <a href="index.html" class="keep">← Main Site</a>
+      <a href="app.html" class="keep">Member App</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="eyebrow">Legacy Alliance · Artificial Intelligence Division</div>
+  <h1>Speak, and the Alliance <em>Answers</em></h1>
+  <p class="sub">Your entire platform is voice-commanded. Ask for members by country or wealth. Ask for a match — and the AI explains why. Ask for a jet, a lawyer, or the marriage laws of any nation.</p>
+
+  <div class="mic-zone">
+    <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎙</button>
+    <div class="mic-label" id="micLabel">Tap to Speak</div>
+    <div class="voice-panel">
+      <div class="you"><b>You Said</b> <span id="heard">— tap the microphone and speak, or use a command below —</span></div>
+      <div class="agent"><b>AI Agent</b> <span id="agentSays">Good evening. I am your Alliance Intelligence agent. How may I serve your family today?</span></div>
+    </div>
+    <div class="chips">
+      <button class="chip" onclick="runCommand('Show me the wealth report of all five countries')">📊 Wealth report — 5 countries</button>
+      <button class="chip" onclick="runCommand('Show billionaires in China')">🇨🇳 Billionaires in China</button>
+      <button class="chip" onclick="runCommand('Find a match for Wei Chen')">💎 Find a match for Wei Chen</button>
+      <button class="chip" onclick="runCommand('How to get married in China')">⚖ Marriage law — China</button>
+      <button class="chip" onclick="runCommand('Book a private jet to Bangkok')">✈ Private jet</button>
+    </div>
+    <div class="type-row">
+      <input id="cmdInput" placeholder="Or type a command… e.g. “show high net worth families in Thailand”" onkeydown="if(event.key==='Enter')runCommand(this.value)">
+      <button class="btn solid" onclick="runCommand(document.getElementById('cmdInput').value)">Command</button>
+    </div>
+    <p class="note">Voice recognition uses your browser's built-in speech engine (best in Chrome). The agent also speaks its replies aloud.</p>
+  </div>
+</header>
+
+<!-- ================= WEALTH DASHBOARD ================= -->
+<section id="wealth" style="background:var(--navy-2)">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Member Intelligence</span>
+      <h2>Five Nations. One Database of Power.</h2>
+      <p>Every family categorised by country, net worth, industry and standing — searchable in one word, or one sentence.</p>
+    </div>
+    <div class="country-grid" id="countryGrid"></div>
+    <div class="filters" id="filters">
+      <button class="fbtn on" data-f="all" onclick="setFilter(this)">All Members</button>
+      <button class="fbtn" data-f="uhnw" onclick="setFilter(this)">Billionaires · UHNW</button>
+      <button class="fbtn" data-f="hnw" onclick="setFilter(this)">High Net Worth</button>
+      <button class="fbtn" data-f="royal" onclick="setFilter(this)">Royal &amp; Noble</button>
+      <button class="fbtn" data-f="dynasty" onclick="setFilter(this)">Business Dynasty</button>
+    </div>
+    <div class="members" id="memberGrid"></div>
+    <p class="note">All member profiles are fictional demonstrations. In production, real member data lives in a secured, encrypted private database.</p>
+  </div>
+</section>
+
+<!-- ================= MATCH ENGINE ================= -->
+<section id="match">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">AI Match Engine</span>
+      <h2>Not Just <em style="color:var(--gold-light)">Who</em> — the AI Tells You <em style="color:var(--gold-light)">Why</em></h2>
+      <p>Select any member. The engine scores every candidate on wealth parity, business synergy, culture, language and standing — then writes its reasoning like a private analyst.</p>
+    </div>
+    <div class="match-panel">
+      <div class="match-head">
+        <div>
+          <span class="eyebrow" style="margin:0">Seeking a Match For</span><br>
+          <select id="matchWho"></select>
+        </div>
+        <button class="btn solid" onclick="doMatch()">⚡ Run AI Match Analysis</button>
+      </div>
+      <div id="matchResults"><p class="note" style="margin-top:26px">Select a member and run the analysis — or simply say: “Find a match for Wei Chen”.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PRIVILEGES ================= -->
+<section id="privileges" style="background:var(--navy-2)">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Elite Privileges</span>
+      <h2>The Best of Everything. Reserved for Members.</h2>
+      <p>Even the wealthy love the best terms. Our alliance with the world's finest houses gives every member private rates, priority access, and white-glove treatment.</p>
+    </div>
+    <div class="priv-grid">
+      <div class="priv"><div class="ic">✈</div><h4>Private Aviation</h4><p>Jets, helicopters and yachts on call in every capital.</p><span class="perk">Member Rate · Priority Fleet</span></div>
+      <div class="priv"><div class="ic">🏨</div><h4>Palace Hotels &amp; Resorts</h4><p>Suites and villas at the world's legendary addresses.</p><span class="perk">Upgrades · Private Wings</span></div>
+      <div class="priv"><div class="ic">💎</div><h4>High Jewellery &amp; Watches</h4><p>Diamonds and timepieces from the great maisons.</p><span class="perk">Private Salon Access</span></div>
+      <div class="priv"><div class="ic">🚗</div><h4>Motorcars</h4><p>Bespoke commissions and first allocations of rare marques.</p><span class="perk">Allocation Priority</span></div>
+      <div class="priv"><div class="ic">⚖</div><h4>Lawyers &amp; Family Office</h4><p>Pre-nuptials, trusts, estates and cross-border structuring.</p><span class="perk">Retained Counsel</span></div>
+      <div class="priv"><div class="ic">🏛</div><h4>Property &amp; Investments</h4><p>Off-market property and private deal flow across Asia.</p><span class="perk">Insider Access</span></div>
+      <div class="priv"><div class="ic">👰</div><h4>Legendary Weddings</h4><p>The planners, venues and couture behind royal celebrations.</p><span class="perk">Alliance Curated</span></div>
+      <div class="priv"><div class="ic">🎓</div><h4>Education &amp; Relocation</h4><p>Elite schools, residency and relocation for the next generation.</p><span class="perk">Full Concierge</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LEGAL GUIDES ================= -->
+<section id="law">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Cross-Border Marriage Guides</span>
+      <h2>Marry in Any Nation — Fully Informed</h2>
+      <p>Every member can read the essentials of marrying in each country, then ask the AI agent anything. Our legal partners handle the rest.</p>
+    </div>
+    <div class="law" id="lawList"></div>
+    <p class="note">Summaries are general demonstrations, not legal advice. Members are connected to our licensed legal partners in each jurisdiction.</p>
+  </div>
+</section>
+
+<!-- ================= CONCIERGE CHAT ================= -->
+<section id="concierge" style="background:var(--navy-2)">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">AI Concierge</span>
+      <h2>Ask Anything. Anytime. Any Language.</h2>
+      <p>A private AI assistant for every member — powered by the world's leading AI engines (connect Claude, ChatGPT or Grok in production) with the Alliance's own knowledge inside.</p>
+    </div>
+    <div class="chat">
+      <div class="chat-log" id="chatLog">
+        <div class="msg ai"><b>Alliance Concierge:</b> Welcome. I can arrange travel, explain marriage law, summon our legal partners, or find the perfect introduction. How may I assist?</div>
+      </div>
+      <div class="chat-input">
+        <input id="chatIn" placeholder="e.g. Arrange a private viewing at a jeweller in Bangkok…" onkeydown="if(event.key==='Enter')sendChat()">
+        <button onclick="sendChat()">Send</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>© 2026 Legacy Alliance · Alliance Intelligence Division · All member profiles on this page are fictional demonstrations. Voice features use your browser's speech engine. In production, the concierge connects to Claude / ChatGPT / Grok APIs with the Alliance private knowledge base, and all data is encrypted.</p>
+  </div>
+</footer>
+
+<script>
+/* ==================== MEMBER DATABASE (fictional demo) ==================== */
+const MEMBERS = [
+  {name:'Wei Chen', g:'F', age:28, country:'China', city:'Shanghai', worth:2100, sector:'Technology Manufacturing', standing:'Business Dynasty', langs:['Mandarin','English'], note:'Only daughter of a semiconductor empire; Oxford-educated.'},
+  {name:'Li Jiahao', g:'M', age:35, country:'China', city:'Beijing', worth:3500, sector:'AI & Robotics', standing:'Business Dynasty', langs:['Mandarin','English'], note:'Founder-heir of one of Asia’s largest AI groups.'},
+  {name:'Zhang Ruolan', g:'F', age:26, country:'China', city:'Shenzhen', worth:480, sector:'Biotech & Pharma', standing:'Business Dynasty', langs:['Mandarin','Cantonese','English'], note:'Harvard MBA; leads the family’s pharma expansion.'},
+  {name:'Mei Lin Ong', g:'F', age:27, country:'Singapore', city:'Singapore', worth:1400, sector:'Private Banking', standing:'Business Dynasty', langs:['English','Mandarin'], note:'Third generation of a private banking house.'},
+  {name:'Marcus Tan', g:'M', age:33, country:'Singapore', city:'Singapore', worth:600, sector:'Shipping & Logistics', standing:'Business Dynasty', langs:['English','Mandarin','Malay'], note:'Runs the family’s port and logistics network.'},
+  {name:'Somchai Rattanakorn', g:'M', age:32, country:'Thailand', city:'Bangkok', worth:850, sector:'Hotels & Resorts', standing:'Noble Lineage', langs:['Thai','English'], note:'Family of noble descent; luxury resort empire.'},
+  {name:'Praewa Suriyavong', g:'F', age:29, country:'Thailand', city:'Bangkok', worth:1200, sector:'Property & Retail', standing:'Royal-Connected', langs:['Thai','English','Mandarin'], note:'Patron of the arts; family close to the palace.'},
+  {name:'Nguyen Minh', g:'M', age:30, country:'Vietnam', city:'Hanoi', worth:320, sector:'Real Estate Development', standing:'Business Dynasty', langs:['Vietnamese','English'], note:'Heir to Vietnam’s fastest-growing developer.'},
+  {name:'Tran Bao Ngoc', g:'F', age:25, country:'Vietnam', city:'Ho Chi Minh City', worth:450, sector:'Banking & Finance', standing:'Business Dynasty', langs:['Vietnamese','English','French'], note:'Sorbonne graduate; family founded a leading bank.'},
+  {name:'Raden Putra Wijaya', g:'M', age:31, country:'Indonesia', city:'Jakarta', worth:950, sector:'Mining & Energy', standing:'Noble Lineage', langs:['Bahasa','English'], note:'Javanese noble family; commodities empire.'},
+  {name:'Ayu Kusuma', g:'F', age:26, country:'Indonesia', city:'Jakarta', worth:1800, sector:'Palm Oil & Energy', standing:'Business Dynasty', langs:['Bahasa','English','Mandarin'], note:'Stanford-educated heiress driving green energy.'},
+  {name:'Alexander Ho', g:'M', age:29, country:'Singapore', city:'Singapore', worth:2800, sector:'Property Empire', standing:'Business Dynasty', langs:['English','Cantonese','Mandarin'], note:'Grandson of a legendary property patriarch.'}
+];
+const FLAGS = {China:'🇨🇳', Singapore:'🇸🇬', Thailand:'🇹🇭', Vietnam:'🇻🇳', Indonesia:'🇮🇩'};
+const SYNERGY = {
+  'Private Banking':['Property Empire','Shipping & Logistics','Mining & Energy','Real Estate Development','Banking & Finance'],
+  'Banking & Finance':['Property Empire','Real Estate Development','Private Banking','Palm Oil & Energy'],
+  'Technology Manufacturing':['AI & Robotics','Biotech & Pharma','Mining & Energy'],
+  'AI & Robotics':['Technology Manufacturing','Private Banking','Biotech & Pharma'],
+  'Biotech & Pharma':['AI & Robotics','Technology Manufacturing','Private Banking'],
+  'Hotels & Resorts':['Property & Retail','Property Empire','Real Estate Development','Shipping & Logistics'],
+  'Property & Retail':['Hotels & Resorts','Private Banking','Property Empire'],
+  'Shipping & Logistics':['Mining & Energy','Palm Oil & Energy','Private Banking','Hotels & Resorts'],
+  'Real Estate Development':['Private Banking','Banking & Finance','Hotels & Resorts','Property Empire'],
+  'Mining & Energy':['Shipping & Logistics','Technology Manufacturing','Banking & Finance'],
+  'Palm Oil & Energy':['Shipping & Logistics','Banking & Finance','Mining & Energy'],
+  'Property Empire':['Private Banking','Hotels & Resorts','Banking & Finance','Real Estate Development']
+};
+const fmt = w => w >= 1000 ? ('US$' + (w/1000).toFixed(1) + 'B') : ('US$' + w + 'M');
+
+/* ==================== RENDER: COUNTRY DASHBOARD ==================== */
+let activeCountry = null, activeFilter = 'all';
+function renderCountries(){
+  const byC = {};
+  MEMBERS.forEach(m => { (byC[m.country] = byC[m.country] || []).push(m); });
+  document.getElementById('countryGrid').innerHTML = Object.keys(byC).map(c => {
+    const total = byC[c].reduce((s,m) => s + m.worth, 0);
+    return `<div class="country-card ${activeCountry===c?'on':''}" onclick="pickCountry('${c}')">
+      <div class="flag">${FLAGS[c]}</div><h4>${c}</h4>
+      <div class="wealth">${fmt(total)}</div>
+      <small>${byC[c].length} member families</small></div>`;
+  }).join('');
+}
+function pickCountry(c){ activeCountry = activeCountry === c ? null : c; renderCountries(); renderMembers(); }
+function setFilter(btn){
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on'); activeFilter = btn.dataset.f; renderMembers();
+}
+function filtered(){
+  return MEMBERS.filter(m => {
+    if (activeCountry && m.country !== activeCountry) return false;
+    if (activeFilter === 'uhnw') return m.worth >= 1000;
+    if (activeFilter === 'hnw') return m.worth < 1000;
+    if (activeFilter === 'royal') return /Royal|Noble/.test(m.standing);
+    if (activeFilter === 'dynasty') return m.standing === 'Business Dynasty';
+    return true;
+  });
+}
+function renderMembers(){
+  const list = filtered();
+  document.getElementById('memberGrid').innerHTML = list.length ? list.map(m => `
+    <div class="member">
+      <div class="top"><div class="avatar">${m.name[0]}</div>
+        <div><h4>${m.name}</h4><div class="meta">${FLAGS[m.country]} ${m.city} · ${m.age} · ${m.g==='F'?'Lady':'Gentleman'}</div></div></div>
+      <div class="tagrow">
+        <span class="tag ${m.worth>=1000?'uhnw':''}">${fmt(m.worth)}${m.worth>=1000?' · UHNW':''}</span>
+        <span class="tag">${m.standing}</span><span class="tag">${m.sector}</span></div>
+      <div class="biz">${m.note}</div>
+      <button class="btn" onclick="matchByName('${m.name}')">⚡ AI Match Analysis</button>
+    </div>`).join('')
+    : '<p class="note">No members match this filter.</p>';
+}
+
+/* ==================== AI MATCH ENGINE ==================== */
+function scorePair(a,b){
+  let s = 55, reasons = [];
+  const ratio = Math.min(a.worth,b.worth) / Math.max(a.worth,b.worth);
+  const wPts = Math.round(ratio * 15);
+  s += wPts;
+  if (ratio > .4) reasons.push(`Their family fortunes (${fmt(a.worth)} and ${fmt(b.worth)}) stand as true equals — neither house marries "up" or "down", which protects pride, prenuptial negotiations and long-term respect between the families.`);
+  else reasons.push(`The wealth difference (${fmt(a.worth)} vs ${fmt(b.worth)}) is meaningful but manageable — the ${a.worth>b.worth?a.name.split(' ')[0]:b.name.split(' ')[0]} side brings capital scale, while the other brings strategic assets money cannot buy.`);
+  if ((SYNERGY[a.sector]||[]).includes(b.sector)) { s += 12; reasons.push(`<em>Business synergy:</em> ${a.sector} and ${b.sector} are natural allies — a union would vertically connect the two empires and open joint ventures neither family could build alone.`); }
+  const shared = a.langs.filter(l => b.langs.includes(l));
+  if (shared.length) { s += 6; reasons.push(`<em>Culture &amp; language:</em> they share ${shared.join(' and ')}, so the two households — and the two boardrooms — speak with one voice.`); }
+  if (a.country !== b.country) { s += 5; reasons.push(`<em>Cross-border alliance:</em> a ${a.country}–${b.country} union gives both families a trusted foothold in a second nation — markets, residency and influence, doubled.`); }
+  else reasons.push(`<em>Same-nation strength:</em> both houses are rooted in ${a.country}, consolidating local influence into a single dominant alliance.`);
+  if (/Royal|Noble/.test(a.standing) || /Royal|Noble/.test(b.standing)) { s += 4; reasons.push(`<em>Prestige:</em> the presence of ${/Royal|Noble/.test(a.standing)?a.standing.toLowerCase():b.standing.toLowerCase()} elevates the social standing of both families for generations.`); }
+  const gap = Math.abs(a.age-b.age);
+  if (gap <= 6) { s += 3; reasons.push(`A graceful age harmony of ${gap===0?'the same age':gap+' years'} supports a natural partnership of equals.`); }
+  return { score: Math.min(s, 99), reasons };
+}
+function candidatesFor(m){ return MEMBERS.filter(x => x.name !== m.name && x.g !== m.g); }
+function doMatch(){
+  const who = document.getElementById('matchWho').value;
+  matchByName(who);
+}
+function matchByName(name){
+  const m = MEMBERS.find(x => x.name === name);
+  if (!m) return;
+  document.getElementById('matchWho').value = name;
+  const ranked = candidatesFor(m).map(c => ({c, r: scorePair(m,c)})).sort((x,y) => y.r.score - x.r.score).slice(0,3);
+  document.getElementById('matchResults').innerHTML =
+    `<p style="font-size:.8rem;color:var(--ivory-dim);letter-spacing:.1em;margin-bottom:18px">AI ANALYSIS COMPLETE — TOP ${ranked.length} ALLIANCES FOR <span style="color:var(--gold-light)">${m.name.toUpperCase()}</span> (${FLAGS[m.country]} ${m.sector}, ${fmt(m.worth)})</p>`
+    + ranked.map((x,i) => `
+    <div class="mrow">
+      <div class="rline">
+        <div class="avatar">${x.c.name[0]}</div>
+        <div><h4 style="font-size:1.05rem">${i+1}. ${x.c.name}</h4>
+        <div class="meta" style="font-size:.72rem;color:var(--ivory-dim)">${FLAGS[x.c.country]} ${x.c.city} · ${x.c.sector} · ${fmt(x.c.worth)} · ${x.c.standing}</div></div>
+        <div class="score-ring"><b>${x.r.score}%</b><span>Alliance Score</span></div>
+      </div>
+      <div class="why"><b>Why the AI recommends this union</b>${x.r.reasons.map(r => `<p style="margin-bottom:8px">◆ ${r}</p>`).join('')}</div>
+    </div>`).join('');
+  document.getElementById('match').scrollIntoView({behavior:'smooth'});
+  const best = ranked[0];
+  return `For ${m.name}, my strongest recommendation is ${best.c.name} of ${best.c.country} — alliance score ${best.r.score} percent. The full written analysis is now on screen.`;
+}
+
+/* ==================== LEGAL GUIDES ==================== */
+const LAWS = [
+  {c:'China', flag:'🇨🇳', pts:[
+    'Marriage is registered at the Civil Affairs Bureau; a foreigner marrying a Chinese citizen registers where the Chinese partner’s hukou (household registration) is held.',
+    'Foreigners typically need a valid passport and a certificate of no impediment / single status, often notarised and legalised (or apostilled) in the home country.',
+    'Legal marriage age: 22 for men, 20 for women. Both parties must appear in person.',
+    'China does not recognise dual nationality — cross-border couples should plan residency, property titles and children’s citizenship early.',
+    'Prenuptial agreements are recognised under the Civil Code when in writing and signed voluntarily.']},
+  {c:'Singapore', flag:'🇸🇬', pts:[
+    'Marriages are registered with the Registry of Marriages (ROM); file a notice of marriage 21 days to 3 months before the ceremony.',
+    'Minimum age 21 without parental consent; at least one party must be physically present in Singapore for specified days before solemnisation.',
+    'Strong rule of law makes Singapore a preferred venue for prenuptial and trust structures for international couples.',
+    'Foreign spouses may apply for a Long-Term Visit Pass or PR sponsorship after marriage.']},
+  {c:'Thailand', flag:'🇹🇭', pts:[
+    'Marriage is registered at any District Office (Amphur); religious or celebratory ceremonies alone are not legally binding.',
+    'Foreigners need an affirmation of freedom to marry from their embassy, translated into Thai and legalised by the Ministry of Foreign Affairs.',
+    'Property note: foreigners generally cannot own land in Thailand — marital property planning with counsel is essential.',
+    'Prenuptial agreements must be registered at the same time as the marriage to be enforceable.']},
+  {c:'Vietnam', flag:'🇻🇳', pts:[
+    'Marriage with a foreign element is registered with the provincial Department of Justice; dossiers include certificates of single status and health checks.',
+    'Legal age: 20 for men, 18 for women. Processing typically takes several weeks — plan ahead.',
+    'Vietnam recognises agreements on matrimonial property regimes made before marriage under the 2014 Law on Marriage and Family.']},
+  {c:'Indonesia', flag:'🇮🇩', pts:[
+    'Indonesian law registers marriages through religious ceremony (KUA for Muslims, civil registry for others) — interfaith planning needs early legal advice.',
+    'Foreigners provide a Certificate of No Impediment from their embassy plus legalised documents.',
+    'Mixed-nationality couples commonly sign a prenuptial (or now postnuptial) agreement so the Indonesian spouse retains the right to own land.']}
+];
+function renderLaws(){
+  document.getElementById('lawList').innerHTML = LAWS.map((l,i) => `
+    <div class="law-item" id="law-${l.c}">
+      <button onclick="this.parentElement.classList.toggle('open')">${l.flag} Marrying in ${l.c} — What Elite Families Must Know <span>+</span></button>
+      <div class="law-body"><ul>${l.pts.map(p => `<li>${p}</li>`).join('')}</ul>
+      <div class="ask"><button class="btn" onclick="runCommand('Connect me to a lawyer in ${l.c}')">⚖ Ask Our ${l.c} Legal Partner</button></div></div>
+    </div>`).join('');
+}
+
+/* ==================== VOICE + COMMAND ENGINE ==================== */
+let recog = null, listening = false;
+const synth = window.speechSynthesis;
+function speak(text){
+  try { if (!synth) return; synth.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/<[^>]*>/g,''));
+    u.rate = 1; u.pitch = .95; synth.speak(u);
+  } catch(e){}
+}
+function toggleMic(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { agentReply("Voice recognition is not supported in this browser — please use Google Chrome, or type your command below."); return; }
+  if (listening) { recog.stop(); return; }
+  recog = new SR(); recog.lang = 'en-US'; recog.interimResults = false;
+  recog.onstart = () => { listening = true; micUI(true); };
+  recog.onend = () => { listening = false; micUI(false); };
+  recog.onerror = () => { listening = false; micUI(false); agentReply("I could not hear clearly — please try again, or type your command."); };
+  recog.onresult = e => { const t = e.results[0][0].transcript; runCommand(t); };
+  recog.start();
+}
+function micUI(on){
+  document.getElementById('micBtn').classList.toggle('listening', on);
+  document.getElementById('micLabel').textContent = on ? 'Listening… speak now' : 'Tap to Speak';
+}
+function agentReply(text, heard){
+  if (heard !== undefined) document.getElementById('heard').textContent = '“' + heard + '”';
+  document.getElementById('agentSays').innerHTML = text;
+  speak(text);
+}
+function runCommand(raw){
+  if (!raw || !raw.trim()) return;
+  const q = raw.toLowerCase();
+  document.getElementById('cmdInput').value = '';
+  let reply = null;
+
+  // 1. match request: "match for <name>"
+  const nameHit = MEMBERS.find(m => q.includes(m.name.toLowerCase()) || q.includes(m.name.split(' ')[0].toLowerCase()));
+  if (/match|partner|husband|wife|marry|introduce/.test(q) && nameHit) {
+    reply = matchByName(nameHit.name);
+    agentReply(reply, raw); return;
+  }
+  // 2. wealth / income report
+  if (/report|income|wealth|total|gather|revenue|summary/.test(q)) {
+    const byC = {}; MEMBERS.forEach(m => { byC[m.country] = (byC[m.country]||0) + m.worth; });
+    const parts = Object.keys(byC).map(c => `${c}: ${fmt(byC[c])}`);
+    const total = MEMBERS.reduce((s,m) => s + m.worth, 0);
+    reply = `Across our five nations, the Alliance represents ${fmt(total)} in combined family wealth. ${parts.join('. ')}. The full dashboard is on screen.`;
+    activeCountry = null; renderCountries(); renderMembers();
+    document.getElementById('wealth').scrollIntoView({behavior:'smooth'});
+    agentReply(reply, raw); return;
+  }
+  // 3. country filter, optionally with billionaire/hnw
+  const cHit = Object.keys(FLAGS).find(c => q.includes(c.toLowerCase()));
+  if (cHit || /billionaire|uhnw|high net|rich|royal|noble/.test(q)) {
+    activeCountry = cHit || null;
+    let fkey = 'all';
+    if (/billionaire|uhnw/.test(q)) fkey = 'uhnw';
+    else if (/high net/.test(q)) fkey = 'hnw';
+    else if (/royal|noble/.test(q)) fkey = 'royal';
+    activeFilter = fkey;
+    document.querySelectorAll('.fbtn').forEach(b => b.classList.toggle('on', b.dataset.f === fkey));
+    renderCountries(); renderMembers();
+    const n = filtered().length;
+    reply = `I found ${n} ${fkey==='uhnw'?'billionaire':fkey==='royal'?'royal and noble':'elite'} member famil${n===1?'y':'ies'}${cHit ? ' in ' + cHit : ' across the Alliance'} — now displayed on your screen.`;
+    document.getElementById('wealth').scrollIntoView({behavior:'smooth'});
+    agentReply(reply, raw); return;
+  }
+  // 4. legal guides
+  if (/law|legal|lawyer|marri(ed|age)|prenup|rights|how to get married|visa/.test(q)) {
+    const lc = LAWS.find(l => q.includes(l.c.toLowerCase()));
+    if (lc) {
+      document.querySelectorAll('.law-item').forEach(el => el.classList.remove('open'));
+      document.getElementById('law-' + lc.c).classList.add('open');
+      document.getElementById('law-' + lc.c).scrollIntoView({behavior:'smooth', block:'center'});
+      reply = /lawyer|connect/.test(q)
+        ? `Certainly. Our retained legal partner in ${lc.c} has been notified and will contact you within the hour, under full confidentiality.`
+        : `Here is the marriage guide for ${lc.c} — the key requirements are now open on your screen. Shall I connect you with our ${lc.c} legal partner?`;
+      agentReply(reply, raw); return;
+    }
+    document.getElementById('law').scrollIntoView({behavior:'smooth'});
+    agentReply('Our cross-border marriage guides are now on screen — China, Singapore, Thailand, Vietnam and Indonesia. Name a country and I will open its guide.', raw); return;
+  }
+  // 5. concierge / privileges
+  if (/jet|plane|fly|flight|yacht|boat|hotel|resort|diamond|jewel|watch|car|wedding|book|arrange|school|education/.test(q)) {
+    document.getElementById('privileges').scrollIntoView({behavior:'smooth'});
+    let what = /jet|plane|fly|flight/.test(q) ? 'private jet' : /yacht|boat/.test(q) ? 'yacht' : /hotel|resort/.test(q) ? 'suite' : /diamond|jewel|watch/.test(q) ? 'private jewellery salon viewing' : /car/.test(q) ? 'motorcar commission' : /wedding/.test(q) ? 'wedding atelier consultation' : 'arrangement';
+    reply = `Consider it done. Your ${what} request has been passed to the concierge desk with member-rate priority. A dedicated attaché will confirm details privately.`;
+    agentReply(reply, raw); return;
+  }
+  // 6. fallback → concierge chat
+  agentReply('An excellent question. I have opened a private line with your AI concierge below — in production this connects to Claude, ChatGPT or Grok with the Alliance’s own knowledge.', raw);
+  document.getElementById('concierge').scrollIntoView({behavior:'smooth'});
+  addChat(raw, 'me'); setTimeout(() => addChat(conciergeAnswer(raw), 'ai'), 600);
+}
+
+/* ==================== CONCIERGE CHAT ==================== */
+function addChat(text, who){
+  const log = document.getElementById('chatLog');
+  const d = document.createElement('div');
+  d.className = 'msg ' + who;
+  d.innerHTML = who === 'ai' ? '<b>Alliance Concierge:</b> ' + text : text;
+  log.appendChild(d); log.scrollTop = log.scrollHeight;
+}
+function conciergeAnswer(q){
+  const l = q.toLowerCase();
+  if (/jet|plane|flight|fly/.test(l)) return 'Our aviation desk holds member rates with leading charter fleets. Tell me the route, date and party size, and I will present three aircraft options within the hour.';
+  if (/hotel|resort|suite|stay/.test(l)) return 'With pleasure. Our palace-hotel partners extend suite upgrades and private wings to Alliance members. Which city, and which dates?';
+  if (/diamond|jewel|ring|watch/.test(l)) return 'I shall arrange a private salon viewing with one of the great maisons — pieces reserved for their most important clients. Bangkok, Singapore, or Hong Kong?';
+  if (/lawyer|prenup|trust|legal|estate/.test(l)) return 'Our retained counsel covers every Alliance nation — pre-nuptials, trusts, cross-border property and succession. I will have the right partner call you confidentially.';
+  if (/match|partner|introduc/.test(l)) return 'Your matchmaker reviews every request personally. Tell me the qualities and countries that matter to your family, and the AI engine will prepare a ranked analysis with full reasoning.';
+  if (/wedding/.test(l)) return 'From a palace in Bangkok to an island in Phuket — our wedding atelier has produced celebrations spoken about for a generation. Shall I open a proposal for your family?';
+  if (/visa|residen|relocat|school|education/.test(l)) return 'Our relocation desk manages residency, elite school admissions and household setup across Asia and beyond. Which country is the family considering?';
+  return 'It shall be handled. Your request is with the concierge desk under full confidentiality — and in the production platform, I connect to Claude, ChatGPT or Grok to research any question in any language, instantly.';
+}
+function sendChat(){
+  const inp = document.getElementById('chatIn');
+  const v = inp.value.trim(); if (!v) return;
+  inp.value = ''; addChat(v, 'me');
+  setTimeout(() => { const a = conciergeAnswer(v); addChat(a, 'ai'); speak(a); }, 600);
+}
+
+/* ==================== INIT ==================== */
+renderCountries(); renderMembers(); renderLaws();
+document.getElementById('matchWho').innerHTML = MEMBERS.map(m => `<option>${m.name}</option>`).join('');
+</script>
+</body>
+</html>

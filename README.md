@@ -12,6 +12,7 @@ headquartered in Bangkok, expanding worldwide.
 |---|---|
 | `index.html` | The flagship website — vision, four service pillars, membership tiers (A/B/C), global network, media series, country licensing, and a confidential invitation-request form. |
 | `app.html` | An interactive **member app** demonstration (phone-frame UI) — invitation entry, tier selection, membership-fee payment flow, and a member dashboard with curated matches, concierge services and events. |
+| `ai.html` | **Alliance Intelligence — the AI Command Center.** Voice-controlled (Web Speech API): speak commands like "show billionaires in China" or "find a match for Wei Chen". Includes the five-country wealth dashboard, member database with UHNW/royal/dynasty filters, AI match engine with written reasoning, elite privileges marketplace, cross-border marriage-law guides, and an AI concierge chat (connect Claude/ChatGPT/Grok in production). |
 
 Everything is a single self-contained file per page — no build step, no
 dependencies. Open `index.html` in any browser, or host on GitHub Pages,

@@ -1,0 +1,20 @@
+{
+  "name": "propos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PropOS — the AI Operating System for the global real estate industry",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test",
+    "dev": "pnpm --filter @propos/api run dev",
+    "start": "pnpm --filter @propos/api run start"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

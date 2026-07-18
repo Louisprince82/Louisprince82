@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PropOS — AI Operating System for Real Estate</title>
+<style>
+  :root{
+    --bg:#0b1020; --panel:#131a2e; --panel2:#1a2340; --line:#26304f;
+    --text:#e8ecf6; --muted:#93a0bd; --accent:#5b8cff;
+    --good:#3ddc97; --warn:#ffc857;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text)}
+  header{padding:28px 32px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  header h1{margin:0;font-size:26px;letter-spacing:.5px}
+  header h1 span{color:var(--accent)}
+  header p{margin:0;color:var(--muted);font-size:14px}
+  main{max-width:1180px;margin:0 auto;padding:24px 20px;display:grid;gap:20px}
+  .grid{display:grid;gap:20px;grid-template-columns:1fr 1fr}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+  h2{margin:0 0 4px;font-size:17px}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+  label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
+  input,select,textarea{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:14px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  button{margin-top:14px;padding:10px 18px;border:0;border-radius:8px;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+  button:hover{filter:brightness(1.1)}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 10px}
+  .tabs button{margin:0;padding:6px 12px;font-size:12px;background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+  .tabs button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  pre.out{white-space:pre-wrap;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px;font-family:inherit;font-size:13.5px;line-height:1.55;min-height:80px;margin:0}
+  .scores{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+  .score{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
+  .score b{display:block;font-size:22px;color:var(--good)}
+  .score span{font-size:11px;color:var(--muted)}
+  ul.amen{list-style:none;margin:8px 0 0;padding:0;font-size:13px;max-height:220px;overflow:auto}
+  ul.amen li{padding:5px 0;border-bottom:1px dashed var(--line);color:var(--muted)}
+  ul.amen li b{color:var(--text);font-weight:600}
+  .chat{display:flex;flex-direction:column;gap:8px;max-height:260px;overflow:auto;margin-bottom:10px}
+  .msg{padding:9px 12px;border-radius:10px;font-size:13.5px;line-height:1.5;max-width:85%}
+  .msg.user{background:var(--accent);align-self:flex-end}
+  .msg.bot{background:var(--panel2);border:1px solid var(--line);align-self:flex-start}
+  .pill{display:inline-block;font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:2px 10px;margin-left:6px}
+  .kv{font-size:13.5px;line-height:1.8;color:var(--muted)}
+  .kv b{color:var(--text)}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Prop<span>OS</span></h1>
+  <p>The AI Operating System for Real Estate — live demo · Singapore launch market <span class="pill" id="llmMode">checking…</span></p>
+</header>
+<main>
+
+<section>
+  <h2>1 · Upload a property — AI generates everything</h2>
+  <p class="sub">One upload → full omnichannel marketing pack, persona variants, area intelligence, and a 24/7 AI sales agent.</p>
+  <div class="row3">
+    <div><label>Address</label><input id="addr" value="12 Marina Boulevard"></div>
+    <div><label>Type</label><select id="ptype"><option value="condo">Condo</option><option value="hdb">HDB</option><option value="landed">Landed</option></select></div>
+    <div><label>Intent</label><select id="intent"><option value="sale">For Sale</option><option value="rent">For Rent</option></select></div>
+  </div>
+  <div class="row3">
+    <div><label>Price (SGD)</label><input id="price" type="number" value="1680000"></div>
+    <div><label>Bedrooms</label><input id="beds" type="number" value="3"></div>
+    <div><label>Bathrooms</label><input id="baths" type="number" value="2"></div>
+  </div>
+  <div class="row">
+    <div><label>Floor area (sqm)</label><input id="sqm" type="number" value="110"></div>
+    <div><label>Features (comma-separated)</label><input id="features" value="marina view, renovated kitchen, high floor"></div>
+  </div>
+  <button onclick="createListing()">⚡ Generate with AI</button>
+</section>
+
+<div class="grid">
+  <section>
+    <h2>Marketing pack <span class="pill" id="packBy"></span></h2>
+    <p class="sub">Channel-native copy, generated in seconds.</p>
+    <div class="tabs" id="channelTabs"></div>
+    <pre class="out" id="channelOut">Create a listing above to see the AI marketing pack.</pre>
+    <div class="tabs" id="personaTabs"></div>
+    <pre class="out" id="personaOut" style="display:none"></pre>
+  </section>
+
+  <section>
+    <h2>Area intelligence</h2>
+    <p class="sub">Auto-detected amenities, livability & investment scores.</p>
+    <div class="scores" id="scores"></div>
+    <pre class="out" id="areaSummary">Waiting for a listing…</pre>
+    <ul class="amen" id="amenList"></ul>
+  </section>
+</div>
+
+<div class="grid">
+  <section>
+    <h2>AI sales agent — ask anything, 24/7</h2>
+    <p class="sub">Numbers come from the finance engine, never hallucinated. Try: “What stamp duty will I pay?”, “Monthly mortgage?”, “Rental yield?”, “Can I view on Saturday?”</p>
+    <div class="chat" id="chat"></div>
+    <div class="row" style="grid-template-columns:3fr 1fr">
+      <input id="q" placeholder="Ask about this property…" onkeydown="if(event.key==='Enter')ask()">
+      <button style="margin-top:0" onclick="ask()">Ask</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Finance engine</h2>
+    <p class="sub">Singapore BSD/ABSD, TDSR/MSR affordability, mortgage & yield.</p>
+    <div class="row3">
+      <div><label>Price</label><input id="fPrice" type="number" value="1680000"></div>
+      <div><label>Buyer</label><select id="fProfile"><option value="citizen">Citizen</option><option value="pr">PR</option><option value="foreigner">Foreigner</option><option value="entity">Entity</option></select></div>
+      <div><label>Properties owned</label><input id="fOwned" type="number" value="0"></div>
+    </div>
+    <button onclick="calc()">Calculate</button>
+    <div class="kv" id="finOut" style="margin-top:12px"></div>
+  </section>
+</div>
+
+</main>
+<footer>PropOS demo · estimates are for planning only, not financial advice · built API-first for global expansion</footer>
+
+<script>
+let currentListing = null;
+let pack = null;
+
+const $ = (id) => document.getElementById(id);
+const api = (url, opts) => fetch(url, opts).then(r => r.json());
+
+api('/api/health').then(h => { $('llmMode').textContent = h.llmProvider === 'template' ? 'template mode' : 'LLM: ' + h.llmProvider; });
+
+async function createListing() {
+  $('channelOut').textContent = 'Generating…';
+  const body = {
+    intent: $('intent').value,
+    price: +$('price').value,
+    property: {
+      id: '', type: $('ptype').value,
+      address: { line1: $('addr').value, district: 'D01', country: 'SG', geo: { lat: 1.2806, lng: 103.8541 } },
+      bedrooms: +$('beds').value, bathrooms: +$('baths').value, floorAreaSqm: +$('sqm').value,
+      tenure: { kind: 'leasehold', years: 99 },
+      features: $('features').value.split(',').map(s => s.trim()).filter(Boolean),
+    },
+  };
+  const res = await api('/api/listings', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  currentListing = res.listing; pack = res.contentPack;
+  $('packBy').textContent = 'by ' + pack.generatedBy;
+  renderTabs('channelTabs', Object.keys(pack.channels), (k) => { $('channelOut').textContent = pack.channels[k]; });
+  renderTabs('personaTabs', Object.keys(pack.personas), (k) => { $('personaOut').style.display = 'block'; $('personaOut').textContent = pack.personas[k]; });
+  $('channelOut').textContent = pack.channels.description;
+  renderArea(res.areaReport);
+  addMsg('bot', 'Hi! I\'m the AI agent for ' + res.listing.property.address.line1 + '. Ask me about price, stamp duty, loans, yield, the area, or book a viewing!');
+}
+
+function renderTabs(elId, keys, onClick) {
+  const el = $(elId); el.innerHTML = '';
+  keys.forEach((k, i) => {
+    const b = document.createElement('button');
+    b.textContent = k; if (i === 0) b.classList.add('active');
+    b.onclick = () => { [...el.children].forEach(c => c.classList.remove('active')); b.classList.add('active'); onClick(k); };
+    el.appendChild(b);
+  });
+}
+
+function renderArea(r) {
+  if (!r) return;
+  const s = r.scores;
+  $('scores').innerHTML = Object.entries({ Overall: s.overall, Transit: s.transit, Walkability: s.walkability, Families: s.families, Lifestyle: s.lifestyle, Investment: s.investment })
+    .map(([k, v]) => `<div class="score"><b>${v}</b><span>${k}</span></div>`).join('');
+  $('areaSummary').textContent = r.summary;
+  const items = Object.values(r.amenities).flat().sort((a, b) => a.distanceM - b.distanceM);
+  $('amenList').innerHTML = items.map(a => `<li><b>${a.name}</b> · ${a.category} · ${a.distanceM}m (${a.walkMinutes} min walk)</li>`).join('');
+}
+
+function addMsg(cls, text) {
+  const d = document.createElement('div');
+  d.className = 'msg ' + cls; d.textContent = text;
+  $('chat').appendChild(d); $('chat').scrollTop = 1e6;
+}
+
+async function ask() {
+  const q = $('q').value.trim();
+  if (!q) return;
+  if (!currentListing) { addMsg('bot', 'Create a listing first — then I can answer with real numbers.'); return; }
+  addMsg('user', q); $('q').value = '';
+  const res = await api('/api/listings/' + currentListing.id + '/ask', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ question: q, context: { buyerProfile: $('fProfile').value, propertiesOwned: +$('fOwned').value } }),
+  });
+  addMsg('bot', res.answer);
+}
+
+async function calc() {
+  const price = +$('fPrice').value;
+  const duty = await api('/api/finance/stamp-duty', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ price, profile: $('fProfile').value, propertiesOwned: +$('fOwned').value }) });
+  const loan = Math.round(price * 0.75);
+  const m = await api('/api/finance/mortgage', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ principal: loan, annualRatePct: 3, tenureYears: 30 }) });
+  const y = await api('/api/finance/yield', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ purchasePrice: price, monthlyRent: Math.round(price * 0.035 / 12) }) });
+  $('finOut').innerHTML =
+    `BSD: <b>S$${duty.bsd.toLocaleString()}</b> · ABSD: <b>S$${duty.absd.toLocaleString()}</b> · Total duty: <b>S$${duty.total.toLocaleString()}</b><br>` +
+    `75% loan (S$${loan.toLocaleString()}) @3%/30y → monthly: <b>S$${m.monthlyRepayment.toLocaleString()}</b> · total interest: <b>S$${m.totalInterest.toLocaleString()}</b><br>` +
+    `Est. gross rental yield: <b>${y.grossYieldPct}%</b>`;
+}
+</script>
+</body>
+</html>

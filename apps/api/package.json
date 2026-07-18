@@ -1,0 +1,20 @@
+{
+  "name": "@propos/api",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "node --watch dist/index.js",
+    "start": "node dist/index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@propos/ai-engine": "workspace:*",
+    "@propos/area-intelligence": "workspace:*",
+    "@propos/core": "workspace:*",
+    "@propos/crm": "workspace:*",
+    "@propos/finance": "workspace:*",
+    "fastify": "^5.0.0"
+  }
+}

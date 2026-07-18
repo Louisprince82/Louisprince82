@@ -35,6 +35,9 @@ importers:
       '@propos/finance':
         specifier: workspace:*
         version: link:../../packages/finance
+      '@propos/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
       fastify:
         specifier: ^5.0.0
         version: 5.10.0
@@ -67,6 +70,15 @@ importers:
       '@propos/core':
         specifier: workspace:*
         version: link:../core
+
+  packages/storage:
+    dependencies:
+      '@propos/core':
+        specifier: workspace:*
+        version: link:../core
+      '@propos/crm':
+        specifier: workspace:*
+        version: link:../crm
 
 packages:
 

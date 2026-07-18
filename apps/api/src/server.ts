@@ -1,4 +1,4 @@
-import Fastify, { type FastifyInstance } from "fastify";
+import Fastify, { type FastifyInstance, type FastifyRequest } from "fastify";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
@@ -23,27 +23,40 @@ import {
   type AffordabilityInput,
   type BuyerProfile,
 } from "@propos/finance";
+import { advanceLead, commissionForSale, type Lead, type LeadStage } from "@propos/crm";
 import {
-  InMemoryLeadRepository,
-  advanceLead,
-  commissionForSale,
-  type Lead,
-  type LeadStage,
-} from "@propos/crm";
+  AccountService,
+  AuthError,
+  PersistentLeadRepository,
+  PersistentListingRepository,
+  type PublicAgent,
+} from "@propos/storage";
 
-const WEB_ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../web/public",
-);
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const WEB_ROOT = path.resolve(HERE, "../../web/public");
+const DEFAULT_DATA_DIR = path.resolve(HERE, "../../../data");
 
-export function buildServer(): FastifyInstance {
+export interface ServerOptions {
+  dataDir?: string;
+}
+
+export async function buildServer(opts: ServerOptions = {}): Promise<FastifyInstance> {
+  const dataDir = opts.dataDir ?? process.env.PROPOS_DATA_DIR ?? DEFAULT_DATA_DIR;
   const app = Fastify({ logger: false });
 
   const llm = providerFromEnv();
   const contentGenerator = new ListingContentGenerator(llm);
   const areaProvider = new SingaporeStaticProvider();
-  const leadRepo = new InMemoryLeadRepository();
-  const listings = new Map<string, Listing>();
+
+  const accounts = new AccountService(dataDir);
+  const listingRepo = new PersistentListingRepository(dataDir);
+  const leadRepo = new PersistentLeadRepository(dataDir);
+  await Promise.all([accounts.init(), listingRepo.init(), leadRepo.init()]);
+
+  const bearer = (req: FastifyRequest): string | undefined =>
+    req.headers.authorization?.replace(/^Bearer\s+/i, "");
+  const currentAgent = (req: FastifyRequest): PublicAgent | undefined =>
+    accounts.authenticate(bearer(req));
 
   // ---- Web UI ---------------------------------------------------------------
   // "/" is the consumer portal (fully standalone — also works opened as a file);
@@ -66,11 +79,52 @@ export function buildServer(): FastifyInstance {
 
   app.get("/api/countries", async () => listCountries());
 
-  // ---- PART 1: AI listing system -------------------------------------------
-  app.post<{ Body: { property: Property; intent: "sale" | "rent"; price: number; currency?: string; agentId?: string } }>(
+  // ---- Auth (Phase 1) -------------------------------------------------------
+  app.post<{ Body: { name: string; email: string; password: string; ceaNumber?: string } }>(
+    "/api/auth/register",
+    async (req, reply) => {
+      const b = req.body ?? ({} as Record<string, never>);
+      if (!b.name || !b.email || !b.password) {
+        return reply.code(400).send({ error: "name, email and password are required" });
+      }
+      try {
+        return reply.code(201).send(await accounts.register(b));
+      } catch (err) {
+        if (err instanceof AuthError) return reply.code(422).send({ error: err.message });
+        throw err;
+      }
+    },
+  );
+
+  app.post<{ Body: { email: string; password: string } }>("/api/auth/login", async (req, reply) => {
+    const b = req.body ?? ({} as Record<string, never>);
+    if (!b.email || !b.password) return reply.code(400).send({ error: "email and password are required" });
+    try {
+      return await accounts.login(b.email, b.password);
+    } catch (err) {
+      if (err instanceof AuthError) return reply.code(401).send({ error: err.message });
+      throw err;
+    }
+  });
+
+  app.post("/api/auth/logout", async (req) => {
+    const token = bearer(req);
+    if (token) await accounts.logout(token);
+    return { ok: true };
+  });
+
+  app.get("/api/auth/me", async (req, reply) => {
+    const agent = currentAgent(req);
+    return agent ?? reply.code(401).send({ error: "not authenticated" });
+  });
+
+  // ---- PART 1: AI listing system (agent-authenticated) ----------------------
+  app.post<{ Body: { property: Property; intent: "sale" | "rent"; price: number; currency?: string } }>(
     "/api/listings",
     async (req, reply) => {
-      const { property, intent, price, currency = "SGD", agentId = "demo-agent" } = req.body;
+      const agent = currentAgent(req);
+      if (!agent) return reply.code(401).send({ error: "Sign in to create listings" });
+      const { property, intent, price, currency = "SGD" } = req.body ?? ({} as Record<string, never>);
       if (!property || !intent || !price) {
         return reply.code(400).send({ error: "property, intent and price are required" });
       }
@@ -79,12 +133,12 @@ export function buildServer(): FastifyInstance {
         property: { ...property, id: property.id || `P-${randomUUID().slice(0, 8)}`, features: property.features ?? [] },
         intent,
         price: { amount: price, currency },
-        agentId,
+        agentId: agent.id,
         photos: [],
         createdAt: new Date().toISOString(),
         status: "active",
       };
-      listings.set(listing.id, listing);
+      await listingRepo.save(listing);
       const contentPack = await contentGenerator.generate(listing);
       const areaReport = listing.property.address.geo
         ? await generateAreaReport(areaProvider, listing.property.address.geo)
@@ -93,26 +147,26 @@ export function buildServer(): FastifyInstance {
     },
   );
 
-  app.get("/api/listings", async () => [...listings.values()]);
+  app.get("/api/listings", async () => listingRepo.list());
 
   app.get<{ Params: { id: string } }>("/api/listings/:id", async (req, reply) => {
-    const listing = listings.get(req.params.id);
+    const listing = await listingRepo.get(req.params.id);
     return listing ?? reply.code(404).send({ error: "listing not found" });
   });
 
-  // ---- PART 4: AI sales agent ----------------------------------------------
+  // ---- PART 4: AI sales agent (public — consumers ask questions) ------------
   app.post<{ Params: { id: string }; Body: { question: string; context?: SalesAgentContext } }>(
     "/api/listings/:id/ask",
     async (req, reply) => {
-      const listing = listings.get(req.params.id);
+      const listing = await listingRepo.get(req.params.id);
       if (!listing) return reply.code(404).send({ error: "listing not found" });
       if (!req.body?.question) return reply.code(400).send({ error: "question is required" });
-      const agent = new ListingSalesAgent(listing, llm);
-      return agent.ask(req.body.question, req.body.context ?? {});
+      const salesAgent = new ListingSalesAgent(listing, llm);
+      return salesAgent.ask(req.body.question, req.body.context ?? {});
     },
   );
 
-  // ---- PART 2: Area intelligence -------------------------------------------
+  // ---- PART 2: Area intelligence (public) -----------------------------------
   app.get<{ Querystring: { lat: string; lng: string; radius?: string } }>(
     "/api/area-report",
     async (req, reply) => {
@@ -125,7 +179,7 @@ export function buildServer(): FastifyInstance {
     },
   );
 
-  // ---- PART 8: Finance ------------------------------------------------------
+  // ---- PART 8: Finance (public) ---------------------------------------------
   app.post<{ Body: { price: number; profile?: BuyerProfile; propertiesOwned?: number } }>(
     "/api/finance/stamp-duty",
     async (req, reply) => {
@@ -184,28 +238,38 @@ export function buildServer(): FastifyInstance {
   );
 
   // ---- PART 5: CRM ----------------------------------------------------------
-  app.post<{ Body: Omit<Lead, "id" | "stage" | "history" | "createdAt"> }>("/api/leads", async (req, reply) => {
-    const b = req.body;
-    if (!b?.contact?.name || !b.listingId) {
-      return reply.code(400).send({ error: "contact.name and listingId are required" });
-    }
-    const lead: Lead = {
-      ...b,
-      id: `lead-${randomUUID().slice(0, 8)}`,
-      agentId: b.agentId ?? "demo-agent",
-      source: b.source ?? "portal",
-      stage: "new",
-      history: [],
-      createdAt: new Date().toISOString(),
-    };
-    return reply.code(201).send(await leadRepo.save(lead));
-  });
+  // Lead capture is public (consumers submit enquiries); managing them is not.
+  app.post<{ Body: { listingId: string; contact: Lead["contact"]; source?: Lead["source"] } }>(
+    "/api/leads",
+    async (req, reply) => {
+      const b = req.body;
+      if (!b?.contact?.name || !b.listingId) {
+        return reply.code(400).send({ error: "contact.name and listingId are required" });
+      }
+      const listing = await listingRepo.get(b.listingId);
+      if (!listing) return reply.code(404).send({ error: "listing not found" });
+      const lead: Lead = {
+        id: `lead-${randomUUID().slice(0, 8)}`,
+        listingId: b.listingId,
+        agentId: listing.agentId,
+        contact: b.contact,
+        source: b.source ?? "portal",
+        stage: "new",
+        history: [],
+        createdAt: new Date().toISOString(),
+      };
+      return reply.code(201).send(await leadRepo.save(lead));
+    },
+  );
 
   app.post<{ Params: { id: string }; Body: { to: LeadStage; note?: string } }>(
     "/api/leads/:id/advance",
     async (req, reply) => {
+      const agent = currentAgent(req);
+      if (!agent) return reply.code(401).send({ error: "Sign in to manage leads" });
       const lead = await leadRepo.get(req.params.id);
       if (!lead) return reply.code(404).send({ error: "lead not found" });
+      if (lead.agentId !== agent.id) return reply.code(403).send({ error: "This lead belongs to another agent" });
       try {
         return await leadRepo.save(advanceLead(lead, req.body.to, new Date().toISOString(), req.body.note));
       } catch (err) {
@@ -214,9 +278,17 @@ export function buildServer(): FastifyInstance {
     },
   );
 
-  app.get<{ Params: { agentId: string } }>("/api/leads/summary/:agentId", async (req) =>
-    leadRepo.pipelineSummary(req.params.agentId),
-  );
+  app.get("/api/leads", async (req, reply) => {
+    const agent = currentAgent(req);
+    if (!agent) return reply.code(401).send({ error: "Sign in to view leads" });
+    return leadRepo.listByAgent(agent.id);
+  });
+
+  app.get("/api/leads/summary", async (req, reply) => {
+    const agent = currentAgent(req);
+    if (!agent) return reply.code(401).send({ error: "Sign in to view your pipeline" });
+    return leadRepo.pipelineSummary(agent.id);
+  });
 
   app.post<{ Body: { salePrice: number; commissionPct?: number; agentPct?: number; agencyPct?: number; coBrokePct?: number } }>(
     "/api/crm/commission",

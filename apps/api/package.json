@@ -15,6 +15,7 @@
     "@propos/core": "workspace:*",
     "@propos/crm": "workspace:*",
     "@propos/finance": "workspace:*",
-    "fastify": "^5.0.0"
+    "fastify": "^5.0.0",
+    "@propos/storage": "workspace:*"
   }
 }

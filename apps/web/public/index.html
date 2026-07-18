@@ -56,6 +56,21 @@
 </header>
 <main>
 
+<section id="authBox">
+  <h2>Agent sign in</h2>
+  <p class="sub">Listings are tied to your agent account. Register once — your listings and leads persist.</p>
+  <div class="row3">
+    <div><label>Name (register only)</label><input id="aName" placeholder="Louis Prince"></div>
+    <div><label>Email</label><input id="aEmail" type="email" placeholder="you@agency.sg"></div>
+    <div><label>Password (min 8 chars)</label><input id="aPass" type="password"></div>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <button onclick="auth('register')">Register</button>
+    <button onclick="auth('login')">Sign in</button>
+    <span id="authMsg" style="color:var(--muted);font-size:13px"></span>
+  </div>
+</section>
+
 <section>
   <h2>1 · Upload a property — AI generates everything</h2>
   <p class="sub">One upload → full omnichannel marketing pack, persona variants, area intelligence, and a 24/7 AI sales agent.</p>
@@ -127,9 +142,36 @@ let currentListing = null;
 let pack = null;
 
 const $ = (id) => document.getElementById(id);
-const api = (url, opts) => fetch(url, opts).then(r => r.json());
+let authToken = localStorage.getItem('propos_token') || '';
+const api = (url, opts = {}) => fetch(url, {
+  ...opts,
+  headers: { ...(opts.headers || {}), ...(authToken ? { authorization: 'Bearer ' + authToken } : {}) },
+}).then(r => r.json());
 
 api('/api/health').then(h => { $('llmMode').textContent = h.llmProvider === 'template' ? 'template mode' : 'LLM: ' + h.llmProvider; });
+
+async function auth(mode) {
+  const body = mode === 'register'
+    ? { name: $('aName').value, email: $('aEmail').value, password: $('aPass').value }
+    : { email: $('aEmail').value, password: $('aPass').value };
+  const res = await api('/api/auth/' + mode, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  if (res.token) {
+    authToken = res.token;
+    localStorage.setItem('propos_token', authToken);
+    $('authMsg').textContent = '✓ Signed in as ' + res.agent.name;
+    $('authBox').style.opacity = 0.65;
+  } else {
+    $('authMsg').textContent = res.error || 'Something went wrong — try again.';
+  }
+}
+
+// Restore an existing session on page load
+if (authToken) {
+  api('/api/auth/me').then(me => {
+    if (me.email) { $('authMsg').textContent = '✓ Signed in as ' + me.name; $('authBox').style.opacity = 0.65; }
+    else { authToken = ''; localStorage.removeItem('propos_token'); }
+  });
+}
 
 async function createListing() {
   $('channelOut').textContent = 'Generating…';
@@ -145,6 +187,7 @@ async function createListing() {
     },
   };
   const res = await api('/api/listings', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  if (!res.listing) { $('channelOut').textContent = res.error || 'Sign in above first, then generate.'; return; }
   currentListing = res.listing; pack = res.contentPack;
   $('packBy').textContent = 'by ' + pack.generatedBy;
   renderTabs('channelTabs', Object.keys(pack.channels), (k) => { $('channelOut').textContent = pack.channels[k]; });

@@ -45,8 +45,15 @@ export function buildServer(): FastifyInstance {
   const leadRepo = new InMemoryLeadRepository();
   const listings = new Map<string, Listing>();
 
-  // ---- Demo UI --------------------------------------------------------------
+  // ---- Web UI ---------------------------------------------------------------
+  // "/" is the consumer portal (fully standalone — also works opened as a file);
+  // "/studio" is the agent listing-creation demo wired to the live API.
   app.get("/", async (_req, reply) => {
+    const html = await readFile(path.join(WEB_ROOT, "portal.html"), "utf8");
+    reply.type("text/html").send(html);
+  });
+
+  app.get("/studio", async (_req, reply) => {
     const html = await readFile(path.join(WEB_ROOT, "index.html"), "utf8");
     reply.type("text/html").send(html);
   });

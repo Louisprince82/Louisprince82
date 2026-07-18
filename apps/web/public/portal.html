@@ -1,0 +1,618 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PropOS — Singapore Property Platform</title>
+<style>
+:root{
+  --ink:#0E1526; --surface:#16203A; --card:#1B2745; --line:#2A3757;
+  --text:#EDF1FA; --mist:#9FB0CE; --brass:#D9A441; --brass-ink:#20180A;
+  --jade:#3FBF8F; --rose:#E4707E;
+  --shadow:0 10px 30px rgba(4,8,20,.45);
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --ink:#F6F4EE; --surface:#FFFFFF; --card:#FFFFFF; --line:#DCD6C8;
+    --text:#1A2237; --mist:#5D6B8A; --brass:#B07E1F; --brass-ink:#FFF;
+    --jade:#1E8A62; --rose:#C24E5C;
+    --shadow:0 8px 24px rgba(60,50,20,.12);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#0E1526; --surface:#16203A; --card:#1B2745; --line:#2A3757;
+  --text:#EDF1FA; --mist:#9FB0CE; --brass:#D9A441; --brass-ink:#20180A;
+  --jade:#3FBF8F; --rose:#E4707E;
+  --shadow:0 10px 30px rgba(4,8,20,.45);
+}
+:root[data-theme="light"]{
+  --ink:#F6F4EE; --surface:#FFFFFF; --card:#FFFFFF; --line:#DCD6C8;
+  --text:#1A2237; --mist:#5D6B8A; --brass:#B07E1F; --brass-ink:#FFF;
+  --jade:#1E8A62; --rose:#C24E5C;
+  --shadow:0 8px 24px rgba(60,50,20,.12);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ink);color:var(--text);font:15px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif}
+.serif{font-family:Georgia,"Times New Roman",serif}
+.num{font-variant-numeric:tabular-nums}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer}
+input,select{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:26px;padding:14px 28px;
+  background:color-mix(in srgb, var(--ink) 88%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .mark{font-family:Georgia,serif;font-size:22px;letter-spacing:.5px}
+nav .mark b{color:var(--brass);font-weight:700}
+nav .links{display:flex;gap:20px;font-size:14px;color:var(--mist)}
+nav .links a.on{color:var(--text);border-bottom:2px solid var(--brass);padding-bottom:2px}
+nav .spacer{flex:1}
+.badge{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);border:1px solid var(--brass);border-radius:999px;padding:3px 12px}
+#themeBtn{background:none;border:1px solid var(--line);color:var(--mist);border-radius:8px;padding:5px 10px;font-size:13px}
+
+main{max-width:1150px;margin:0 auto;padding:28px 22px 60px}
+.hero{padding:44px 0 30px}
+.hero .eyebrow{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:12px}
+.hero h1{font-family:Georgia,serif;font-weight:600;font-size:clamp(30px,4.5vw,46px);line-height:1.12;margin:0 0 12px;max-width:17ch;text-wrap:balance}
+.hero p{color:var(--mist);max-width:58ch;margin:0 0 24px}
+.searchbar{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;background:var(--surface);
+  border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:var(--shadow)}
+@media(max-width:820px){.searchbar{grid-template-columns:1fr 1fr}.searchbar input[type=search]{grid-column:1/-1}}
+.btn{background:var(--brass);color:var(--brass-ink);border:0;border-radius:9px;padding:10px 20px;font-weight:600}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--text);font-weight:500}
+
+.stats{display:flex;gap:34px;padding:22px 4px;color:var(--mist);font-size:13px;flex-wrap:wrap}
+.stats b{display:block;font-family:Georgia,serif;font-size:24px;color:var(--text)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);
+  transition:transform .15s ease}
+a.card:hover{transform:translateY(-3px)}
+.thumb{height:160px;position:relative;display:flex;align-items:flex-end;padding:14px}
+.thumb .district{font-family:Georgia,serif;font-size:13px;letter-spacing:.14em;color:rgba(255,255,255,.92);
+  background:rgba(10,14,28,.45);padding:3px 10px;border-radius:6px}
+.thumb .tag{position:absolute;top:12px;left:12px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  background:rgba(10,14,28,.55);color:#F5D9A0;padding:3px 10px;border-radius:999px}
+.card .body{padding:16px}
+.card .price{font-family:Georgia,serif;font-size:21px}
+.card .price small{font-family:"Segoe UI",system-ui,sans-serif;font-size:12px;color:var(--mist)}
+.card h3{margin:4px 0 2px;font-size:15px;font-weight:600}
+.card .meta{color:var(--mist);font-size:13px}
+
+.crumb{color:var(--mist);font-size:13px;margin:6px 0 18px;display:inline-block}
+.crumb:hover{color:var(--text)}
+.detail{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start}
+@media(max-width:900px){.detail{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:20px}
+.panel h2{font-family:Georgia,serif;font-weight:600;font-size:19px;margin:0 0 4px}
+.panel .sub{color:var(--mist);font-size:13px;margin:0 0 14px}
+.hero-thumb{height:230px;border-radius:14px;border:1px solid var(--line);display:flex;align-items:flex-end;padding:18px;margin-bottom:20px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.chip{font-size:12px;color:var(--mist);border:1px solid var(--line);border-radius:999px;padding:3px 11px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button{background:var(--surface);border:1px solid var(--line);color:var(--mist);border-radius:8px;padding:5px 12px;font-size:12.5px}
+.tabs button.on{background:var(--brass);border-color:var(--brass);color:var(--brass-ink);font-weight:600}
+.copybox{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;font-size:14px;
+  line-height:1.6;white-space:pre-wrap;min-height:72px}
+.rows{margin:0;padding:0;list-style:none;font-size:13.5px}
+.rows li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line);color:var(--mist)}
+.rows li b{color:var(--text);font-weight:600}
+.scorebars{display:grid;gap:9px;margin:12px 0 16px}
+.sb{display:grid;grid-template-columns:92px 1fr 34px;gap:10px;align-items:center;font-size:12.5px;color:var(--mist)}
+.sb .track{height:7px;border-radius:99px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.sb .fill{height:100%;background:linear-gradient(90deg,var(--jade),color-mix(in srgb,var(--jade) 55%,var(--brass)))}
+.sb b{color:var(--text);text-align:right}
+.sticky{position:sticky;top:76px}
+.pricecard .big{font-family:Georgia,serif;font-size:30px;margin:2px 0}
+.pricecard .psf{color:var(--mist);font-size:13px}
+.kv{font-size:13.5px;line-height:1.9;color:var(--mist)}
+.kv b{color:var(--text)}
+label{display:block;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mist);margin:10px 0 4px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow:auto;margin-bottom:10px}
+.msg{padding:9px 12px;border-radius:11px;font-size:13.5px;line-height:1.5;max-width:88%}
+.msg.u{background:var(--brass);color:var(--brass-ink);align-self:flex-end}
+.msg.b{background:var(--surface);border:1px solid var(--line);align-self:flex-start}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.quick button{font-size:11.5px;background:none;border:1px solid var(--line);color:var(--mist);border-radius:999px;padding:3px 10px}
+.quick button:hover{border-color:var(--brass);color:var(--brass)}
+
+.board{display:grid;grid-template-columns:repeat(6,minmax(150px,1fr));gap:10px;overflow-x:auto}
+@media(max-width:900px){.board{grid-template-columns:repeat(3,1fr)}}
+.col{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:120px}
+.col h4{margin:0 0 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mist)}
+.lead{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px;font-size:12.5px;margin-bottom:8px}
+.lead b{display:block}
+.lead button{margin-top:6px;font-size:11px;background:none;border:1px solid var(--line);border-radius:6px;color:var(--mist);padding:2px 8px}
+.lead button:hover{border-color:var(--jade);color:var(--jade)}
+
+.countries{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.country h3{font-family:Georgia,serif;margin:0;font-size:18px}
+.country .live{color:var(--jade);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.country .soon{color:var(--mist);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.country p{color:var(--mist);font-size:12.5px}
+
+footer{border-top:1px solid var(--line);color:var(--mist);font-size:12px;text-align:center;padding:22px;margin-top:30px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<nav>
+  <a class="mark" href="#/">Prop<b>OS</b></a>
+  <div class="links">
+    <a href="#/" data-nav="home">Explore</a>
+    <a href="#/agents" data-nav="agents">For Agents</a>
+    <a href="#/global" data-nav="global">Global</a>
+  </div>
+  <div class="spacer"></div>
+  <span class="badge">Singapore</span>
+  <button id="themeBtn" aria-label="Toggle theme">◐ Theme</button>
+</nav>
+<main id="app"></main>
+<footer>PropOS — the AI Operating System for Real Estate · every figure is computed by the finance engine · estimates are for planning only, not financial advice</footer>
+
+<script>
+"use strict";
+/* ============ Domain data ============ */
+const COUNTRIES=[
+ {code:"SG",name:"Singapore",currency:"SGD",live:true, note:"Launch market. CEA-licensed agents, ABSD/TDSR aware, OneMap-ready."},
+ {code:"MY",name:"Malaysia",currency:"MYR",live:false,note:"BOVAEA agents, state foreign-ownership thresholds, MM2H flows."},
+ {code:"TH",name:"Thailand",currency:"THB",live:false,note:"49% foreign condo quota logic, TH/EN content."},
+ {code:"VN",name:"Vietnam",currency:"VND",live:false,note:"30% foreign unit caps, 50-year leasehold handling."},
+ {code:"ID",name:"Indonesia",currency:"IDR",live:false,note:"Hak Pakai titles for foreigners, AREBI brokers."},
+ {code:"AU",name:"Australia",currency:"AUD",live:false,note:"FIRB approval flows, state transfer duties."},
+ {code:"GB",name:"United Kingdom",currency:"GBP",live:false,note:"SDLT bands, non-resident surcharge, redress schemes."},
+ {code:"AE",name:"UAE",currency:"AED",live:false,note:"Freehold-zone eligibility, RERA brokers, AR/EN."}
+];
+
+const LISTINGS=[
+ {id:1,intent:"sale",price:1680000,type:"condo",name:"Marina One Residences",addr:"12 Marina Boulevard",district:"D01 · Marina Bay",
+  beds:3,baths:2,sqm:110,tenure:"99-yr leasehold",geo:[1.2806,103.8541],hue:[222,36],
+  features:["marina view","renovated kitchen","high floor"]},
+ {id:2,intent:"sale",price:5880000,type:"condo",name:"The Orchard Residences",addr:"238 Orchard Boulevard",district:"D09 · Orchard",
+  beds:4,baths:4,sqm:205,tenure:"99-yr leasehold",geo:[1.3040,103.8318],hue:[268,26],
+  features:["skyline view","private lift lobby","concierge service"]},
+ {id:3,intent:"sale",price:668000,type:"hdb",name:"Tampines GreenRidges",addr:"520B Tampines Central 8",district:"D18 · Tampines",
+  beds:3,baths:2,sqm:93,tenure:"99-yr (from 2016)",geo:[1.3536,103.9440],hue:[152,24],
+  features:["corner unit","near mall","park connector"]},
+ {id:4,intent:"sale",price:28800000,type:"bungalow",name:"Victoria Park Good Class Bungalow",addr:"8 Victoria Park Road",district:"D10 · Bukit Timah",
+  beds:6,baths:7,sqm:750,tenure:"Freehold",geo:[1.3294,103.7930],hue:[95,20],
+  features:["private pool","1,400 sqm land","full rebuild 2023"]},
+ {id:5,intent:"sale",price:7200000,type:"condo",name:"Seascape at Sentosa Cove",addr:"31 Cove Way",district:"D04 · Sentosa",
+  beds:4,baths:5,sqm:250,tenure:"99-yr leasehold",geo:[1.2429,103.8380],hue:[198,34],
+  features:["berth & sea view","dual-key layout","resort facilities"]},
+ {id:6,intent:"rent",price:6500,type:"condo",name:"Holland Hill Residence",addr:"21 Holland Hill",district:"D10 · Holland Village",
+  beds:3,baths:2,sqm:130,tenure:"Freehold",geo:[1.3105,103.7961],hue:[35,26],
+  features:["lush grounds","walk to One Holland Village","fully furnished"]},
+ {id:7,intent:"rent",price:3200,type:"hdb",name:"Punggol Waterway Terraces",addr:"308C Punggol Walk",district:"D19 · Punggol",
+  beds:3,baths:2,sqm:90,tenure:"99-yr leasehold",geo:[1.4052,103.9023],hue:[172,24],
+  features:["waterway view","near LRT","family-friendly"]},
+ {id:8,intent:"sale",price:4500000,type:"shophouse",name:"Joo Chiat Conservation Shophouse",addr:"271 Joo Chiat Road",district:"D15 · Katong",
+  beds:3,baths:3,sqm:280,tenure:"Freehold",geo:[1.3084,103.9010],hue:[14,30],
+  features:["conservation facade","F&B-approved ground floor","rear extension"]}
+];
+
+const AMENITIES=[
+ // Marina Bay / CBD
+ ["Downtown MRT (DT17)","mrt",1.2795,103.8528],["Marina Bay MRT (NS27/TE20)","mrt",1.2761,103.8547],
+ ["Raffles Place MRT (NS26/EW14)","mrt",1.2837,103.8515],["Shenton Way MRT (TE19)","mrt",1.2775,103.8501],
+ ["Marina Bay Link Mall","mall",1.2797,103.8540],["Lau Pa Sat","market",1.2807,103.8504],
+ ["Cold Storage Marina Bay","supermarket",1.2796,103.8538],["Raffles Medical MBFC","clinic",1.2792,103.8546],
+ ["Gardens by the Bay","park",1.2816,103.8636],["Cantonment Primary School","school",1.2745,103.8402],
+ ["Marina South MRT (TE22) · ~2027","future",1.2743,103.8632],["Marina South precinct · URA Master Plan","future",1.2726,103.8618],
+ // Orchard
+ ["Orchard MRT (NS22/TE14)","mrt",1.3041,103.8322],["ION Orchard","mall",1.3040,103.8318],
+ ["Singapore Botanic Gardens","park",1.3138,103.8159],["Mount Elizabeth Hospital","clinic",1.3055,103.8355],
+ ["Cold Storage Takashimaya","supermarket",1.3029,103.8349],["Orchard Boulevard MRT (TE13)","mrt",1.3023,103.8253],
+ // Tampines
+ ["Tampines MRT (EW2/DT32)","mrt",1.3546,103.9450],["Tampines Mall","mall",1.3525,103.9447],
+ ["Our Tampines Hub","sports",1.3536,103.9402],["St. Hilda's Primary School","school",1.3499,103.9455],
+ ["Tampines Eco Green","park",1.3592,103.9367],["Cross Island Line (Tampines North) · ~2030","future",1.3690,103.9380],
+ // Bukit Timah
+ ["King Albert Park MRT (DT6)","mrt",1.3355,103.7830],["Bukit Timah Nature Reserve","park",1.3546,103.7763],
+ ["Methodist Girls' School","school",1.3323,103.7830],["Bukit Timah Market & Food Centre","market",1.3399,103.7770],
+ // Sentosa
+ ["Sentosa Cove Village","supermarket",1.2440,103.8390],["Quayside Isle dining","market",1.2442,103.8395],
+ ["Sentosa Golf Club","sports",1.2410,103.8430],
+ // Holland Village
+ ["Holland Village MRT (CC21)","mrt",1.3112,103.7961],["One Holland Village","mall",1.3120,103.7943],
+ ["Henry Park Primary School","school",1.3184,103.7845],["Chip Bee Gardens","market",1.3103,103.7948],
+ // Punggol
+ ["Punggol MRT/LRT (NE17)","mrt",1.4052,103.9024],["Waterway Point","mall",1.4066,103.9022],
+ ["My Waterway @ Punggol","park",1.4076,103.9060],["Punggol Green Primary School","school",1.4090,103.8990],
+ ["Punggol Digital District · 2026-30","future",1.4110,103.9070],
+ // Katong
+ ["Marine Parade MRT (TE26)","mrt",1.3030,103.9053],["Parkway Parade","mall",1.3011,103.9052],
+ ["i12 Katong","mall",1.3053,103.9053],["Tao Nan School","school",1.3040,103.9075],
+ ["East Coast Park","park",1.3005,103.9080]
+].map(a=>({name:a[0],cat:a[1],lat:a[2],lng:a[3]}));
+
+/* ============ Finance engine (ported from @propos/finance) ============ */
+const fmt=n=>new Intl.NumberFormat("en-SG",{style:"currency",currency:"SGD",maximumFractionDigits:0}).format(n);
+const nfmt=n=>Math.round(n).toLocaleString("en-SG");
+const BSD_TIERS=[[180000,.01],[360000,.02],[1000000,.03],[1500000,.04],[3000000,.05],[Infinity,.06]];
+const ABSD={citizen:[0,.20,.30],pr:[.05,.30,.35],foreigner:[.60,.60,.60],entity:[.65,.65,.65]};
+function bsd(price){let rem=price,prev=0,amt=0;for(const[cap,rate]of BSD_TIERS){if(rem<=0)break;
+  const band=Math.min(rem,cap-prev);amt+=band*rate;rem-=band;prev=cap}return Math.round(amt)}
+function absd(price,profile,owned){const r=ABSD[profile];return Math.round(price*r[Math.min(owned,r.length-1)])}
+function pmt(P,ratePct,years){const n=years*12,r=ratePct/100/12;if(!n||P<=0)return 0;
+  return r===0?P/n:P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1)}
+const sqft=sqm=>Math.round(sqm*10.7639);
+const psf=(price,sqm)=>Math.round(price/sqft(sqm));
+
+/* ============ Area intelligence (ported from @propos/area-intelligence) ============ */
+function distM(a,b){const R=6371000,t=d=>d*Math.PI/180;
+  const dLat=t(b[0]-a[0]),dLng=t(b[1]-a[1]);
+  const h=Math.sin(dLat/2)**2+Math.cos(t(a[0]))*Math.cos(t(b[0]))*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h))}
+const walkMin=d=>Math.max(1,Math.round(d*1.3/80));
+function prox(d,full,zero){return d<=full?1:d>=zero?0:1-(d-full)/(zero-full)}
+function areaReport(geo){
+  const near=AMENITIES.map(a=>({...a,d:Math.round(distM(geo,[a.lat,a.lng]))}))
+    .filter(a=>a.d<=1800).sort((a,b)=>a.d-b.d);
+  const first=c=>near.find(a=>a.cat===c);
+  const pct=x=>Math.round(Math.max(0,Math.min(1,x))*100);
+  const mrt=first("mrt");
+  const transit=pct((mrt?prox(mrt.d,400,1600):0));
+  const daily=["supermarket","market","mall","clinic","park"];
+  const walk=pct(daily.reduce((s,c)=>{const n=first(c);return s+(n?prox(n.d,300,1200):0)},0)/daily.length);
+  const sch=first("school");
+  const fam=pct(((sch?prox(sch.d,1000,2000):0)+(first("park")?0.7:0))/1.7);
+  const life=pct(Math.min(1,near.filter(a=>["mall","market","sports","park"].includes(a.cat)).length/5));
+  const future=near.filter(a=>a.cat==="future");
+  const invest=pct(transit/100*.5+Math.min(1,future.length/2)*.5);
+  const overall=Math.round(transit*.28+walk*.26+fam*.14+life*.14+invest*.18);
+  let summary=(overall>=80?"Outstanding location. ":overall>=55?"Well-connected location. ":"Tranquil, low-density setting. ");
+  if(mrt)summary+=`${mrt.name} is a ${walkMin(mrt.d)}-min walk (${mrt.d} m). `;
+  if(sch)summary+=`${sch.name} is ${sch.d} m away. `;
+  if(future.length)summary+=`Upcoming nearby: ${future.map(f=>f.name).join("; ")} — a tailwind for long-term value.`;
+  return {near,scores:{Transit:transit,Walkability:walk,Families:fam,Lifestyle:life,Investment:invest},overall,summary,future};
+}
+
+/* ============ AI content engine (ported from @propos/ai-engine, template mode) ============ */
+function facts(l){
+  return {name:l.name,addr:l.addr,district:l.district,beds:l.beds,baths:l.baths,area:nfmt(sqft(l.sqm)),
+    price:l.intent==="rent"?fmt(l.price)+"/mo":fmt(l.price),psf:l.intent==="sale"?nfmt(psf(l.price,l.sqm)):null,
+    tenure:l.tenure,feat:l.features,deal:l.intent==="sale"?"for sale":"for rent",type:l.type==="hdb"?"HDB flat":l.type};
+}
+const featLine=f=>f.feat.length?` Highlights: ${f.feat.join(", ")}.`:"";
+const CHANNELS={
+ "Description":f=>`${f.beds}-Bedroom ${f.type} at ${f.addr}\n\nPresenting a ${f.beds}-bedroom, ${f.baths}-bathroom ${f.type} ${f.deal} in ${f.district}. Spanning ${f.area} sqft on a ${f.tenure.toLowerCase()} title, offered at ${f.price}${f.psf?` (S$${f.psf} psf)`:""}.${featLine(f)} Arrange a viewing today and experience it for yourself.`,
+ "SEO":f=>`${f.beds}-bedroom ${f.type} ${f.deal} in ${f.district} — ${f.area} sqft, ${f.price}${f.psf?`, S$${f.psf} psf`:""}, ${f.tenure.toLowerCase()}. View photos, floor plan, area insights and mortgage estimates on PropOS.`,
+ "Facebook":f=>`🏡 JUST LISTED — ${f.name}, ${f.district}\n${f.beds}🛏 ${f.baths}🛁 · ${f.area} sqft · ${f.price}${featLine(f)}\n📩 Comment "INFO" for the full brochure and viewing slots!`,
+ "Instagram":f=>`✨ ${f.name} ✨\n${f.price} · ${f.beds} beds · ${f.area} sqft${featLine(f)}\n#singaporeproperty #${f.type.replace(/\s/g,"")} #newlisting #homesweethome`,
+ "TikTok":f=>`POV: you just found your dream ${f.type} in ${f.district} 🤯 ${f.beds} beds, ${f.area} sqft, ${f.price}. Wait for the ${f.feat[0]||"living room"} 👀 #hometour #propertytok #sgproperty`,
+ "LinkedIn":f=>`New listing: ${f.name}, ${f.district}. A ${f.area} sqft ${f.type} ${f.deal} at ${f.price}${f.psf?` (S$${f.psf} psf)`:""}, ${f.tenure.toLowerCase()}.${featLine(f)} Reach out for the investment brief or a private viewing.`,
+ "YouTube":f=>`Full walkthrough of ${f.name} (${f.district}). In this tour: the layout (${f.beds} bed / ${f.baths} bath, ${f.area} sqft), pricing (${f.price}), the neighbourhood, and who this home suits best. Timestamps below — enquiries via the description link.`,
+ "小红书":f=>`🏠 ${f.district}好房推荐！${f.beds}房${f.baths}卫，${f.area}平方英尺，${f.price}。${f.feat.length?`亮点：${f.feat.join("、")}。`:""}想看房的宝子们快来私信我～ #新加坡买房 #房产 #安家`,
+ "X / Twitter":f=>`Just listed: ${f.beds}-bed ${f.type} in ${f.district} — ${f.area} sqft at ${f.price}${f.psf?` (S$${f.psf} psf)`:""}. DM for viewing. 🏡`,
+ "Email":f=>`Subject: New on the market — ${f.name}\n\nHi {{first_name}},\n\nA ${f.type} matching your search just went live: ${f.beds} bedrooms, ${f.baths} bathrooms, ${f.area} sqft at ${f.addr} (${f.district}), offered at ${f.price}.${featLine(f)}\n\nReply to book a viewing slot: {{booking_link}}\n\nWarm regards,\n{{agent_name}}`,
+ "WhatsApp":f=>`Hi! 👋 Sharing a new listing you might love: *${f.name}* — ${f.beds}🛏 ${f.baths}🛁, ${f.area} sqft, ${f.price}.${featLine(f)} Shall I arrange a viewing this week?`
+};
+const PERSONAS={
+ "Luxury":f=>`An exceptional residence for the discerning few. ${f.name} offers ${f.area} sqft of refined living on a coveted ${f.tenure.toLowerCase()} title, quietly positioned in ${f.district}. Signature touches — ${f.feat.join(", ")} — elevate every day. Offered at ${f.price}. Private viewings by appointment.`,
+ "Investor":f=>`Investment brief: ${f.name}. Entry at ${f.price}${f.psf?` (S$${f.psf} psf)`:""} for ${f.area} sqft, ${f.tenure.toLowerCase()}. Strong rentability drivers: ${f.feat.slice(0,3).join(", ")}. Request the full numbers pack — projected yield, cash flow and area appreciation data included.`,
+ "Family":f=>`Room for everyone to grow. This ${f.beds}-bedroom ${f.type} in ${f.district} gives your family ${f.area} sqft of space, plus ${f.feat.join(" and ")}. Schools, parks and daily conveniences are close at hand — ask for the full area report. ${f.price}.`,
+ "First home":f=>`Your first home, done right. 💕 A smart ${f.beds}-bedroom ${f.type} at ${f.addr} — ${f.area} sqft at ${f.price}. We'll walk you through the loan, grants and stamp duty numbers so there are no surprises. Book a weekend viewing!`,
+ "Overseas buyer":f=>`International buyer brief: ${f.name}, offered at ${f.price}. Eligibility: foreigners may buy private condos freely; landed property requires SLA approval; HDB flats are restricted to citizens/PRs. ABSD of 60% applies to foreign buyers. Our team handles financing, legal and tax guidance end-to-end.`
+};
+
+/* ============ AI sales agent (rule-based, numbers from the engine) ============ */
+const DISC=" (Planning estimate, not financial advice.)";
+function agentAnswer(l,q,profile,owned){
+  q=q.toLowerCase();
+  const isSale=l.intent==="sale";
+  if(/(stamp|absd|bsd|duty)/.test(q)){
+    if(!isSale)return "Stamp duty applies to purchases; this is a rental. Lease duty is typically 0.4% of total rent over the lease term."+DISC;
+    const b=bsd(l.price),a=absd(l.price,profile,owned);
+    return `For a ${profile} buying property #${owned+1} at ${fmt(l.price)}: BSD ≈ S$${nfmt(b)}, ABSD ≈ S$${nfmt(a)} — total ≈ S$${nfmt(b+a)}.`+DISC;
+  }
+  if(/(loan|mortgage|instal|month|repay|payment)/.test(q)){
+    if(!isSale)return `Monthly rent is ${fmt(l.price)}. Typical requirements: 1-month deposit per year of lease plus the first month's rent.`;
+    const loan=l.price*.75,m=pmt(loan,3,30);
+    return `With a 75% loan (S$${nfmt(loan)}) at 3% p.a. over 30 years, the instalment is about S$${nfmt(m)}/month. I can rerun it with your income and rate.`+DISC;
+  }
+  if(/(yield|invest|roi|rental income)/.test(q)&&isSale){
+    const rent=Math.round(l.price*.035/12),y=(rent*12/l.price*100).toFixed(2);
+    return `At an estimated rent of S$${nfmt(rent)}/month, gross yield is about ${y}%. Ask for the full brief — cash flow, comparables, and area appreciation.`+DISC;
+  }
+  if(/(price|how much|asking|cost)/.test(q))
+    return `The asking ${isSale?"price":"rent"} is ${l.intent==="rent"?fmt(l.price)+" per month":fmt(l.price)}${isSale?` — about S$${nfmt(psf(l.price,l.sqm))} psf`:""}. The ${isSale?"seller":"landlord"} is open to serious offers. Want a viewing?`;
+  if(/(school|mrt|near|amenit|transport|area|around)/.test(q)){
+    const r=areaReport(l.geo),m=r.near.find(a=>a.cat==="mrt"),s=r.near.find(a=>a.cat==="school");
+    return `${m?`${m.name} is ${m.d} m away (${walkMin(m.d)}-min walk). `:"No MRT within walking distance — this is a car-friendly enclave. "}${s?`${s.name} is ${s.d} m away. `:""}Overall area score: ${r.overall}/100. The full report is on this page.`;
+  }
+  if(/(view|visit|appoint|see|available|book)/.test(q))
+    return "I'd love to show you the place! Viewings run daily 10am–8pm. Share a day and time and I'll confirm with the agent right away.";
+  return "I can answer instantly on price, stamp duty, loan estimates, rental yield, the neighbourhood, or book you a viewing — which would you like?";
+}
+
+/* ============ CRM (ported state machine) ============ */
+const STAGES=["new","contacted","viewing","offer","negotiation","closed-won"];
+let LEADS=[
+ {n:"Tan Wei Ming",l:"Marina One Residences",src:"AI agent",s:0},
+ {n:"Sarah Lim",l:"Tampines GreenRidges",src:"Portal",s:1},
+ {n:"Priya Nair",l:"Holland Hill Residence",src:"Instagram",s:1},
+ {n:"Marcus Chen",l:"The Orchard Residences",src:"Referral",s:2},
+ {n:"Akira Watanabe",l:"Seascape, Sentosa Cove",src:"AI agent",s:3},
+ {n:"Grace Ong",l:"Joo Chiat Shophouse",src:"TikTok",s:4},
+ {n:"David Koh",l:"Punggol Waterway Terraces",src:"Portal",s:5}
+];
+
+/* ============ UI ============ */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const thumbStyle=(l,h)=>`background:linear-gradient(160deg,hsl(${l.hue[0]} ${l.hue[1]}% 30%),hsl(${l.hue[0]} ${l.hue[1]+14}% 14%) 60%,hsl(38 45% 22%));height:${h}px`;
+const app=document.getElementById("app");
+
+function homeView(){
+  const f=state.filters;
+  const shown=LISTINGS.filter(l=>
+    (f.intent==="all"||l.intent===f.intent)&&
+    (f.type==="all"||l.type===f.type)&&
+    (!f.q||`${l.name} ${l.addr} ${l.district}`.toLowerCase().includes(f.q.toLowerCase()))&&
+    (f.max==="all"||(l.intent==="rent"?true:l.price<=+f.max)));
+  return `
+  <div class="hero">
+    <div class="eyebrow">Buy · Sell · Rent · Renovate · Invest — one login</div>
+    <h1>Every home in Singapore, with an AI team behind it.</h1>
+    <p>Each listing on PropOS ships with an AI-generated marketing pack, a live area intelligence report,
+       exact stamp-duty and loan numbers, and a 24/7 sales agent that never sleeps.</p>
+    <form class="searchbar" onsubmit="return doSearch(event)">
+      <input type="search" id="q" placeholder="Search address, project or district…" value="${esc(f.q)}" aria-label="Search">
+      <select id="fIntent"><option value="all">Buy or rent</option><option value="sale" ${f.intent==="sale"?"selected":""}>For sale</option><option value="rent" ${f.intent==="rent"?"selected":""}>For rent</option></select>
+      <select id="fType"><option value="all">Any type</option>${["condo","hdb","bungalow","shophouse"].map(t=>`<option ${f.type===t?"selected":""}>${t}</option>`).join("")}</select>
+      <select id="fMax"><option value="all">Any price</option><option value="1000000" ${f.max==="1000000"?"selected":""}>≤ S$1M</option><option value="2000000" ${f.max==="2000000"?"selected":""}>≤ S$2M</option><option value="8000000" ${f.max==="8000000"?"selected":""}>≤ S$8M</option></select>
+      <button class="btn">Search</button>
+    </form>
+    <div class="stats num">
+      <div><b>${LISTINGS.length}</b>live listings</div>
+      <div><b>11</b>marketing channels per listing</div>
+      <div><b>24/7</b>AI sales agents</div>
+      <div><b>8</b>countries configured</div>
+    </div>
+  </div>
+  <div class="grid">
+    ${shown.map(l=>`
+    <a class="card" href="#/listing/${l.id}">
+      <div class="thumb" style="${thumbStyle(l,160)}">
+        <span class="tag">${l.intent==="rent"?"For rent":"For sale"}</span>
+        <span class="district">${esc(l.district)}</span>
+      </div>
+      <div class="body">
+        <div class="price num">${l.intent==="rent"?fmt(l.price)+"<small> /month</small>":fmt(l.price)}
+          ${l.intent==="sale"?`<small> · S$${nfmt(psf(l.price,l.sqm))} psf</small>`:""}</div>
+        <h3>${esc(l.name)}</h3>
+        <div class="meta num">${l.beds} bd · ${l.baths} ba · ${nfmt(sqft(l.sqm))} sqft · ${esc(l.tenure)}</div>
+      </div>
+    </a>`).join("")||`<p style="color:var(--mist)">No homes match those filters — try widening the search.</p>`}
+  </div>`;
+}
+
+function listingView(id){
+  const l=LISTINGS.find(x=>x.id===+id);
+  if(!l)return `<p>Listing not found. <a class="crumb" href="#/">← Back to search</a></p>`;
+  const f=facts(l),r=areaReport(l.geo);
+  const chKeys=Object.keys(CHANNELS),perKeys=Object.keys(PERSONAS);
+  const isSale=l.intent==="sale";
+  setTimeout(()=>{ // wire interactions after render
+    wireTabs("chTabs","chOut",k=>CHANNELS[k](f));
+    wireTabs("perTabs","perOut",k=>PERSONAS[k](f));
+    if(isSale)calcDuty(l);calcLoan(l);
+    document.getElementById("chatSend").onclick=()=>sendChat(l);
+    document.getElementById("chatIn").onkeydown=e=>{if(e.key==="Enter")sendChat(l)};
+    document.querySelectorAll(".quick button").forEach(b=>b.onclick=()=>{document.getElementById("chatIn").value=b.dataset.q;sendChat(l)});
+  },0);
+  return `
+  <a class="crumb" href="#/">← Back to search</a>
+  <div class="hero-thumb" style="${thumbStyle(l,230)}">
+    <span class="district serif" style="color:#fff;font-size:16px">${esc(l.name)} · ${esc(l.district)}</span>
+  </div>
+  <div class="detail">
+    <div>
+      <div class="panel">
+        <h2>AI marketing pack</h2>
+        <p class="sub">Generated by the PropOS content engine — one listing, eleven channel-native versions.</p>
+        <div class="tabs" id="chTabs">${chKeys.map((k,i)=>`<button class="${i?"":"on"}" data-k="${esc(k)}">${esc(k)}</button>`).join("")}</div>
+        <div class="copybox" id="chOut">${esc(CHANNELS[chKeys[0]](f))}</div>
+        <h2 style="margin-top:22px">Buyer-persona versions</h2>
+        <p class="sub">The same home, pitched five different ways.</p>
+        <div class="tabs" id="perTabs">${perKeys.map((k,i)=>`<button class="${i?"":"on"}" data-k="${esc(k)}">${esc(k)}</button>`).join("")}</div>
+        <div class="copybox" id="perOut">${esc(PERSONAS[perKeys[0]](f))}</div>
+      </div>
+      <div class="panel">
+        <h2>Area intelligence <span class="num" style="color:var(--jade);font-size:16px">· ${r.overall}/100</span></h2>
+        <p class="sub">${esc(r.summary)}</p>
+        <div class="scorebars">
+          ${Object.entries(r.scores).map(([k,v])=>`
+          <div class="sb"><span>${k}</span><div class="track"><div class="fill" style="width:${v}%"></div></div><b class="num">${v}</b></div>`).join("")}
+        </div>
+        <ul class="rows num">
+          ${r.near.slice(0,10).map(a=>`<li><span><b>${esc(a.name)}</b> · ${a.cat==="future"?"upcoming":esc(a.cat)}</span><span>${a.d} m · ${walkMin(a.d)} min</span></li>`).join("")}
+        </ul>
+      </div>
+    </div>
+    <div class="sticky">
+      <div class="panel pricecard">
+        <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mist)">${isSale?"Asking price":"Monthly rent"}</div>
+        <div class="big num">${fmt(l.price)}${isSale?"":"<span style='font-size:14px;color:var(--mist)'> /mo</span>"}</div>
+        ${isSale?`<div class="psf num">S$${nfmt(psf(l.price,l.sqm))} psf · ${nfmt(sqft(l.sqm))} sqft</div>`:`<div class="psf num">${nfmt(sqft(l.sqm))} sqft</div>`}
+        <div class="chips">${l.features.map(x=>`<span class="chip">${esc(x)}</span>`).join("")}</div>
+        <div class="kv num"><b>${l.beds}</b> bedrooms · <b>${l.baths}</b> bathrooms<br>${esc(l.tenure)} · ${esc(l.type)}</div>
+      </div>
+      ${isSale?`
+      <div class="panel">
+        <h2 style="font-size:16px">Stamp duty</h2>
+        <div class="row2">
+          <div><label for="dProfile">Buyer</label>
+            <select id="dProfile" onchange="calcDuty()"><option value="citizen">Citizen</option><option value="pr">PR</option><option value="foreigner">Foreigner</option><option value="entity">Entity</option></select></div>
+          <div><label for="dOwned">Already own</label>
+            <select id="dOwned" onchange="calcDuty()"><option value="0">0 properties</option><option value="1">1 property</option><option value="2">2+ properties</option></select></div>
+        </div>
+        <ul class="rows num" id="dutyOut"></ul>
+      </div>
+      <div class="panel">
+        <h2 style="font-size:16px">Mortgage</h2>
+        <div class="row2">
+          <div><label for="mRate">Rate % p.a.</label><input id="mRate" type="number" step="0.1" value="3" onchange="calcLoan()"></div>
+          <div><label for="mYears">Tenure (years)</label><input id="mYears" type="number" value="30" onchange="calcLoan()"></div>
+        </div>
+        <ul class="rows num" id="loanOut"></ul>
+      </div>`:""}
+      <div class="panel">
+        <h2 style="font-size:16px">Ask the AI agent</h2>
+        <p class="sub">On duty 24/7 — every number is computed, never guessed.</p>
+        <div class="quick">
+          ${(isSale?["What stamp duty will I pay?","Monthly mortgage?","Rental yield?"]:["How much is the rent?","What deposit is needed?"]).concat(["What's nearby?","Book a viewing"]).map(q=>`<button data-q="${esc(q)}">${esc(q)}</button>`).join("")}
+        </div>
+        <div class="chat" id="chat"><div class="msg b">Hi! I'm the AI agent for ${esc(l.name)}. How can I help?</div></div>
+        <div style="display:flex;gap:8px">
+          <input id="chatIn" placeholder="Ask anything…" aria-label="Ask the AI agent">
+          <button class="btn" id="chatSend">Ask</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function agentsView(){
+  setTimeout(()=>{const b=document.getElementById("commBtn");if(b)b.onclick=calcComm;calcComm();},0);
+  return `
+  <div class="hero" style="padding-bottom:12px">
+    <div class="eyebrow">For agents & agencies</div>
+    <h1>Your AI back office.</h1>
+    <p>Upload once — PropOS writes the copy for eleven channels, briefs five buyer personas, answers enquiries
+       around the clock, and keeps your pipeline honest. You do the human part: the handshake.</p>
+  </div>
+  <div class="panel">
+    <h2>Lead pipeline</h2>
+    <p class="sub">A journaled state machine — every move is recorded, so your dashboard is always true. Click “advance” to move a lead.</p>
+    <div class="board">
+      ${STAGES.map((s,si)=>`
+      <div class="col"><h4>${s.replace("-"," ")} · ${LEADS.filter(x=>x.s===si).length}</h4>
+        ${LEADS.filter(x=>x.s===si).map(x=>`
+        <div class="lead"><b>${esc(x.n)}</b>${esc(x.l)}<br><span style="color:var(--mist)">via ${esc(x.src)}</span>
+          ${si<STAGES.length-1?`<br><button onclick="advanceLead('${esc(x.n)}')">advance →</button>`:""}</div>`).join("")}
+      </div>`).join("")}
+    </div>
+  </div>
+  <div class="detail">
+    <div class="panel">
+      <h2>Commission calculator</h2>
+      <p class="sub">Standard split, computed to the dollar.</p>
+      <div class="row2">
+        <div><label for="cPrice">Sale price</label><input id="cPrice" type="number" value="1680000"></div>
+        <div><label for="cPct">Commission %</label><input id="cPct" type="number" step="0.1" value="2"></div>
+      </div>
+      <div class="row2">
+        <div><label for="cAgent">Agent share %</label><input id="cAgent" type="number" value="70"></div>
+        <div><label for="cCo">Co-broke %</label><input id="cCo" type="number" value="0"></div>
+      </div>
+      <button class="btn" id="commBtn" style="margin-top:12px">Compute</button>
+      <ul class="rows num" id="commOut" style="margin-top:10px"></ul>
+    </div>
+    <div class="panel">
+      <h2>What every listing gets</h2>
+      <ul class="rows">
+        <li><b>Marketing pack</b><span>11 channels + 5 personas</span></li>
+        <li><b>AI sales agent</b><span>24/7, engine-grounded numbers</span></li>
+        <li><b>Area report</b><span>amenities, scores, future plans</span></li>
+        <li><b>Finance widgets</b><span>BSD/ABSD, loan, yield</span></li>
+        <li><b>CRM</b><span>pipeline, audit trail, commissions</span></li>
+      </ul>
+    </div>
+  </div>`;
+}
+
+function globalView(){
+  return `
+  <div class="hero" style="padding-bottom:12px">
+    <div class="eyebrow">Global architecture</div>
+    <h1>Built for the world. Launched in Singapore.</h1>
+    <p>Every market on PropOS is configuration, not a rebuild — currencies, languages, taxes, regulations and
+       commission norms live in a per-country registry. Singapore is live; seven markets are staged behind it.</p>
+  </div>
+  <div class="countries">
+    ${COUNTRIES.map(c=>`
+    <div class="card country"><div class="body">
+      <span class="${c.live?"live":"soon"}">${c.live?"● Live":"Staged"}</span>
+      <h3>${esc(c.name)}</h3>
+      <p>${esc(c.note)}</p>
+      <span class="chip num">${c.currency}</span>
+    </div></div>`).join("")}
+  </div>`;
+}
+
+/* ---- interactions ---- */
+const state={filters:{q:"",intent:"all",type:"all",max:"all"}};
+function doSearch(e){e.preventDefault();
+  state.filters={q:document.getElementById("q").value,intent:document.getElementById("fIntent").value,
+    type:document.getElementById("fType").value,max:document.getElementById("fMax").value};
+  render();return false}
+function wireTabs(tabsId,outId,fn){
+  const tabs=document.getElementById(tabsId);if(!tabs)return;
+  tabs.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    tabs.querySelectorAll("button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on");document.getElementById(outId).textContent=fn(b.dataset.k)});
+}
+let currentListing=null;
+function calcDuty(l){
+  l=l||currentListing;if(!l)return;
+  const p=document.getElementById("dProfile"),o=document.getElementById("dOwned");if(!p)return;
+  const b=bsd(l.price),a=absd(l.price,p.value,+o.value);
+  document.getElementById("dutyOut").innerHTML=
+    `<li><span>Buyer's Stamp Duty</span><b>S$${nfmt(b)}</b></li>
+     <li><span>ABSD (${esc(p.value)}, #${+o.value+1})</span><b>S$${nfmt(a)}</b></li>
+     <li><span>Total duty</span><b style="color:var(--brass)">S$${nfmt(b+a)}</b></li>`;
+}
+function calcLoan(l){
+  l=l||currentListing;if(!l)return;
+  const r=document.getElementById("mRate"),y=document.getElementById("mYears");if(!r)return;
+  const loan=l.price*.75,m=pmt(loan,+r.value,+y.value);
+  document.getElementById("loanOut").innerHTML=
+    `<li><span>Loan (75% LTV)</span><b>S$${nfmt(loan)}</b></li>
+     <li><span>Monthly instalment</span><b style="color:var(--brass)">S$${nfmt(m)}</b></li>
+     <li><span>Total interest</span><b>S$${nfmt(m*+y.value*12-loan)}</b></li>`;
+}
+function sendChat(l){
+  const inp=document.getElementById("chatIn"),q=inp.value.trim();if(!q)return;
+  const chat=document.getElementById("chat");
+  const p=document.getElementById("dProfile"),o=document.getElementById("dOwned");
+  chat.insertAdjacentHTML("beforeend",`<div class="msg u">${esc(q)}</div>`);
+  const a=agentAnswer(l,q,p?p.value:"citizen",o?+o.value:0);
+  chat.insertAdjacentHTML("beforeend",`<div class="msg b">${esc(a)}</div>`);
+  inp.value="";chat.scrollTop=1e6;
+}
+function advanceLead(name){
+  const x=LEADS.find(z=>z.n===name);
+  if(x&&x.s<STAGES.length-1){x.s++;render()}
+}
+function calcComm(){
+  const g=+document.getElementById("cPrice").value*(+document.getElementById("cPct").value/100);
+  const co=g*(+document.getElementById("cCo").value/100);
+  const agentPct=+document.getElementById("cAgent").value;
+  const rem=g-co,agent=rem*agentPct/100,agency=rem-agent;
+  document.getElementById("commOut").innerHTML=
+    `<li><span>Gross commission</span><b>S$${nfmt(g)}</b></li>
+     <li><span>Co-broke</span><b>S$${nfmt(co)}</b></li>
+     <li><span>Agent takes</span><b style="color:var(--brass)">S$${nfmt(agent)}</b></li>
+     <li><span>Agency</span><b>S$${nfmt(agency)}</b></li>`;
+}
+
+/* ---- router & theme ---- */
+function render(){
+  const h=location.hash||"#/";
+  let view="home",html;
+  if(h.startsWith("#/listing/")){currentListing=LISTINGS.find(x=>x.id===+h.split("/")[2])||null;html=listingView(h.split("/")[2])}
+  else if(h==="#/agents"){view="agents";html=agentsView()}
+  else if(h==="#/global"){view="global";html=globalView()}
+  else{html=homeView()}
+  app.innerHTML=html;
+  document.querySelectorAll("[data-nav]").forEach(a=>a.classList.toggle("on",a.dataset.nav===view&&!h.startsWith("#/listing/")));
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",render);
+document.getElementById("themeBtn").onclick=()=>{
+  const r=document.documentElement;
+  const dark=getComputedStyle(document.body).backgroundColor!=="rgb(246, 244, 238)"; // currently dark?
+  r.dataset.theme=dark?"light":"dark";
+};
+render();
+</script>

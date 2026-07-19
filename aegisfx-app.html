@@ -159,6 +159,30 @@
   .m-actions .act{flex:1;padding:13px 0}
   .disc{font-size:.66rem;color:#6b7c91;margin-top:14px;line-height:1.5}
 
+  /* Alert toggle */
+  .alert-toggle{background:var(--ink-3);border:1px solid var(--line);color:var(--teal);border-radius:8px;padding:6px 12px;font-size:.72rem;white-space:nowrap}
+  .alert-toggle.off{color:var(--muted);border-color:rgba(147,164,184,.3)}
+
+  /* Onboarding */
+  .ob-choices{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+  .ob-choice{background:var(--ink-3);border:1px solid var(--line);border-radius:10px;padding:12px 14px;text-align:left;color:var(--text);transition:all .2s}
+  .ob-choice.on{border-color:var(--teal);box-shadow:0 0 16px var(--teal-glow)}
+  .ob-choice b{display:block;font-size:.88rem}
+  .ob-choice small{color:var(--muted);font-size:.72rem}
+
+  /* AI Team */
+  .prime{border-color:var(--teal);box-shadow:0 0 30px var(--teal-glow);margin-bottom:16px}
+  .prime-head{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+  .prime-ic{font-size:1.8rem}
+  .prime-head .pdesc{color:var(--muted);font-size:.82rem;margin-top:4px;max-width:640px}
+  .tstatus{margin-left:auto;font-size:.68rem;color:var(--green);white-space:nowrap}
+  .team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+  .tcard{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .tcard .t-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .tcard .t-top b{font-size:.85rem}
+  .tcard small{display:block;color:var(--muted);font-size:.74rem;margin-top:6px}
+  .tcard .tcover{display:inline-block;margin-top:10px;background:var(--ink-3);border-radius:999px;padding:4px 10px;font-size:.64rem;color:var(--teal)}
+
   footer{position:fixed;bottom:0;left:0;right:0;background:rgba(11,15,20,.94);border-top:1px solid var(--line);text-align:center;padding:8px;font-size:.62rem;color:#6b7c91;z-index:40}
 </style>
 </head>
@@ -172,6 +196,7 @@
   <div class="top-status">
     <span class="hide-sm"><span class="dot"></span>AI scanning 13 instruments</span>
     <span class="hide-sm" id="sessionLabel">—</span>
+    <button class="alert-toggle" id="alertToggle">🔔 Alerts ON</button>
     <span class="balance-chip">Balance <b id="balTop">$10,000.00</b></span>
   </div>
 </div>
@@ -184,6 +209,8 @@
   <button class="tab" data-v="risk">🛡️ Risk</button>
   <button class="tab" data-v="journal">📓 Journal</button>
   <button class="tab" data-v="coach">🎓 AI Coach</button>
+  <button class="tab" data-v="team">🤖 AI Team</button>
+  <button class="tab" data-v="brokers">🔗 Brokers</button>
 </div>
 
 <!-- OPPORTUNITIES -->
@@ -271,7 +298,80 @@
   </div>
 </div>
 
+<!-- AI TEAM -->
+<div class="view" id="v-team">
+  <div class="view-head">
+    <h2>Your AI Team</h2>
+    <p>A manager AI directs specialist agents across markets, regions and sessions. Every alert you receive is a full team decision — never a single model's guess.</p>
+  </div>
+  <div class="panel prime">
+    <div class="prime-head"><span class="prime-ic">👑</span>
+      <div>
+        <h3 style="margin-bottom:0">AEGIS Prime — Chief AI Manager</h3>
+        <p class="pdesc">Directs the entire team, collects every agent's vote into the final confidence score, and enforces the quality gate: below 70/100, no alert ever reaches you. Also enforces your personal loss limits and the trading lock.</p>
+      </div>
+      <span class="tstatus"><span class="dot"></span>Coordinating 10 agents</span>
+    </div>
+  </div>
+  <div class="team-grid">
+    <div class="tcard"><div class="t-top"><b>🔬 Market Research AI</b><span class="tstatus"><span class="dot"></span>Scanning</span></div><small>Market structure, supply &amp; demand zones, liquidity sweeps.</small><span class="tcover">Covers: all FX majors &amp; metals</span></div>
+    <div class="tcard"><div class="t-top"><b>🌍 Macro News AI</b><span class="tstatus"><span class="dot"></span>Scanning</span></div><small>Interest-rate decisions, central-bank speeches, geopolitics.</small><span class="tcover">Covers: global — Fed, ECB, BoE, BoJ</span></div>
+    <div class="tcard"><div class="t-top"><b>📐 Technical Analysis AI</b><span class="tstatus"><span class="dot"></span>Scanning</span></div><small>Multi-timeframe confluence from 15-minute to weekly charts.</small><span class="tcover">Covers: all 13 instruments</span></div>
+    <div class="tcard"><div class="t-top"><b>🌏 Asia Session AI</b><span class="tstatus"><span class="dot"></span>Scanning</span></div><small>Tokyo &amp; Sydney behavior, overnight ranges, JPY flows.</small><span class="tcover">Covers: USD/JPY, AUD/USD, GBP/JPY</span></div>
+    <div class="tcard"><div class="t-top"><b>🇬🇧 London Session AI</b><span class="tstatus"><span class="dot"></span>Scanning</span></div><small>The most liquid session — breakouts, sweeps and EUR/GBP flows.</small><span class="tcover">Covers: EUR/USD, GBP/USD, GER40</span></div>
+    <div class="tcard"><div class="t-top"><b>🇺🇸 New York Session AI</b><span class="tstatus"><span class="dot"></span>Scanning</span></div><small>US data releases, index opens, USD momentum.</small><span class="tcover">Covers: NAS100, US30, USD pairs, OIL</span></div>
+    <div class="tcard"><div class="t-top"><b>💬 Sentiment AI</b><span class="tstatus"><span class="dot"></span>Scanning</span></div><small>News tone, positioning extremes, fear/greed shifts.</small><span class="tcover">Covers: global newsflow</span></div>
+    <div class="tcard"><div class="t-top"><b>📅 Economic Calendar AI</b><span class="tstatus"><span class="dot"></span>Scanning</span></div><small>Blocks alerts near high-impact events — waiting is a position.</small><span class="tcover">Covers: all event windows</span></div>
+    <div class="tcard"><div class="t-top"><b>🛡️ Risk Management AI</b><span class="tstatus"><span class="dot"></span>Guarding</span></div><small>Position sizing, loss limits, drawdown control, trading lock.</small><span class="tcover">Covers: your account</span></div>
+    <div class="tcard"><div class="t-top"><b>🔎 Trade Review AI</b><span class="tstatus"><span class="dot"></span>Learning</span></div><small>Studies every win and loss to sharpen future scoring.</small><span class="tcover">Covers: your journal history</span></div>
+  </div>
+</div>
+
+<!-- BROKERS -->
+<div class="view" id="v-brokers">
+  <div class="view-head">
+    <h2>Broker &amp; Platform Links <small style="color:var(--muted);font-weight:400">(demo connections)</small></h2>
+    <p>AegisFX is not a broker and never holds your money. Your funds stay in your own broker account — the platform only sends the orders you confirm.</p>
+  </div>
+  <div class="risk-cols" id="brokerList"></div>
+</div>
+
 <div class="toasts" id="toasts"></div>
+
+<!-- ONBOARDING -->
+<div class="modal-bg on" id="obBg">
+  <div class="modal" style="max-width:480px">
+    <div id="ob1">
+      <h3>Welcome to AegisFX AI</h3>
+      <div class="sub">Three quick steps and your AI team starts working. Anyone can do this — no trading experience needed. (Demo — no real account is created.)</div>
+      <div class="field"><label>Your name</label><input id="obName" placeholder="e.g. Louis"></div>
+      <div class="field"><label>Email</label><input id="obEmail" type="email" placeholder="you@email.com"></div>
+      <button class="btn solid" style="width:100%" id="obNext1">Create Account →</button>
+    </div>
+    <div id="ob2" style="display:none">
+      <h3>Choose your risk profile</h3>
+      <div class="sub">This controls how much is risked on every trade. You can change it anytime in the Risk tab.</div>
+      <div class="ob-choices">
+        <button class="ob-choice" data-risk="0.5"><b>🛡️ Conservative</b><small>0.5% risk per trade — the steadiest path</small></button>
+        <button class="ob-choice on" data-risk="1"><b>⚖️ Balanced</b><small>1% risk per trade — recommended</small></button>
+        <button class="ob-choice" data-risk="2"><b>🔥 Active</b><small>2% risk per trade — experienced traders only</small></button>
+      </div>
+      <button class="btn solid" style="width:100%" id="obNext2">Continue →</button>
+    </div>
+    <div id="ob3" style="display:none">
+      <h3>Link your broker</h3>
+      <div class="sub">Your money always stays in your own broker account. Choose where confirmed trades should be sent. (Demo connections.)</div>
+      <div class="ob-choices">
+        <button class="ob-choice" data-broker="MetaTrader 5"><b>MetaTrader 5</b><small>Works with hundreds of brokers worldwide</small></button>
+        <button class="ob-choice" data-broker="MetaTrader 4"><b>MetaTrader 4</b><small>The classic platform</small></button>
+        <button class="ob-choice" data-broker="cTrader"><b>cTrader</b><small>Modern ECN platform</small></button>
+        <button class="ob-choice" data-broker="TradingView"><b>TradingView</b><small>Alerts on your charts</small></button>
+      </div>
+      <button class="btn solid" style="width:100%" id="obFinish">Finish Setup ✓</button>
+    </div>
+    <p class="disc" style="text-align:center;margin-top:16px"><a href="#" id="obSkip" style="color:var(--muted)">Skip setup — explore the demo first</a></p>
+  </div>
+</div>
 
 <!-- CONFIRM MODAL -->
 <div class="modal-bg" id="modalBg">
@@ -302,6 +402,9 @@ const S = {
   losses: { daily: 0, weekly: 0, monthly: 0 },    // realized $ losses
   locked: false,
   lockReason: '',
+  alertsOn: true,
+  broker: null,
+  userName: '',
   opps: [],          // active opportunities
   journal: [],       // trades (open + closed)
   skips: 0,
@@ -370,6 +473,7 @@ function genAgentScores(target){
   return arr;
 }
 function spawnOpp(force){
+  if(!S.alertsOn) return;
   if(S.opps.length >= 3 && !force) return;
   const inst = INSTRUMENTS[Math.floor(Math.random()*INSTRUMENTS.length)];
   if(S.opps.some(o=>o.sym===inst.sym)) return;
@@ -438,7 +542,7 @@ function renderOpps(){
         <div class="onum"><small>Take-profit</small><b class="tp">${fmtPx(o.tp,o.inst.dec)}</b></div>
       </div>
       <div class="opp-meta">
-        <span>R:R 1:${o.rr}</span><span>Risk ${S.riskPct}% (${fmt$(pos.riskUsd)})</span>
+        <span>R:R 1:${o.rr}</span><span style="color:var(--green)">Target +${(S.riskPct*o.rr).toFixed(1)}%</span><span>Risk −${S.riskPct}% (${fmt$(pos.riskUsd)})</span>
         <span>Size ${pos.lots.toFixed(2)} lots</span><span>Max DD est. ${fmt$(pos.riskUsd*1.15)}</span>
       </div>
       <div class="why">${o.why}</div>
@@ -517,7 +621,28 @@ function renderJournal(){
     box.appendChild(d);
   });
 }
-function renderAll(){ renderOpps(); renderScanner(); renderRisk(); renderJournal(); $('balTop').textContent = fmt$(S.balance); }
+function renderAll(){ renderOpps(); renderScanner(); renderRisk(); renderJournal(); renderBrokers(); $('balTop').textContent = fmt$(S.balance); }
+
+// ---------- Brokers ----------
+const BROKERS = [
+  { name:'MetaTrader 5',       desc:'Connects to hundreds of brokers worldwide through your own MT5 account.' },
+  { name:'MetaTrader 4',       desc:'The classic platform — link an existing MT4 account from any supporting broker.' },
+  { name:'cTrader',            desc:'Modern ECN trading through the cTrader Open API.' },
+  { name:'TradingView',        desc:'Receive AegisFX alerts directly on your TradingView charts.' },
+  { name:'OANDA',              desc:'Direct API connection — clean, fast, no bridge needed.' },
+  { name:'Interactive Brokers',desc:'For future stocks & futures expansion (where supported).' }
+];
+function renderBrokers(){
+  const box = $('brokerList'); if(!box) return;
+  box.innerHTML = BROKERS.map(b=>`
+    <div class="panel">
+      <h3>${b.name} ${S.broker===b.name?'<span style="color:var(--green);font-size:.68rem;font-weight:400">● Connected (demo)</span>':''}</h3>
+      <p style="color:var(--muted);font-size:.8rem;margin-bottom:14px">${b.desc}</p>
+      ${S.broker===b.name
+        ? '<button class="btn" data-disconnect="1">Disconnect</button>'
+        : `<button class="btn solid" data-connect="${b.name}">Connect (demo)</button>`}
+    </div>`).join('');
+}
 
 // ---------- Trading ----------
 let pendingAction = null;
@@ -623,6 +748,13 @@ document.addEventListener('click', e=>{
     ag.classList.toggle('open');
     b.textContent = (ag.classList.contains('open')?'▾':'▸') + ' Agent council breakdown';
   }
+  if(b.dataset.connect){
+    S.broker = b.dataset.connect;
+    toast('🔗 ' + S.broker + ' linked (demo)', 'Your funds always remain in your own broker account.', '');
+    coach('<b>' + S.broker + ' connected (demo).</b> In production this uses the broker\'s official API: AegisFX never holds client money — it only routes the orders you personally confirm to your own account.');
+    renderBrokers();
+  }
+  if(b.dataset.disconnect){ S.broker = null; renderBrokers(); }
   if(b.dataset.savenote !== undefined){
     const input = document.querySelector('input[data-note="'+b.dataset.savenote+'"]');
     const t = S.journal.find(x=>x.id===b.dataset.savenote);
@@ -642,6 +774,47 @@ $('saveRisk').addEventListener('click', ()=>{
   coach('<b>Risk settings updated.</b> You now risk ' + S.riskPct + '% (' + fmt$(S.balance*S.riskPct/100) + ') per trade with a ' + S.limits.daily + '% daily loss lock. Professional risk-per-trade is typically 0.5–2%.');
   renderAll();
 });
+
+// ---------- Alert switch ----------
+$('alertToggle').addEventListener('click', ()=>{
+  S.alertsOn = !S.alertsOn;
+  const t = $('alertToggle');
+  t.className = 'alert-toggle' + (S.alertsOn ? '' : ' off');
+  t.textContent = S.alertsOn ? '🔔 Alerts ON' : '🔕 Alerts OFF';
+  toast(S.alertsOn ? '🔔 Alerts resumed' : '🔕 Alerts paused',
+        S.alertsOn ? 'The AI will prompt you again when quality setups appear.'
+                   : 'The AI keeps scanning silently and will not prompt you.', S.alertsOn ? '' : 'warn');
+  coach(S.alertsOn
+    ? '<b>Alerts switched on.</b> You will only be prompted for setups scoring 70+ — expect a few per day at most.'
+    : '<b>Alerts switched off.</b> Done for today? That is good discipline. The team keeps scanning and learning in the background, ready when you return.');
+});
+
+// ---------- Onboarding ----------
+let obRisk = 1;
+$('obNext1').addEventListener('click', ()=>{
+  S.userName = ($('obName').value || '').trim();
+  $('ob1').style.display = 'none'; $('ob2').style.display = 'block';
+});
+document.querySelectorAll('.ob-choice[data-risk]').forEach(c => c.addEventListener('click', ()=>{
+  document.querySelectorAll('.ob-choice[data-risk]').forEach(x=>x.classList.remove('on'));
+  c.classList.add('on'); obRisk = +c.dataset.risk;
+}));
+$('obNext2').addEventListener('click', ()=>{ $('ob2').style.display='none'; $('ob3').style.display='block'; });
+document.querySelectorAll('.ob-choice[data-broker]').forEach(c => c.addEventListener('click', ()=>{
+  document.querySelectorAll('.ob-choice[data-broker]').forEach(x=>x.classList.remove('on'));
+  c.classList.add('on'); S.broker = c.dataset.broker;
+}));
+$('obFinish').addEventListener('click', ()=>{
+  $('obBg').classList.remove('on');
+  S.riskPct = obRisk; $('inRisk').value = obRisk;
+  toast('✅ Welcome' + (S.userName ? ', ' + S.userName : '') + '!',
+        'Risk profile ' + obRisk + '% per trade' + (S.broker ? ' · ' + S.broker + ' linked (demo)' : '') + '. The AI team is now scanning for you.', '');
+  coach('<b>Setup complete' + (S.userName ? ', ' + S.userName : '') + '.</b> Your risk is capped at ' + obRisk + '% per trade' +
+        (S.broker ? ' and confirmed trades route to ' + S.broker + ' (demo)' : '') +
+        '. Expect only a few prompts per day — quality over quantity. 15–30 minutes of attention is all this system asks.');
+  renderAll();
+});
+$('obSkip').addEventListener('click', e=>{ e.preventDefault(); $('obBg').classList.remove('on'); });
 
 // ---------- Price simulation ----------
 function tick(){

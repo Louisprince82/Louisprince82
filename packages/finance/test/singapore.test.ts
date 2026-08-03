@@ -5,11 +5,42 @@ import {
   loanToValueLimitSG,
   monthlyRepayment,
   maxLoanForBudget,
+  policyAt,
   sellerStampDutySG,
   stampDutySG,
   grossRentalYieldPct,
   monthlyCashFlow,
 } from "../src/index.js";
+
+describe("Versioned policy engine (M11 rule: no hardcoded rates)", () => {
+  it("resolves the version in force on a date", () => {
+    expect(policyAt(new Date("2026-08-03")).versionId).toBe("SG-2025.07");
+    expect(policyAt(new Date("2024-06-01")).versionId).toBe("SG-2023.04");
+  });
+
+  it("throws for dates before the earliest version", () => {
+    expect(() => policyAt(new Date("2020-01-01"))).toThrow(/No Singapore policy version/);
+  });
+
+  it("applies the SSD regime of the purchase date: 3-year pre-Jul-2025, 4-year after", () => {
+    // Bought mid-2024 (old regime): 3.5 years held → 0%
+    expect(sellerStampDutySG(1_000_000, 3.5, new Date("2024-06-01"))).toBe(0);
+    // Bought after Jul 2025 (new regime): 3.5 years held → 4%
+    expect(sellerStampDutySG(1_000_000, 3.5, new Date("2025-08-01"))).toBe(40_000);
+    // Old regime, sold within year 1 → 12% (not 16%)
+    expect(sellerStampDutySG(1_000_000, 0.5, new Date("2024-06-01"))).toBe(120_000);
+  });
+
+  it("stamps every structured result with its policy version", () => {
+    expect(stampDutySG(1_000_000, "citizen").policyVersion).toBe("SG-2025.07");
+    expect(
+      affordabilitySG({
+        grossMonthlyIncome: 10_000, monthlyDebtObligations: 0, tenureYears: 30,
+        isHdbOrEc: false, existingHousingLoans: 0, cashAndCpfAvailable: 300_000,
+      }).policyVersion,
+    ).toBe("SG-2025.07");
+  });
+});
 
 describe("Singapore Buyer's Stamp Duty (post Feb-2023 tiers)", () => {
   it("computes BSD for a $1.5M condo", () => {

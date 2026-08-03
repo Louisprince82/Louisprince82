@@ -32,6 +32,9 @@ importers:
       '@propos/crm':
         specifier: workspace:*
         version: link:../../packages/crm
+      '@propos/datasources':
+        specifier: workspace:*
+        version: link:../../packages/datasources
       '@propos/finance':
         specifier: workspace:*
         version: link:../../packages/finance
@@ -60,6 +63,12 @@ importers:
   packages/core: {}
 
   packages/crm:
+    dependencies:
+      '@propos/core':
+        specifier: workspace:*
+        version: link:../core
+
+  packages/datasources:
     dependencies:
       '@propos/core':
         specifier: workspace:*

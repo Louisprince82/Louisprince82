@@ -24,6 +24,7 @@ import {
   type BuyerProfile,
 } from "@propos/finance";
 import { advanceLead, commissionForSale, type Lead, type LeadStage } from "@propos/crm";
+import { OneMapClient } from "@propos/datasources";
 import {
   AccountService,
   AuthError,
@@ -48,6 +49,7 @@ export async function buildServer(opts: ServerOptions = {}): Promise<FastifyInst
   const contentGenerator = new ListingContentGenerator(llm);
   const areaProvider = new SingaporeStaticProvider();
 
+  const oneMap = OneMapClient.fromEnv();
   const accounts = new AccountService(dataDir);
   const listingRepo = new PersistentListingRepository(dataDir);
   const leadRepo = new PersistentLeadRepository(dataDir);
@@ -118,6 +120,16 @@ export async function buildServer(opts: ServerOptions = {}): Promise<FastifyInst
     return agent ?? reply.code(401).send({ error: "not authenticated" });
   });
 
+  // ---- Geocoding (OneMap, spec M2 backbone) ---------------------------------
+  app.get<{ Querystring: { q: string } }>("/api/geocode", async (req, reply) => {
+    if (!req.query.q?.trim()) return reply.code(400).send({ error: "q query param is required" });
+    try {
+      return await oneMap.geocode(req.query.q);
+    } catch {
+      return reply.code(502).send({ error: "OneMap is unreachable right now — try again shortly" });
+    }
+  });
+
   // ---- PART 1: AI listing system (agent-authenticated) ----------------------
   app.post<{ Body: { property: Property; intent: "sale" | "rent"; price: number; currency?: string } }>(
     "/api/listings",
@@ -127,6 +139,21 @@ export async function buildServer(opts: ServerOptions = {}): Promise<FastifyInst
       const { property, intent, price, currency = "SGD" } = req.body ?? ({} as Record<string, never>);
       if (!property || !intent || !price) {
         return reply.code(400).send({ error: "property, intent and price are required" });
+      }
+      // Auto-geocode Singapore addresses when no coordinates were supplied
+      // (OneMap search is keyless; failures leave geo unset rather than block).
+      if (!property.address.geo && property.address.country === "SG" && property.address.line1) {
+        try {
+          const match = await oneMap.geocodeOne(
+            [property.address.line1, property.address.postalCode].filter(Boolean).join(" "),
+          );
+          if (match) {
+            property.address.geo = match.geo;
+            property.address.postalCode ??= match.postalCode;
+          }
+        } catch {
+          // OneMap down — listing still publishes, area report just needs a retry later
+        }
       }
       const listing: Listing = {
         id: `L-${randomUUID().slice(0, 8)}`,

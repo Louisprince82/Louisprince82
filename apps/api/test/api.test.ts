@@ -185,6 +185,70 @@ describe("PropOS API", () => {
     expect(summary.json().contacted).toBe(1);
   });
 
+  it("registers a customer (FSBO) account that can also list", async () => {
+    const reg = await app.inject({
+      method: "POST",
+      url: "/api/auth/register",
+      payload: { name: "Uncle Lim", email: "lim@home.sg", password: "password123", role: "customer", phone: "+65 9111 2222" },
+    });
+    expect(reg.statusCode).toBe(201);
+    expect(reg.json().agent.role).toBe("customer");
+    expect(reg.json().agent.id).toMatch(/^customer-/);
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/listings",
+      headers: { authorization: `Bearer ${reg.json().token}` },
+      payload: { property: { ...demoProperty, id: "" }, intent: "sale", price: 750_000 },
+    });
+    expect(res.statusCode).toBe(201);
+  });
+
+  it("provides the WhatsApp lead flow and logs the lead", async () => {
+    // Lister for `listingId` (registered without phone) → 409 with guidance
+    const noPhone = await app.inject({ method: "GET", url: `/api/listings/${listingId}/whatsapp` });
+    expect(noPhone.statusCode).toBe(409);
+
+    // Customer with phone creates a listing → WhatsApp link works
+    const reg = await app.inject({
+      method: "POST",
+      url: "/api/auth/register",
+      payload: { name: "Mdm Ho", email: "ho@home.sg", password: "password123", role: "customer", phone: "+6598765432" },
+    });
+    const created = await app.inject({
+      method: "POST",
+      url: "/api/listings",
+      headers: { authorization: `Bearer ${reg.json().token}` },
+      payload: { property: { ...demoProperty, id: "" }, intent: "rent", price: 3_200 },
+    });
+    const wa = await app.inject({ method: "GET", url: `/api/listings/${created.json().listing.id}/whatsapp?name=Interested Buyer` });
+    expect(wa.statusCode).toBe(200);
+    expect(wa.json().url).toContain("https://wa.me/6598765432?text=");
+    expect(decodeURIComponent(wa.json().url)).toContain(created.json().listing.id);
+    expect(wa.json().leadId).toMatch(/^lead-/);
+  });
+
+  it("blocks unverified agents from publishing when CEA hard mode is on", async () => {
+    const strict = await buildServer({ dataDir, requireCeaVerification: true });
+    await strict.ready();
+    const res = await strict.inject({
+      method: "POST",
+      url: "/api/listings",
+      headers: { authorization: `Bearer ${token}` }, // agent registered without valid CEA record
+      payload: { property: { ...demoProperty, id: "" }, intent: "sale", price: 1_000_000 },
+    });
+    expect(res.statusCode).toBe(403);
+    await strict.close();
+  });
+
+  it("serves DRAFT legal pages", async () => {
+    const privacy = await app.inject({ method: "GET", url: "/privacy" });
+    expect(privacy.statusCode).toBe(200);
+    expect(privacy.body).toContain("DRAFT — FOR LEGAL REVIEW");
+    const terms = await app.inject({ method: "GET", url: "/terms" });
+    expect(terms.body).toContain("not an estate agency");
+  });
+
   it("serves the portal at / and the studio at /studio", async () => {
     const portal = await app.inject({ method: "GET", url: "/" });
     expect(portal.statusCode).toBe(200);

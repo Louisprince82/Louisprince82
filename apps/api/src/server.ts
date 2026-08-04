@@ -24,7 +24,8 @@ import {
   type BuyerProfile,
 } from "@propos/finance";
 import { advanceLead, commissionForSale, type Lead, type LeadStage } from "@propos/crm";
-import { OneMapClient } from "@propos/datasources";
+import { CeaRegisterClient, OneMapClient } from "@propos/datasources";
+import type { AccountRole } from "@propos/storage";
 import {
   AccountService,
   AuthError,
@@ -39,6 +40,10 @@ const DEFAULT_DATA_DIR = path.resolve(HERE, "../../../data");
 
 export interface ServerOptions {
   dataDir?: string;
+  /** When true, agents must pass the official CEA register check before they
+   *  can publish listings (compliance hard mode; also PROPOS_REQUIRE_CEA=1).
+   *  Customers (FSBO) are unaffected. */
+  requireCeaVerification?: boolean;
 }
 
 export async function buildServer(opts: ServerOptions = {}): Promise<FastifyInstance> {
@@ -49,7 +54,9 @@ export async function buildServer(opts: ServerOptions = {}): Promise<FastifyInst
   const contentGenerator = new ListingContentGenerator(llm);
   const areaProvider = new SingaporeStaticProvider();
 
+  const requireCea = opts.requireCeaVerification ?? process.env.PROPOS_REQUIRE_CEA === "1";
   const oneMap = OneMapClient.fromEnv();
+  const ceaRegister = new CeaRegisterClient();
   const accounts = new AccountService(dataDir);
   const listingRepo = new PersistentListingRepository(dataDir);
   const leadRepo = new PersistentLeadRepository(dataDir);
@@ -82,7 +89,7 @@ export async function buildServer(opts: ServerOptions = {}): Promise<FastifyInst
   app.get("/api/countries", async () => listCountries());
 
   // ---- Auth (Phase 1) -------------------------------------------------------
-  app.post<{ Body: { name: string; email: string; password: string; ceaNumber?: string } }>(
+  app.post<{ Body: { name: string; email: string; password: string; role?: AccountRole; phone?: string; ceaNumber?: string } }>(
     "/api/auth/register",
     async (req, reply) => {
       const b = req.body ?? ({} as Record<string, never>);
@@ -90,12 +97,32 @@ export async function buildServer(opts: ServerOptions = {}): Promise<FastifyInst
         return reply.code(400).send({ error: "name, email and password are required" });
       }
       try {
-        return reply.code(201).send(await accounts.register(b));
+        const result = await accounts.register(b);
+        // Agents with a CEA number are checked against the official register
+        // (data.gov.sg) immediately; the outcome is stored on the account.
+        if (result.agent.role === "agent" && result.agent.ceaNumber) {
+          const v = await ceaRegister.verify(result.agent.ceaNumber);
+          const updated = await accounts.updateCeaVerification(result.agent.id, {
+            status: v.status,
+            registeredName: v.record?.name,
+            agencyName: v.record?.agencyName,
+            agencyLicenseNo: v.record?.agencyLicenseNo,
+            validUntil: v.record?.registrationEnd,
+            lastVerifiedAt: v.checkedAt,
+          });
+          if (updated) result.agent = updated;
+        }
+        return reply.code(201).send(result);
       } catch (err) {
         if (err instanceof AuthError) return reply.code(422).send({ error: err.message });
         throw err;
       }
     },
+  );
+
+  /** Public CEA register check — powers the "Verified CEA Agent" badge. */
+  app.get<{ Params: { regNo: string } }>("/api/agents/verify/:regNo", async (req) =>
+    ceaRegister.verify(req.params.regNo),
   );
 
   app.post<{ Body: { email: string; password: string } }>("/api/auth/login", async (req, reply) => {
@@ -136,6 +163,11 @@ export async function buildServer(opts: ServerOptions = {}): Promise<FastifyInst
     async (req, reply) => {
       const agent = currentAgent(req);
       if (!agent) return reply.code(401).send({ error: "Sign in to create listings" });
+      if (requireCea && agent.role === "agent" && agent.cea?.status !== "verified") {
+        return reply.code(403).send({
+          error: "Agents must pass CEA verification before publishing. Add your CEA registration number to your account, or list as a property owner.",
+        });
+      }
       const { property, intent, price, currency = "SGD" } = req.body ?? ({} as Record<string, never>);
       if (!property || !intent || !price) {
         return reply.code(400).send({ error: "property, intent and price are required" });
@@ -192,6 +224,44 @@ export async function buildServer(opts: ServerOptions = {}): Promise<FastifyInst
       return salesAgent.ask(req.body.question, req.body.context ?? {});
     },
   );
+
+  // ---- WhatsApp lead flow (zero friction: tap → chat, lead logged) ----------
+  app.get<{ Params: { id: string }; Querystring: { name?: string } }>(
+    "/api/listings/:id/whatsapp",
+    async (req, reply) => {
+      const listing = await listingRepo.get(req.params.id);
+      if (!listing) return reply.code(404).send({ error: "listing not found" });
+      const lister = accounts.getById(listing.agentId);
+      if (!lister?.phone) {
+        return reply.code(409).send({ error: "This lister has not added a WhatsApp number yet — use the enquiry form instead" });
+      }
+      const text = encodeURIComponent(
+        `Hi! I'm interested in your listing ${listing.property.address.line1} (ref ${listing.id}) on PropOS. Is it still available?`,
+      );
+      const url = `https://wa.me/${lister.phone.replace(/^\+/, "")}?text=${text}`;
+      // Log the lead so nothing is lost, but never block the chat on it.
+      const lead: Lead = {
+        id: `lead-${randomUUID().slice(0, 8)}`,
+        listingId: listing.id,
+        agentId: listing.agentId,
+        contact: { name: req.query.name?.trim() || "WhatsApp enquirer" },
+        source: "whatsapp",
+        stage: "new",
+        history: [],
+        createdAt: new Date().toISOString(),
+      };
+      leadRepo.save(lead).catch(() => {});
+      return { url, leadId: lead.id };
+    },
+  );
+
+  // ---- Legal drafts (DRAFT — for lawyer review before launch) ---------------
+  for (const page of ["privacy", "terms"] as const) {
+    app.get(`/${page}`, async (_req, reply) => {
+      const html = await readFile(path.join(WEB_ROOT, "legal", `${page}.html`), "utf8");
+      reply.type("text/html").send(html);
+    });
+  }
 
   // ---- PART 2: Area intelligence (public) -----------------------------------
   app.get<{ Querystring: { lat: string; lng: string; radius?: string } }>(

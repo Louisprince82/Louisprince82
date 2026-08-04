@@ -37,7 +37,7 @@ export interface Lead {
   listingId: string;
   agentId: string;
   contact: { name: string; phone?: string; email?: string };
-  source: "portal" | "ai-agent" | "social" | "referral" | "walk-in";
+  source: "portal" | "ai-agent" | "social" | "referral" | "walk-in" | "whatsapp";
   stage: LeadStage;
   offerAmount?: Money;
   history: LeadEvent[];

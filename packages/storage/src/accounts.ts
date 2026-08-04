@@ -8,12 +8,28 @@ import { JsonStore } from "./json-store.js";
 
 export type AgentTier = "free" | "professional" | "agency" | "enterprise";
 
+/** Two-sided platform: customers (owners/buyers, can list FSBO for free)
+ *  and CEA-registered agents. */
+export type AccountRole = "customer" | "agent";
+
+export interface CeaDetails {
+  status: "verified" | "expired" | "not-found" | "unavailable" | "unchecked";
+  registeredName?: string;
+  agencyName?: string;
+  agencyLicenseNo?: string;
+  validUntil?: string;
+  lastVerifiedAt?: string;
+}
+
 export interface AgentAccount {
   id: string;
+  role: AccountRole;
   name: string;
   email: string;
+  phone?: string; // E.164-ish, for the WhatsApp lead flow
   passwordHash: string; // salt:hex
-  ceaNumber?: string; // Singapore CEA registration, verified in a later phase
+  ceaNumber?: string; // Singapore CEA registration number
+  cea?: CeaDetails; // result of the official register check
   tier: AgentTier;
   createdAt: string;
 }
@@ -62,6 +78,8 @@ export class AccountService {
     name: string;
     email: string;
     password: string;
+    role?: AccountRole;
+    phone?: string;
     ceaNumber?: string;
   }): Promise<{ agent: PublicAgent; token: string }> {
     const email = input.email.trim().toLowerCase();
@@ -69,17 +87,37 @@ export class AccountService {
     if (input.password.length < 8) throw new AuthError("Password must be at least 8 characters");
     if (this.agents.find((a) => a.email === email)) throw new AuthError("An account with this email already exists");
 
+    const role = input.role ?? "agent";
+    const ceaNumber = input.ceaNumber?.trim().toUpperCase() || undefined;
     const agent: AgentAccount = {
-      id: `agent-${randomUUID().slice(0, 8)}`,
+      id: `${role}-${randomUUID().slice(0, 8)}`,
+      role,
       name: input.name.trim(),
       email,
+      phone: input.phone?.replace(/[^+\d]/g, "") || undefined,
       passwordHash: hashPassword(input.password),
-      ceaNumber: input.ceaNumber?.trim() || undefined,
+      ceaNumber: role === "agent" ? ceaNumber : undefined,
+      cea: role === "agent" && ceaNumber ? { status: "unchecked" } : undefined,
       tier: "free",
       createdAt: new Date().toISOString(),
     };
     await this.agents.set(agent.id, agent);
     return { agent: toPublicAgent(agent), token: await this.issueToken(agent.id) };
+  }
+
+  /** Record the outcome of an official CEA register check (spec §2:
+   *  store status + last-verified, re-check quarterly). */
+  async updateCeaVerification(agentId: string, cea: CeaDetails): Promise<PublicAgent | undefined> {
+    const agent = this.agents.get(agentId);
+    if (!agent) return undefined;
+    const updated: AgentAccount = { ...agent, cea };
+    await this.agents.set(agentId, updated);
+    return toPublicAgent(updated);
+  }
+
+  getById(agentId: string): PublicAgent | undefined {
+    const agent = this.agents.get(agentId);
+    return agent ? toPublicAgent(agent) : undefined;
   }
 
   async login(email: string, password: string): Promise<{ agent: PublicAgent; token: string }> {

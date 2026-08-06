@@ -1,0 +1,41 @@
+{
+  "routing": {
+    "generic_business": {
+      "source": "pexels",
+      "endpoint": "https://api.pexels.com/videos/search",
+      "example_keyword": "office laptop typing",
+      "cost": "free"
+    },
+    "tech_abstract": {
+      "source": "pixabay",
+      "endpoint": "https://pixabay.com/api/videos/",
+      "example_keyword": "data network animation",
+      "cost": "free"
+    },
+    "cinematic_hero": {
+      "source": "artgrid",
+      "endpoint": null,
+      "note": "No public API. Pull manually into library/broll and tag; router falls back to local library lookup.",
+      "example_keyword": "drone city skyline dusk",
+      "cost": "subscription"
+    },
+    "impossible": {
+      "source": "kling",
+      "endpoint": "text_to_video (async — poll query_tasks until ready)",
+      "example_keyword": "AI agent orchestrating glowing nodes",
+      "cost": "credits"
+    },
+    "screen_recording": {
+      "source": "local_library",
+      "endpoint": "library/broll/index.json",
+      "example_keyword": "n8n workflow canvas",
+      "cost": "free"
+    }
+  },
+  "rules": {
+    "cut_rate_sec": { "min": 1.5, "max": 2.5 },
+    "cut_rate_rationale": "Under 1.5s is nauseating; over 3s drops retention.",
+    "library_first": true,
+    "library_first_rationale": "Check library/broll/index.json before any paid or metered pull. Every fetched clip is saved back with tags — after ~60 days the library serves ~70% of shots."
+  }
+}

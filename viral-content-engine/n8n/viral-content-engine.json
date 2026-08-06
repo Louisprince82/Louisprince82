@@ -1,0 +1,416 @@
+{
+  "name": "Viral Content Engine",
+  "nodes": [
+    {
+      "id": "n01",
+      "name": "01 Intake Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [0, 0],
+      "parameters": {
+        "formTitle": "Viral Content Engine — New Video",
+        "formDescription": "Paste a reference video and your angle. Everything else is automatic until the Telegram approval.",
+        "formFields": {
+          "values": [
+            { "fieldLabel": "reference_url", "placeholder": "TikTok / YT Short / Reel URL", "requiredField": true },
+            { "fieldLabel": "my_topic", "placeholder": "Your topic for this video", "requiredField": true },
+            { "fieldLabel": "my_proof_asset", "placeholder": "The real build/result/screenshot you can show", "requiredField": true }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n02",
+      "name": "02 Apify Download",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/clockworks~tiktok-scraper/run-sync-get-dataset-items",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"postURLs\": [\"{{ $json.reference_url }}\"], \"shouldDownloadVideos\": true }"
+      },
+      "notes": "Credential: Apify token as query auth (token=...). Returns MP4 URL + metadata + view counts."
+    },
+    {
+      "id": "n03",
+      "name": "03 Whisper Transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/audio/transcriptions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "model", "value": "whisper-1" },
+            { "name": "response_format", "value": "verbose_json" },
+            { "name": "timestamp_granularities[]", "value": "word" },
+            { "parameterType": "formBinaryData", "name": "file", "inputDataFieldName": "video" }
+          ]
+        }
+      },
+      "notes": "Credential: OpenAI key as Authorization: Bearer header. Word-level timestamps."
+    },
+    {
+      "id": "n04",
+      "name": "04 Agent A — Deconstruct",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "anthropic-version", "value": "2023-06-01" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"claude-sonnet-4-5\", \"max_tokens\": 2000, \"system\": $('Load Prompts').first().json.agent_a, \"messages\": [{ \"role\": \"user\", \"content\": \"TRANSCRIPT:\\n\" + $('03 Whisper Transcript').first().json.text + \"\\n\\nMETADATA:\\n\" + JSON.stringify($('02 Apify Download').first().json) }] }"
+      },
+      "notes": "System prompt = prompts/agent-a-deconstruct.md. Extracts format DNA only — never wording."
+    },
+    {
+      "id": "n05",
+      "name": "05 Validate Agent A",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 0],
+      "parameters": {
+        "jsCode": "// Paste full contents of scripts/validate_agent_json.js here.\n// Set item.agent = 'agent_a' via the incoming data. On {ok:false, retry:true}\n// the IF node below loops back to 04 (max 2 retries)."
+      }
+    },
+    {
+      "id": "n05b",
+      "name": "05b Retry?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1100, 0],
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            { "leftValue": "={{ $json.ok }}", "rightValue": true, "operator": { "type": "boolean", "operation": "true" } }
+          ]
+        }
+      },
+      "notes": "false + retry:true → back to 04 Agent A. false + retry:false → stop and notify."
+    },
+    {
+      "id": "n06",
+      "name": "06 Agent B — Regenerate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "anthropic-version", "value": "2023-06-01" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"claude-sonnet-4-5\", \"max_tokens\": 3000, \"system\": $('Load Prompts').first().json.agent_b, \"messages\": [{ \"role\": \"user\", \"content\": \"format_dna:\\n\" + JSON.stringify($('05 Validate Agent A').first().json.data) + \"\\n\\nmy_topic: \" + $('01 Intake Form').first().json.my_topic + \"\\nmy_proof_asset: \" + $('01 Intake Form').first().json.my_proof_asset }] }"
+      },
+      "notes": "System prompt = prompts/agent-b-regenerate.md. Every claim must trace to my_proof_asset."
+    },
+    {
+      "id": "n06v",
+      "name": "Validate Agent B",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 0],
+      "parameters": {
+        "jsCode": "// Paste scripts/validate_agent_json.js with agent = 'agent_b'.\n// Enforces hook <= 12 words and 45-75s runtime before a human ever sees it."
+      }
+    },
+    {
+      "id": "n07",
+      "name": "07 APPROVAL GATE",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1760, 0],
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "message": "=🎬 Script ready — 30-second review\n\nHOOK: {{ $json.data.hook }}\n\n{{ $json.data.script_lines.map(l => l.text).join('\\n') }}\n\nCTA: {{ $json.data.cta }}\nRuntime: {{ $json.data.estimated_runtime_sec }}s",
+        "approvalOptions": { "values": { "approvalType": "double", "approveLabel": "✅ Approve", "disapproveLabel": "🔁 Regenerate" } }
+      },
+      "notes": "NON-NEGOTIABLE. Disapprove routes back to 06 with feedback. Nothing renders or publishes without this tap."
+    },
+    {
+      "id": "n08",
+      "name": "08 Agent C — B-roll Map",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1980, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "anthropic-version", "value": "2023-06-01" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"claude-sonnet-4-5\", \"max_tokens\": 3000, \"system\": $('Load Prompts').first().json.agent_c, \"messages\": [{ \"role\": \"user\", \"content\": \"script_lines:\\n\" + JSON.stringify($('Validate Agent B').first().json.data.script_lines) }] }"
+      },
+      "notes": "System prompt = prompts/agent-c-broll.md."
+    },
+    {
+      "id": "n08r",
+      "name": "B-roll Router",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2200, 0],
+      "parameters": {
+        "jsCode": "// Paste scripts/broll_router.js. Library-first: local clips beat API pulls.\n// Emits one item per script line with a `route` field for the Switch."
+      }
+    },
+    {
+      "id": "n09",
+      "name": "09 Source Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [2420, 0],
+      "parameters": {
+        "rules": {
+          "values": [
+            { "outputKey": "pexels", "conditions": { "conditions": [{ "leftValue": "={{ $json.route }}", "rightValue": "pexels", "operator": { "type": "string", "operation": "equals" } }] } },
+            { "outputKey": "pixabay", "conditions": { "conditions": [{ "leftValue": "={{ $json.route }}", "rightValue": "pixabay", "operator": { "type": "string", "operation": "equals" } }] } },
+            { "outputKey": "kling", "conditions": { "conditions": [{ "leftValue": "={{ $json.route }}", "rightValue": "kling", "operator": { "type": "string", "operation": "equals" } }] } },
+            { "outputKey": "library", "conditions": { "conditions": [{ "leftValue": "={{ $json.route }}", "rightValue": "library", "operator": { "type": "string", "operation": "equals" } }] } }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n09a",
+      "name": "Pexels Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2640, -220],
+      "parameters": {
+        "url": "https://api.pexels.com/videos/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": { "parameters": [
+          { "name": "query", "value": "={{ $json.search_query }}" },
+          { "name": "orientation", "value": "portrait" },
+          { "name": "per_page", "value": "3" }
+        ] }
+      },
+      "notes": "Retry with fallback_query if zero results. Save chosen clip to library index."
+    },
+    {
+      "id": "n09b",
+      "name": "Pixabay Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2640, -80],
+      "parameters": {
+        "url": "https://pixabay.com/api/videos/",
+        "sendQuery": true,
+        "queryParameters": { "parameters": [
+          { "name": "key", "value": "={{ $env.PIXABAY_API_KEY }}" },
+          { "name": "q", "value": "={{ $json.search_query }}" },
+          { "name": "per_page", "value": "3" }
+        ] }
+      }
+    },
+    {
+      "id": "n09c",
+      "name": "Kling Generate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2640, 60],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.klingai.com/v1/videos/text2video",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"prompt\": \"{{ $json.kling_prompt }}\", \"duration\": \"5\", \"aspect_ratio\": \"9:16\" }"
+      },
+      "notes": "Async — follow with a Wait + poll loop on the task id until status=succeed. Generated clips are gold: always save to library."
+    },
+    {
+      "id": "n09d",
+      "name": "Library Lookup",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2640, 200],
+      "parameters": {},
+      "notes": "clip_url already resolved by the router from library/broll/index.json."
+    },
+    {
+      "id": "n09m",
+      "name": "Merge B-roll Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [2860, 0],
+      "parameters": { "mode": "append", "numberInputs": 4 }
+    },
+    {
+      "id": "n10",
+      "name": "10 ElevenLabs TTS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3080, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.elevenlabs.io/v1/text-to-speech/{{ $env.ELEVENLABS_VOICE_ID }}/with-timestamps",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"text\": $('Validate Agent B').first().json.data.script_lines.map(l => l.text).join(' '), \"model_id\": \"eleven_multilingual_v2\" }"
+      },
+      "notes": "Your cloned voice. with-timestamps returns char-level timings — mapped to line timings for the timeline builder."
+    },
+    {
+      "id": "n11",
+      "name": "11 Build Timeline",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3300, 0],
+      "parameters": {
+        "jsCode": "// Paste scripts/build_timeline.js. Merges script + resolved B-roll + TTS\n// timings into a JSON2Video movie payload. Enforces 1.5-2.5s cut rate."
+      }
+    },
+    {
+      "id": "n12",
+      "name": "12 JSON2Video Render",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3520, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.json2video.com/v2/movies",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.movie) }}"
+      },
+      "notes": "Follow with Wait + GET /v2/movies?project=<id> poll until status=done, then take the MP4 URL."
+    },
+    {
+      "id": "n13",
+      "name": "13 Metricool Schedule",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3740, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://app.metricool.com/api/v2/scheduler/posts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"providers\": [{\"network\":\"tiktok\"},{\"network\":\"instagram\"},{\"network\":\"youtube\"},{\"network\":\"facebook\"}], \"text\": $('11 Build Timeline').first().json.caption, \"media\": [$json.movie.url], \"autoPublish\": true, \"bestTime\": true }"
+      },
+      "notes": "bestTime uses Metricool's best-time-to-post slot per network."
+    },
+    {
+      "id": "n14",
+      "name": "14 Log to Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [3960, 0],
+      "parameters": {
+        "operation": "append",
+        "documentId": { "value": "={{ $env.GOOGLE_SHEETS_LOG_ID }}" },
+        "sheetName": "log",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $now.toISO() }}",
+            "reference_url": "={{ $('01 Intake Form').first().json.reference_url }}",
+            "hook_type": "={{ $('05 Validate Agent A').first().json.data.hook_type }}",
+            "hook": "={{ $('Validate Agent B').first().json.data.hook }}",
+            "runtime_sec": "={{ $('11 Build Timeline').first().json.total_duration_sec }}",
+            "video_url": "={{ $json.movie ? $json.movie.url : '' }}",
+            "variant_id": "base"
+          }
+        }
+      },
+      "notes": "The iteration log. After ~40 rows you know which hook_type and broll_set win."
+    },
+    {
+      "id": "nprompts",
+      "name": "Load Prompts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, -180],
+      "parameters": {
+        "jsCode": "// Returns { agent_a, agent_b, agent_c } — the system prompts.\n// Source of truth: viral-content-engine/prompts/*.md in the repo.\n// Either paste the prompt bodies here or fetch them from raw.githubusercontent.com."
+      }
+    },
+    {
+      "id": "nlib",
+      "name": "Load Library Index",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1980, -180],
+      "parameters": {
+        "jsCode": "// Returns { clips: [...] } from library/broll/index.json (fetch from repo\n// raw URL or a mounted volume). Router checks this before any paid pull."
+      }
+    }
+  ],
+  "connections": {
+    "01 Intake Form": { "main": [[{ "node": "Load Prompts", "type": "main", "index": 0 }]] },
+    "Load Prompts": { "main": [[{ "node": "02 Apify Download", "type": "main", "index": 0 }]] },
+    "02 Apify Download": { "main": [[{ "node": "03 Whisper Transcript", "type": "main", "index": 0 }]] },
+    "03 Whisper Transcript": { "main": [[{ "node": "04 Agent A — Deconstruct", "type": "main", "index": 0 }]] },
+    "04 Agent A — Deconstruct": { "main": [[{ "node": "05 Validate Agent A", "type": "main", "index": 0 }]] },
+    "05 Validate Agent A": { "main": [[{ "node": "05b Retry?", "type": "main", "index": 0 }]] },
+    "05b Retry?": {
+      "main": [
+        [{ "node": "06 Agent B — Regenerate", "type": "main", "index": 0 }],
+        [{ "node": "04 Agent A — Deconstruct", "type": "main", "index": 0 }]
+      ]
+    },
+    "06 Agent B — Regenerate": { "main": [[{ "node": "Validate Agent B", "type": "main", "index": 0 }]] },
+    "Validate Agent B": { "main": [[{ "node": "07 APPROVAL GATE", "type": "main", "index": 0 }]] },
+    "07 APPROVAL GATE": {
+      "main": [
+        [{ "node": "08 Agent C — B-roll Map", "type": "main", "index": 0 }],
+        [{ "node": "06 Agent B — Regenerate", "type": "main", "index": 0 }]
+      ]
+    },
+    "08 Agent C — B-roll Map": { "main": [[{ "node": "Load Library Index", "type": "main", "index": 0 }]] },
+    "Load Library Index": { "main": [[{ "node": "B-roll Router", "type": "main", "index": 0 }]] },
+    "B-roll Router": { "main": [[{ "node": "09 Source Switch", "type": "main", "index": 0 }]] },
+    "09 Source Switch": {
+      "main": [
+        [{ "node": "Pexels Search", "type": "main", "index": 0 }],
+        [{ "node": "Pixabay Search", "type": "main", "index": 0 }],
+        [{ "node": "Kling Generate", "type": "main", "index": 0 }],
+        [{ "node": "Library Lookup", "type": "main", "index": 0 }]
+      ]
+    },
+    "Pexels Search": { "main": [[{ "node": "Merge B-roll Results", "type": "main", "index": 0 }]] },
+    "Pixabay Search": { "main": [[{ "node": "Merge B-roll Results", "type": "main", "index": 1 }]] },
+    "Kling Generate": { "main": [[{ "node": "Merge B-roll Results", "type": "main", "index": 2 }]] },
+    "Library Lookup": { "main": [[{ "node": "Merge B-roll Results", "type": "main", "index": 3 }]] },
+    "Merge B-roll Results": { "main": [[{ "node": "10 ElevenLabs TTS", "type": "main", "index": 0 }]] },
+    "10 ElevenLabs TTS": { "main": [[{ "node": "11 Build Timeline", "type": "main", "index": 0 }]] },
+    "11 Build Timeline": { "main": [[{ "node": "12 JSON2Video Render", "type": "main", "index": 0 }]] },
+    "12 JSON2Video Render": { "main": [[{ "node": "13 Metricool Schedule", "type": "main", "index": 0 }]] },
+    "13 Metricool Schedule": { "main": [[{ "node": "14 Log to Sheets", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}
